@@ -13,22 +13,28 @@ interface SessionInput {
 
 export function useWifiSession() {
   const { user } = useAuth();
+
   const [session, setSession] = useState<Session | null>(null);
   const [sessionState, setSessionState] = useState<SessionState | null>(null);
-  const [statusMessage, setStatusMessage] = useState<string>('');
+  const [statusMessage, setStatusMessage] = useState('');
   const [statusHistory, setStatusHistory] = useState<Status[]>([]);
   const [vitalData, setVitalData] = useState<Vital | null>(null);
   const [error, setError] = useState<string | null>(null);
+
   const channelRef = useRef<RealtimeChannel | null>(null);
 
+  /* =========================
+     REALTIME SUBSCRIPTION
+     ========================= */
   const subscribeToSession = useCallback((sessionId: string) => {
-    // Clean up previous subscription
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
     }
 
     const channel = supabase
       .channel(`session-${sessionId}`)
+
+      // SESSION updates
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'sessions', filter: `id=eq.${sessionId}` },
@@ -38,21 +44,24 @@ export function useWifiSession() {
           setSessionState(updated.state);
         }
       )
+
+      // STATUS updates (drives steps UI)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'statuses', filter: `session_id=eq.${sessionId}` },
         (payload) => {
-          const newStatus = payload.new as Status;
-          setStatusMessage(newStatus.message);
-          setStatusHistory((prev) => [...prev, newStatus]);
+          const status = payload.new as Status;
+          setStatusMessage(status.message);
+          setStatusHistory((prev) => [...prev, status]);
         }
       )
+
+      // FINAL VITALS
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'vitals', filter: `session_id=eq.${sessionId}` },
         (payload) => {
-          const vital = payload.new as Vital;
-          setVitalData(vital);
+          setVitalData(payload.new as Vital);
         }
       )
       .subscribe();
@@ -60,6 +69,29 @@ export function useWifiSession() {
     channelRef.current = channel;
   }, []);
 
+  /* =========================
+     LOAD SESSION BY ID (🔥 FIX)
+     ========================= */
+  const loadSessionById = useCallback(async (sessionId: string) => {
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single();
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+
+    setSession(data);
+    setSessionState(data.state);
+    subscribeToSession(data.id);
+  }, [subscribeToSession]);
+
+  /* =========================
+     CREATE SESSION
+     ========================= */
   const startSession = useCallback(async (input: SessionInput) => {
     if (!user) {
       setError('Not authenticated');
@@ -67,8 +99,7 @@ export function useWifiSession() {
     }
 
     try {
-      setError(null);
-      const { data, error: insertError } = await supabase
+      const { data, error } = await supabase
         .from('sessions')
         .insert({
           user_id: user.id,
@@ -76,40 +107,40 @@ export function useWifiSession() {
           age: input.age,
           gender: input.gender,
           mode: input.mode,
-          state: 'CREATED' as SessionState,
+          state: 'CREATED',
         })
         .select()
         .single();
 
-      if (insertError) throw insertError;
+      if (error) throw error;
 
-      const newSession = data as Session;
-      setSession(newSession);
-      setSessionState(newSession.state);
-      subscribeToSession(newSession.id);
-      return newSession;
+      setSession(data);
+      setSessionState(data.state);
+      subscribeToSession(data.id);
+      return data;
     } catch (err: any) {
       setError(err.message);
       return null;
     }
   }, [user, subscribeToSession]);
 
+  /* =========================
+     START MONITORING (UI ONLY)
+     ========================= */
   const beginMonitoring = useCallback(async () => {
     if (!session) return;
 
-    try {
-      const { error: updateError } = await supabase
-        .from('sessions')
-        .update({ state: 'STARTED' as SessionState })
-        .eq('id', session.id);
+    await supabase
+      .from('sessions')
+      .update({ state: 'STARTED' })
+      .eq('id', session.id);
 
-      if (updateError) throw updateError;
-      setSessionState('STARTED');
-    } catch (err: any) {
-      setError(err.message);
-    }
+    setSessionState('STARTED');
   }, [session]);
 
+  /* =========================
+     RESET
+     ========================= */
   const resetSession = useCallback(() => {
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
@@ -123,12 +154,9 @@ export function useWifiSession() {
     setError(null);
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-      }
+      if (channelRef.current) supabase.removeChannel(channelRef.current);
     };
   }, []);
 
@@ -142,5 +170,6 @@ export function useWifiSession() {
     startSession,
     beginMonitoring,
     resetSession,
+    loadSessionById, // 🔥 IMPORTANT
   };
 }
