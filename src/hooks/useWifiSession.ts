@@ -174,5 +174,6 @@ export function useWifiSession() {
     beginMonitoring,
     resetSession,
     loadSessionById, // 🔥 IMPORTANT
+    resetSession,
   };
 }
