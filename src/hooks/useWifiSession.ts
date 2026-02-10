@@ -72,23 +72,26 @@ export function useWifiSession() {
   /* =========================
      LOAD SESSION BY ID (🔥 FIX)
      ========================= */
-  const loadSessionById = useCallback(async (sessionId: string) => {
+  const loadSessionById = useCallback(async (id: string) => {
+  try {
+    setError(null);
+
     const { data, error } = await supabase
       .from('sessions')
       .select('*')
-      .eq('id', sessionId)
+      .eq('id', id)
       .single();
 
-    if (error) {
-      setError(error.message);
-      return;
-    }
+    if (error) throw error;
 
-    setSession(data);
-    setSessionState(data.state);
+    setSession(data as Session);
+    setSessionState(data.state as SessionState);
+
     subscribeToSession(data.id);
-  }, [subscribeToSession]);
-
+  } catch (err: any) {
+    setError(err.message);
+  }
+}, [subscribeToSession]);
   /* =========================
      CREATE SESSION
      ========================= */
