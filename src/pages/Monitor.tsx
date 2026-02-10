@@ -173,7 +173,7 @@ const Monitor = () => {
                           In progress…
                         </p>
                       )}
-                    </div>
+                    </div> 
                   </CardContent>
                 </Card>
               );
