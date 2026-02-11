@@ -13,6 +13,7 @@ import Monitor from "./pages/Monitor";
 import Report from "./pages/Report";
 import History from "./pages/History";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -78,6 +79,14 @@ const App = () => (
               }
             />
 
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
 
