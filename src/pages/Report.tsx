@@ -1,35 +1,15 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import type { Vital, Session, HealthStatus } from '@/types/database';
+import type { Vital, Session } from '@/types/database';
 import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-const CLINICAL_RANGES = {
-  temp: { min: 36.1, max: 37.5, unit: "°C" },
-  hr: { min: 60, max: 100, unit: "bpm" },
-  spo2: { min: 95, max: 100, unit: "%" },
-};
-
-function evaluateValue(value: number | null | undefined, min: number, max: number) {
-  if (value == null) return { label: "Not Recorded", color: "#9ca3af" };
-  if (value < min) return { label: "Low", color: "#f59e0b" };
-  if (value > max) return { label: "High", color: "#ef4444" };
-  return { label: "Normal", color: "#16a34a" };
-}
-
-function statusColor(status: HealthStatus | null) {
-  switch (status) {
-    case 'GREEN': return 'text-green-500';
-    case 'YELLOW': return 'text-yellow-500';
-    case 'RED': return 'text-red-500';
-    default: return 'text-muted-foreground';
-  }
-}
+import { analyzeVitals } from '@/lib/clinicalEngine';
 
 const Report = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -39,6 +19,7 @@ const Report = () => {
   const [vital, setVital] = useState<Vital | null>((location.state as any)?.vital ?? null);
   const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
 
+  /* ================= FETCH IF REFRESHED ================= */
   useEffect(() => {
     if (!vital && sessionId) {
       supabase.from('vitals')
@@ -59,151 +40,161 @@ const Report = () => {
     }
   }, [sessionId, vital, session]);
 
+  /* ================= CLINICAL ANALYSIS ================= */
+  const clinical = useMemo(() => {
+    if (!vital) return null;
+    return analyzeVitals(vital);
+  }, [vital]);
+
+  const riskColor =
+    clinical?.riskLevel === 'HIGH'
+      ? 'text-red-500'
+      : clinical?.riskLevel === 'MODERATE'
+      ? 'text-yellow-500'
+      : 'text-green-500';
+
+  /* ================= PDF GENERATION ================= */
   const generatePDF = () => {
-    if (!vital || !session) return;
+    if (!vital || !session || !clinical) return;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // HEADER
     doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, pageWidth, 28, "F");
+    doc.rect(0, 0, pageWidth, 30, "F");
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
-    doc.text("AURA-STETH AI", 14, 15);
-
-    doc.setFontSize(10);
-    doc.text("Advanced Clinical Monitoring Report", 14, 22);
+    doc.text("AURA-STETH AI – Clinical Report", 14, 18);
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
 
-    let y = 40;
+    let y = 45;
 
-    // PATIENT INFO
-    doc.text(`Patient Name: ${session.user_name}`, 14, y); y += 6;
-    doc.text(`Age: ${session.age}`, 14, y); y += 6;
-    doc.text(`Gender: ${session.gender}`, 14, y); y += 6;
+    doc.text(`Patient: ${session.user_name}`, 14, y); y += 6;
+    doc.text(`Age: ${session.age} | Gender: ${session.gender}`, 14, y); y += 6;
     doc.text(`Mode: ${session.mode}`, 14, y); y += 6;
     doc.text(`Session ID: ${session.id}`, 14, y); y += 6;
     doc.text(`Generated: ${new Date().toLocaleString()}`, 14, y);
 
-    y += 12;
-
-    const tempEval = evaluateValue(vital.temp, CLINICAL_RANGES.temp.min, CLINICAL_RANGES.temp.max);
-    const hrEval = evaluateValue(vital.hr, CLINICAL_RANGES.hr.min, CLINICAL_RANGES.hr.max);
-    const spo2Eval = evaluateValue(vital.spo2, CLINICAL_RANGES.spo2.min, CLINICAL_RANGES.spo2.max);
+    y += 10;
 
     autoTable(doc, {
       startY: y,
-      head: [["Parameter", "Measured Value", "Normal Range", "Interpretation"]],
+      head: [["Parameter", "Measured", "Clinical Range", "Flag"]],
       body: [
-        [
-          "Skin Temperature",
-          vital.temp != null ? `${vital.temp} °C` : "—",
-          "36.1 – 37.5 °C",
-          tempEval.label,
-        ],
-        [
-          "Heart Rate",
-          vital.hr != null ? `${vital.hr} bpm` : "—",
-          "60 – 100 bpm",
-          hrEval.label,
-        ],
-        [
-          "SpO₂",
-          vital.spo2 != null ? `${vital.spo2}%` : "—",
-          "95 – 100 %",
-          spo2Eval.label,
-        ],
-        [
-          "Audio Peak",
-          vital.audio ?? "—",
-          "N/A",
-          "Acoustic Measurement",
-        ],
+        ["Temperature", vital.temp ?? "—", "36.1 – 37.5 °C", clinical.abnormalFields.includes("Temperature (High)") || clinical.abnormalFields.includes("Temperature (Low)") ? "Abnormal" : "Normal"],
+        ["Heart Rate", vital.hr ?? "—", "60 – 100 bpm", clinical.abnormalFields.some(f => f.includes("Heart Rate")) ? "Abnormal" : "Normal"],
+        ["SpO₂", vital.spo2 ?? "—", "95 – 100 %", clinical.abnormalFields.includes("SpO₂ (Low)") ? "Abnormal" : "Normal"],
+        ["Audio Peak", vital.audio ?? "—", "N/A", "Info"],
       ],
       headStyles: { fillColor: [37, 99, 235] },
       styles: { fontSize: 10 },
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY + 12;
-
-    // CLINICAL SUMMARY BOX
-    doc.setDrawColor(0);
-    doc.rect(14, finalY, pageWidth - 28, 30);
+    const finalY = (doc as any).lastAutoTable.finalY + 15;
 
     doc.setFontSize(12);
-    doc.text("Clinical Interpretation", 18, finalY + 8);
+    doc.text("Clinical Risk Assessment", 14, finalY);
 
     doc.setFontSize(10);
-
-    const interpretation =
-      vital.status === "RED"
-        ? "Abnormal parameters detected. Immediate clinical attention is advised."
-        : vital.status === "YELLOW"
-        ? "Borderline readings detected. Monitoring recommended."
-        : "All measured parameters fall within clinically accepted ranges.";
+    doc.text(`Risk Level: ${clinical.riskLevel}`, 14, finalY + 8);
+    doc.text(`Risk Score: ${clinical.riskScore}/100`, 14, finalY + 15);
 
     doc.text(
-      doc.splitTextToSize(interpretation, pageWidth - 36),
-      18,
-      finalY + 18
+      doc.splitTextToSize(clinical.summary, pageWidth - 28),
+      14,
+      finalY + 25
     );
 
-    // FOOTER
+    doc.text("Recommendations:", 14, finalY + 40);
+    doc.text(
+      doc.splitTextToSize(clinical.recommendations.join(" • "), pageWidth - 28),
+      14,
+      finalY + 48
+    );
+
     doc.setFontSize(8);
     doc.text(
-      "Confidential Medical Document • Generated by AURA-STETH AI • Not a substitute for professional diagnosis",
+      "Confidential Medical Document • Generated by AURA-STETH AI",
       pageWidth / 2,
       285,
       { align: "center" }
     );
 
-    doc.save(`AURA_Report_${session.id}.pdf`);
+    doc.save(`AURA_Clinical_Report_${session.id}.pdf`);
   };
 
-  const vitals = [
-    { icon: Thermometer, label: 'Skin Temperature', value: vital?.temp != null ? `${vital.temp}°C` : '—' },
-    { icon: HeartPulse, label: 'Heart Rate', value: vital?.hr != null ? `${vital.hr} bpm` : '—' },
-    { icon: Droplets, label: 'SpO₂', value: vital?.spo2 != null ? `${vital.spo2}%` : '—' },
-    { icon: Volume2, label: 'Audio Peak', value: vital?.audio != null ? `${vital.audio}` : '—' },
-  ];
+  if (!vital || !session || !clinical) {
+    return <div className="min-h-screen flex items-center justify-center">Loading Report...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-md space-y-6">
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-lg font-bold">Final Report</h1>
-          {session && <p className="text-sm text-muted-foreground">{session.user_name} • Age {session.age}</p>}
+        {/* HEADER */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <h1 className="text-xl font-bold">Clinical Report</h1>
+          <p className="text-sm text-muted-foreground">
+            {session.user_name} • Age {session.age}
+          </p>
         </motion.div>
 
+        {/* RISK CARD */}
         <Card>
-          <CardContent className="flex flex-col items-center p-6">
-            <p className="text-xs uppercase tracking-wider mb-2">Overall Health Status</p>
-            <p className={`text-2xl font-bold ${statusColor(vital?.status ?? null)}`}>
-              {vital?.status ?? '—'}
+          <CardContent className="p-6 text-center space-y-2">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">
+              Risk Assessment
+            </p>
+            <p className={`text-3xl font-bold ${riskColor}`}>
+              {clinical.riskLevel}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Score: {clinical.riskScore}/100
             </p>
           </CardContent>
         </Card>
 
+        {/* VITALS */}
         <div className="grid grid-cols-2 gap-3">
-          {vitals.map((v) => (
-            <Card key={v.label}>
-              <CardContent className="flex flex-col items-center p-4 text-center">
+          {[
+            { icon: Thermometer, label: 'Temperature', value: vital.temp ?? '—', abnormal: clinical.abnormalFields.some(f => f.includes('Temperature')) },
+            { icon: HeartPulse, label: 'Heart Rate', value: vital.hr ?? '—', abnormal: clinical.abnormalFields.some(f => f.includes('Heart Rate')) },
+            { icon: Droplets, label: 'SpO₂', value: vital.spo2 ?? '—', abnormal: clinical.abnormalFields.some(f => f.includes('SpO₂')) },
+            { icon: Volume2, label: 'Audio', value: vital.audio ?? '—', abnormal: false },
+          ].map((v) => (
+            <Card key={v.label} className={v.abnormal ? "border-red-500" : ""}>
+              <CardContent className="flex flex-col items-center p-4">
                 <v.icon className="h-6 w-6 mb-2" />
-                <p className="text-xs mb-1">{v.label}</p>
-                <p className="text-xl font-bold">{v.value}</p>
+                <p className="text-xs text-muted-foreground">{v.label}</p>
+                <p className={`text-xl font-bold ${v.abnormal ? "text-red-500" : ""}`}>
+                  {v.value}
+                </p>
               </CardContent>
             </Card>
           ))}
         </div>
 
+        {/* SUMMARY */}
+        <Card>
+          <CardContent className="p-4 text-sm space-y-2">
+            <p className="font-semibold">Clinical Summary</p>
+            <p>{clinical.summary}</p>
+            {clinical.recommendations.length > 0 && (
+              <ul className="list-disc list-inside text-muted-foreground">
+                {clinical.recommendations.map((r, i) => (
+                  <li key={i}>{r}</li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
         <Button onClick={generatePDF} className="w-full gap-2">
           <Download className="h-4 w-4" />
-          Download Clinical PDF
+          Download Advanced Clinical PDF
         </Button>
 
         <Button onClick={() => navigate('/new-session')} className="w-full gap-2">
