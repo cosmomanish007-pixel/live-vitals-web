@@ -57,6 +57,7 @@ const Splash = () => {
       profile.doctor_status === 'pending'
     ) {
       alert('Your doctor application is under review.');
+      navigate('/history');
       return;
     }
 
