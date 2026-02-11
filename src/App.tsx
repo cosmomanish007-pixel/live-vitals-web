@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { RoleRoute } from "@/components/RoleRoute";
 
 import Splash from "./pages/Splash";
 import Auth from "./pages/Auth";
@@ -28,11 +29,11 @@ const App = () => (
         <BrowserRouter>
           <Routes>
 
-            {/* Public Routes */}
+            {/* ================= PUBLIC ROUTES ================= */}
             <Route path="/" element={<Splash />} />
             <Route path="/auth" element={<Auth />} />
 
-            {/* User Protected Routes */}
+            {/* ================= USER ROUTES ================= */}
             <Route
               path="/new-session"
               element={
@@ -69,25 +70,31 @@ const App = () => (
               }
             />
 
-            {/* 🔥 Doctor Dashboard Route */}
+            {/* ================= DOCTOR ROUTE ================= */}
             <Route
               path="/doctor"
               element={
                 <ProtectedRoute>
-                  <DoctorDashboard />
+                  <RoleRoute allowedRole="doctor">
+                    <DoctorDashboard />
+                  </RoleRoute>
                 </ProtectedRoute>
               }
             />
 
+            {/* ================= ADMIN ROUTE ================= */}
             <Route
               path="/admin"
               element={
                 <ProtectedRoute>
-                  <AdminDashboard />
+                  <RoleRoute allowedRole="admin">
+                    <AdminDashboard />
+                  </RoleRoute>
                 </ProtectedRoute>
               }
             />
-            {/* 404 */}
+
+            {/* ================= 404 ================= */}
             <Route path="*" element={<NotFound />} />
 
           </Routes>
