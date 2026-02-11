@@ -14,10 +14,10 @@ export interface ClinicalResult {
    (Aligned with ESP + Prototype)
    ========================= */
 
-const NORMAL_RANGES = {
-  temp: { min: 31.0, max: 37.5 },   // °C (prototype relaxed)
-  hr: { min: 60, max: 100 },        // bpm
-  spo2: { min: 80, max: 100 },      // %
+export const NORMAL_RANGES = {
+  temp: { min: 31.0, max: 37.5, unit: "°C" },
+  hr: { min: 60, max: 100, unit: "bpm" },
+  spo2: { min: 80, max: 100, unit: "%" },
 };
 
 /* =========================
