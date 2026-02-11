@@ -6,16 +6,18 @@ export interface ClinicalResult {
   summary: string;
   recommendations: string[];
   abnormalFields: string[];
+  dataQuality: 'GOOD' | 'PARTIAL' | 'POOR';
 }
 
 /* =========================
-   NORMAL CLINICAL RANGES
+   PROTOTYPE CLINICAL RANGES
+   (Aligned with ESP + Prototype)
    ========================= */
 
 const NORMAL_RANGES = {
-  temp: { min: 36.1, max: 37.5 },   // °C
+  temp: { min: 31.0, max: 37.5 },   // °C (prototype relaxed)
   hr: { min: 60, max: 100 },        // bpm
-  spo2: { min: 95, max: 100 },      // %
+  spo2: { min: 80, max: 100 },      // %
 };
 
 /* =========================
@@ -33,26 +35,55 @@ export function analyzeVitals(vital: {
   const abnormal: string[] = [];
   const recommendations: string[] = [];
 
-  /* ===== Temperature ===== */
-  if (vital.temp != null) {
-    if (vital.temp < NORMAL_RANGES.temp.min) {
+  let validCount = 0;
+  let invalidCount = 0;
+
+  /* =========================
+     TEMPERATURE ANALYSIS
+     ========================= */
+
+  if (vital.temp == null) {
+    invalidCount++;
+    recommendations.push('Temperature not recorded. Ensure skin contact.');
+  } else {
+    validCount++;
+
+    if (vital.temp < 25 || vital.temp > 45) {
+      riskScore += 20;
+      abnormal.push('Temperature (Sensor Error)');
+      recommendations.push('Temperature reading unrealistic. Check sensor wiring.');
+    }
+    else if (vital.temp < NORMAL_RANGES.temp.min) {
       riskScore += 10;
       abnormal.push('Temperature (Low)');
       recommendations.push('Possible hypothermia. Recheck sensor placement.');
     }
-    if (vital.temp > NORMAL_RANGES.temp.max) {
+    else if (vital.temp > NORMAL_RANGES.temp.max) {
       riskScore += 20;
       abnormal.push('Temperature (High)');
-      recommendations.push('Fever detected. Monitor closely.');
+      recommendations.push('Elevated temperature detected. Monitor closely.');
     }
   }
 
-  /* ===== Heart Rate ===== */
-  if (vital.hr != null) {
+  /* =========================
+     HEART RATE ANALYSIS
+     ========================= */
+
+  if (vital.hr == null) {
+    invalidCount++;
+    recommendations.push('Heart rate not detected. Place finger properly.');
+  } else {
+    validCount++;
+
     if (vital.hr === 0) {
-      riskScore += 40;
+      riskScore += 35;
+      abnormal.push('Heart Rate (Invalid)');
+      recommendations.push('No pulse detected. Ensure proper finger placement.');
+    }
+    else if (vital.hr < 30 || vital.hr > 200) {
+      riskScore += 30;
       abnormal.push('Heart Rate (Sensor Error)');
-      recommendations.push('Heart rate reading invalid. Ensure proper finger placement.');
+      recommendations.push('Heart rate reading unrealistic. Check sensor.');
     }
     else if (vital.hr < NORMAL_RANGES.hr.min) {
       riskScore += 25;
@@ -66,29 +97,73 @@ export function analyzeVitals(vital: {
     }
   }
 
-  /* ===== SpO2 ===== */
-  if (vital.spo2 != null) {
-    if (vital.spo2 < NORMAL_RANGES.spo2.min) {
+  /* =========================
+     SpO₂ ANALYSIS
+     ========================= */
+
+  if (vital.spo2 == null) {
+    invalidCount++;
+    recommendations.push('SpO₂ not recorded. Ensure stable finger contact.');
+  } else {
+    validCount++;
+
+    if (vital.spo2 < 50 || vital.spo2 > 100) {
+      riskScore += 30;
+      abnormal.push('SpO₂ (Sensor Error)');
+      recommendations.push('SpO₂ reading unrealistic. Check sensor.');
+    }
+    else if (vital.spo2 < NORMAL_RANGES.spo2.min) {
       riskScore += 35;
       abnormal.push('SpO₂ (Low)');
       recommendations.push('Low oxygen saturation detected. Immediate evaluation recommended.');
     }
   }
 
-  /* ===== Risk Level Logic ===== */
+  /* =========================
+     AUDIO QUALITY CHECK
+     ========================= */
+
+  if (vital.audio != null) {
+    validCount++;
+    if (vital.audio < 1000) {
+      recommendations.push('Low acoustic signal detected. Reposition stethoscope.');
+    }
+  }
+
+  /* =========================
+     DATA QUALITY SCORE
+     ========================= */
+
+  let dataQuality: 'GOOD' | 'PARTIAL' | 'POOR' = 'GOOD';
+
+  if (invalidCount >= 2) dataQuality = 'POOR';
+  else if (invalidCount === 1) dataQuality = 'PARTIAL';
+
+  /* =========================
+     RISK LEVEL
+     ========================= */
+
   let riskLevel: RiskLevel = 'LOW';
 
   if (riskScore >= 60) riskLevel = 'HIGH';
   else if (riskScore >= 30) riskLevel = 'MODERATE';
 
-  /* ===== Summary Generation ===== */
+  /* =========================
+     SUMMARY GENERATION
+     ========================= */
+
   let summary = '';
 
-  if (riskLevel === 'LOW') {
+  if (dataQuality === 'POOR') {
+    summary = 'Insufficient reliable data. Re-measure required.';
+  }
+  else if (riskLevel === 'LOW') {
     summary = 'Vitals within acceptable physiological limits.';
-  } else if (riskLevel === 'MODERATE') {
+  }
+  else if (riskLevel === 'MODERATE') {
     summary = 'Some parameters outside normal range. Monitoring recommended.';
-  } else {
+  }
+  else {
     summary = 'Critical deviations detected. Immediate medical attention advised.';
   }
 
@@ -98,5 +173,6 @@ export function analyzeVitals(vital: {
     summary,
     recommendations,
     abnormalFields: abnormal,
+    dataQuality,
   };
 }
