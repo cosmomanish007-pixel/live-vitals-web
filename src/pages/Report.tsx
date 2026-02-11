@@ -151,6 +151,9 @@ const Report = () => {
       status: 'PENDING'
     });
   };
+/* ===============================
+     DOCTOR TRIGGER
+  ================================= */
 
   useEffect(() => {
     const triggerConsultation = async () => {
@@ -171,6 +174,7 @@ const Report = () => {
 
     triggerConsultation();
   }, [risk.level, session]);
+
   /* ===============================
      PDF GENERATION
   ================================= */
