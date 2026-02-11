@@ -16,7 +16,7 @@ import {
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-import { analyzeVitals } from '@/lib/clinicalEngine';
+import { analyzeVitals, NORMAL_RANGES } from '@/lib/clinicalEngine';
 
 const Report = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
