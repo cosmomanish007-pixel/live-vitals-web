@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -108,54 +108,6 @@ const Report = () => {
 
   const risk = calculateRisk(tempEval, hrEval, spo2Eval);
 
-  /* ===============================
-    HYBRID CONSULTATION LOGIC
-  ================================= */
-
-  const isHighRisk = risk.level === "RED";
-  const shouldAutoConsult = risk.score >= 85;
-
-  const createConsultationRequest = useCallback(async () => {
-    if (!session) return;
-
-    const { data: existing } = await supabase
-      .from("consultation_requests")
-      .select("id")
-      .eq("session_id", session.id)
-      .maybeSingle();
-
-    if (existing) return;
-
-    const { data: doctor } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("role", "doctor")
-      .eq("doctor_status", "approved")
-      .eq("is_available", true)
-      .limit(1)
-      .maybeSingle();
-
-    if (!doctor) return;
-
-    await supabase.from("consultation_requests").insert({
-      session_id: session.id,
-      doctor_id: doctor.id,
-      risk_level: risk.level,
-      status: "PENDING",
-    });
-
-  }, [session, risk.level]);
-
-  useEffect(() => {
-    if (isHighRisk && shouldAutoConsult) {
-      createConsultationRequest();
-    }
-  }, [isHighRisk, shouldAutoConsult, createConsultationRequest]);
-
- /* ===============================
-    HYBRID CONSULTATION LOGIC
-  ================================= */
-
   const riskLabel =
     risk.level === "GREEN"
       ? "LOW"
@@ -167,7 +119,46 @@ const Report = () => {
     vital.temp != null && vital.hr != null && vital.spo2 != null
       ? "GOOD"
       : "PARTIAL";
+  /* ===============================
+   DOCTOR CONSULTATION ENGINE
+================================= */
 
+const createConsultationRequest = useCallback(async () => {
+  if (!session) return;
+  if (risk.level !== "RED") return;
+
+  const { data: existing } = await supabase
+    .from('consultation_requests')
+    .select('id')
+    .eq('session_id', session.id)
+    .maybeSingle();
+
+  if (existing) return;
+
+  const { data: doctor } = await supabase
+    .from('doctors')
+    .select('id')
+    .eq('is_available', true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!doctor) return;
+
+  await supabase.from('consultation_requests').insert({
+    session_id: session.id,
+    doctor_id: doctor.id,
+    risk_level: risk.level,
+    status: 'PENDING'
+  });
+
+}, [session, risk.level]);
+
+/* ===============================
+   AUTO TRIGGER
+================================= */
+useEffect(() => {
+  createConsultationRequest();
+}, [createConsultationRequest]);
   /* ===============================
      PDF GENERATION
   ================================= */
@@ -338,30 +329,6 @@ const Report = () => {
             </Card>
           ))}
         </div>
-      
-      {/* HYBRID CONSULT UI */}
-
-      {isHighRisk && shouldAutoConsult && (
-        <Card className="border-2 border-red-500">
-          <CardContent className="p-4 text-center space-y-2">
-            <p className="text-sm font-semibold text-red-600">
-              Emergency consultation automatically initiated.
-            </p>
-            <p className="text-xs text-muted-foreground">
-              A doctor has been notified immediately.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {isHighRisk && !shouldAutoConsult && (
-        <Button
-          className="w-full bg-red-600 hover:bg-red-700 text-white"
-          onClick={createConsultationRequest}
-        >
-          Request Immediate Doctor Consultation
-        </Button>
-      )}
 
         <Button onClick={generatePDF} className="w-full gap-2">
           <Download className="h-4 w-4" />
