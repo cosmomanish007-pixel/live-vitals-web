@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+
 import { analyzeVitals, NORMAL_RANGES } from '@/lib/clinicalEngine';
 
 const Report = () => {
@@ -60,25 +61,28 @@ const Report = () => {
 
   if (!vital || !session || !clinical) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Generating Clinical Report...
+      <div className="min-h-screen flex items-center justify-center">
+        Loading Report...
       </div>
     );
   }
 
-  /* ================= VISUAL HELPERS ================= */
+  /* ================= UI HELPERS ================= */
 
-  const riskGradient =
-    clinical.riskLevel === 'HIGH'
-      ? 'from-red-600 to-red-400'
-      : clinical.riskLevel === 'MODERATE'
-      ? 'from-yellow-500 to-yellow-300'
-      : 'from-green-600 to-green-400';
+  const getRiskGradient = (score: number) => {
+    if (score >= 60) return 'from-red-600 to-red-400';
+    if (score >= 30) return 'from-yellow-500 to-yellow-300';
+    return 'from-green-600 to-green-400';
+  };
 
-  const getBadge = (abnormal: boolean) =>
-    abnormal
-      ? 'bg-red-100 text-red-600'
-      : 'bg-green-100 text-green-600';
+  const riskGradient = getRiskGradient(clinical.riskScore);
+
+  const qualityColor =
+    clinical.dataQuality === 'POOR'
+      ? 'text-red-500'
+      : clinical.dataQuality === 'PARTIAL'
+      ? 'text-yellow-500'
+      : 'text-green-500';
 
   /* ================= PDF ================= */
 
@@ -87,11 +91,11 @@ const Report = () => {
     const pageWidth = doc.internal.pageSize.getWidth();
 
     /* HEADER */
-    doc.setFillColor(15, 23, 42);
+    doc.setFillColor(10, 25, 55);
     doc.rect(0, 0, pageWidth, 30, 'F');
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(15);
+    doc.setFontSize(16);
     doc.text('AURA-STETH AI – Advanced Clinical Report', 14, 18);
 
     doc.setTextColor(0, 0, 0);
@@ -115,21 +119,21 @@ const Report = () => {
           'Temperature',
           vital.temp ?? '—',
           `${NORMAL_RANGES.temp.min} – ${NORMAL_RANGES.temp.max} ${NORMAL_RANGES.temp.unit}`,
-          clinical.flags.temp,
+          clinical.abnormalFields.some(f => f.includes('Temperature')) ? 'Abnormal' : 'Normal'
         ],
         [
           'Heart Rate',
           vital.hr ?? '—',
           `${NORMAL_RANGES.hr.min} – ${NORMAL_RANGES.hr.max} ${NORMAL_RANGES.hr.unit}`,
-          clinical.flags.hr,
+          clinical.abnormalFields.some(f => f.includes('Heart Rate')) ? 'Abnormal' : 'Normal'
         ],
         [
           'SpO₂',
           vital.spo2 ?? '—',
           `${NORMAL_RANGES.spo2.min} – ${NORMAL_RANGES.spo2.max} ${NORMAL_RANGES.spo2.unit}`,
-          clinical.flags.spo2,
+          clinical.abnormalFields.some(f => f.includes('SpO₂')) ? 'Abnormal' : 'Normal'
         ],
-        ['Audio Peak', vital.audio ?? '—', 'N/A', 'Info'],
+        ['Audio Peak', vital.audio ?? '—', 'N/A', 'Info']
       ],
       headStyles: { fillColor: [37, 99, 235] },
       didParseCell: function (data) {
@@ -141,9 +145,9 @@ const Report = () => {
       styles: { fontSize: 10 },
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY + 12;
+    const finalY = (doc as any).lastAutoTable.finalY + 15;
 
-    /* Risk Bar */
+    /* RISK BAR */
     doc.setFontSize(12);
     doc.text('Clinical Risk Assessment', 14, finalY);
 
@@ -183,13 +187,6 @@ const Report = () => {
 
   /* ================= UI ================= */
 
-  const metrics = [
-    { key: 'temp', icon: Thermometer, label: 'Temperature', value: vital.temp },
-    { key: 'hr', icon: HeartPulse, label: 'Heart Rate', value: vital.hr },
-    { key: 'spo2', icon: Droplets, label: 'SpO₂', value: vital.spo2 },
-    { key: 'audio', icon: Volume2, label: 'Audio', value: vital.audio },
-  ];
-
   return (
     <div className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-md space-y-6">
@@ -201,7 +198,6 @@ const Report = () => {
           </p>
         </motion.div>
 
-        {/* Risk Card */}
         <Card className={`bg-gradient-to-r ${riskGradient} text-white shadow-lg`}>
           <CardContent className="p-6 text-center space-y-2">
             <p className="text-xs uppercase opacity-80">Risk Assessment</p>
@@ -209,13 +205,12 @@ const Report = () => {
             <p className="text-sm opacity-90">
               Score: {clinical.riskScore}/100
             </p>
-            <p className="text-xs opacity-80">
+            <p className={`text-xs font-medium ${qualityColor}`}>
               Data Quality: {clinical.dataQuality}
             </p>
           </CardContent>
         </Card>
 
-        {/* Risk Bar */}
         <div className="relative h-3 bg-muted rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
@@ -225,40 +220,42 @@ const Report = () => {
           />
         </div>
 
-        {/* Metrics */}
         <div className="grid grid-cols-2 gap-3">
-          {metrics.map((m) => {
-            const abnormal = clinical.flags[m.key as keyof typeof clinical.flags] === 'Abnormal';
-            const range = (NORMAL_RANGES as any)[m.key];
+          {[
+            { key: 'temp', icon: Thermometer, label: 'Temperature', value: vital.temp },
+            { key: 'hr', icon: HeartPulse, label: 'Heart Rate', value: vital.hr },
+            { key: 'spo2', icon: Droplets, label: 'SpO₂', value: vital.spo2 },
+            { key: 'audio', icon: Volume2, label: 'Audio', value: vital.audio },
+          ].map((v) => {
+            const abnormal = clinical.abnormalFields.some(f =>
+              f.toLowerCase().includes(v.label.toLowerCase())
+            );
+
+            const range = (NORMAL_RANGES as any)[v.key];
 
             return (
-              <Card key={m.label} className={abnormal ? 'border-red-500 border-2' : ''}>
-                <CardContent className="flex flex-col items-center p-4 text-center space-y-1">
-                  <m.icon className="h-6 w-6" />
-                  <p className="text-xs text-muted-foreground">{m.label}</p>
+              <Card key={v.label} className={abnormal ? 'border-red-500 border-2' : ''}>
+                <CardContent className="flex flex-col items-center p-4 text-center">
+                  <v.icon className="h-6 w-6 mb-2" />
+                  <p className="text-xs text-muted-foreground">{v.label}</p>
                   <p className={`text-xl font-bold ${abnormal ? 'text-red-500' : ''}`}>
-                    {m.value ?? '—'}
+                    {v.value ?? '—'}
                   </p>
                   {range && (
-                    <p className="text-[10px] text-muted-foreground">
-                      {range.min} – {range.max} {range.unit}
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Range: {range.min} – {range.max} {range.unit}
                     </p>
                   )}
-                  <span className={`text-[10px] px-2 py-1 rounded ${getBadge(abnormal)}`}>
-                    {abnormal ? 'Abnormal' : 'Normal'}
-                  </span>
                 </CardContent>
               </Card>
             );
           })}
         </div>
 
-        {/* Clinical Summary */}
         <Card>
           <CardContent className="p-4 text-sm space-y-2">
             <p className="font-semibold">Clinical Summary</p>
             <p>{clinical.summary}</p>
-
             {clinical.recommendations.length > 0 && (
               <ul className="list-disc list-inside text-muted-foreground">
                 {clinical.recommendations.map((r, i) => (
