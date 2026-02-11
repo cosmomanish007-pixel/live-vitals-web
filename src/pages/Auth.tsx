@@ -27,14 +27,23 @@ const Auth = () => {
 
     if (isLogin) {
       const { error } = await signIn(email, password);
-      if (error) setError(error.message);
-      else navigate('/'); // Let Splash handle role-based routing
-    }
+
+      if (error) {
+        setError(error.message);
+      } else {
+        // 🔥 IMPORTANT: Let Splash handle role-based routing
+        navigate('/');
+      }
     } else {
       const { error } = await signUp(email, password, fullName);
-      if (error) setError(error.message);
-      else setMessage('Check your email to confirm your account.');
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setMessage('Check your email to confirm your account.');
+      }
     }
+
     setLoading(false);
   };
 
@@ -52,11 +61,16 @@ const Auth = () => {
 
         <Card className="border-border/50 bg-card">
           <CardHeader className="pb-4">
-            <CardTitle className="text-lg">{isLogin ? 'Sign In' : 'Create Account'}</CardTitle>
+            <CardTitle className="text-lg">
+              {isLogin ? 'Sign In' : 'Create Account'}
+            </CardTitle>
             <CardDescription>
-              {isLogin ? 'Enter your credentials to continue' : 'Sign up to start monitoring'}
+              {isLogin
+                ? 'Enter your credentials to continue'
+                : 'Sign up to start monitoring'}
             </CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
@@ -72,6 +86,7 @@ const Auth = () => {
                   />
                 </div>
               )}
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -84,6 +99,7 @@ const Auth = () => {
                   className="bg-secondary/50"
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -101,16 +117,26 @@ const Auth = () => {
               {error && <p className="text-sm text-destructive">{error}</p>}
               {message && <p className="text-sm text-primary">{message}</p>}
 
-              <Button type="submit" className="w-full h-11 font-semibold" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full h-11 font-semibold"
+                disabled={loading}
+              >
                 {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Sign Up'}
               </Button>
             </form>
 
             <button
-              onClick={() => { setIsLogin(!isLogin); setError(''); setMessage(''); }}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setError('');
+                setMessage('');
+              }}
               className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-primary transition-colors"
             >
-              {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
+              {isLogin
+                ? "Don't have an account? Sign Up"
+                : 'Already have an account? Sign In'}
             </button>
           </CardContent>
         </Card>
