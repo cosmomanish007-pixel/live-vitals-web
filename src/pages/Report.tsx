@@ -32,7 +32,7 @@ const CLINICAL_RANGES = {
 };
 
 /* =========================================================
-   EVALUATION
+   EVALUATION ENGINE
 ========================================================= */
 
 function evaluate(value: number | null, min: number, max: number) {
@@ -41,11 +41,7 @@ function evaluate(value: number | null, min: number, max: number) {
   return { abnormal: false, label: 'Normal' };
 }
 
-function calculateRisk(
-  temp: ReturnType<typeof evaluate>,
-  hr: ReturnType<typeof evaluate>,
-  spo2: ReturnType<typeof evaluate>
-) {
+function calculateRisk(temp: any, hr: any, spo2: any) {
   let score = 0;
 
   if (temp.abnormal) score += 35;
@@ -83,6 +79,7 @@ const Report = () => {
   const [vital, setVital] = useState<Vital | null>(
     (location.state as any)?.vital ?? null
   );
+
   const [session, setSession] = useState<Session | null>(
     (location.state as any)?.session ?? null
   );
@@ -97,35 +94,69 @@ const Report = () => {
   useEffect(() => {
     if (!sessionId) return;
 
-    const fetchData = async () => {
-      if (!vital) {
-        const { data } = await supabase
-          .from('vitals')
-          .select('*')
-          .eq('session_id', sessionId)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+    if (!vital) {
+      supabase
+        .from('vitals')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) setVital(data);
+        });
+    }
 
-        if (data) setVital(data);
-      }
+    if (!session) {
+      supabase
+        .from('sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) setSession(data);
+        });
+    }
+  }, [sessionId, vital, session]);
 
-      if (!session) {
-        const { data } = await supabase
-          .from('sessions')
-          .select('*')
-          .eq('id', sessionId)
-          .maybeSingle();
-
-        if (data) setSession(data);
-      }
-    };
-
-    fetchData();
-  }, [sessionId]);
+  if (!vital || !session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading session...
+      </div>
+    );
+  }
 
   /* =========================================================
-     CONSULTATION INSERT
+     EVALUATION + RISK (ALL HOOK SAFE)
+  ========================================================= */
+
+  const tempEval = evaluate(
+    vital.temp,
+    CLINICAL_RANGES.temp.min,
+    CLINICAL_RANGES.temp.max
+  );
+
+  const hrEval = evaluate(
+    vital.hr,
+    CLINICAL_RANGES.hr.min,
+    CLINICAL_RANGES.hr.max
+  );
+
+  const spo2Eval = evaluate(
+    vital.spo2,
+    CLINICAL_RANGES.spo2.min,
+    CLINICAL_RANGES.spo2.max
+  );
+
+  const risk = calculateRisk(tempEval, hrEval, spo2Eval);
+  const label = riskLabel(risk.level);
+
+  const isHighRisk = risk.level === 'RED';
+  const shouldAutoConsult = risk.score >= 85;
+
+  /* =========================================================
+     CONSULTATION REQUEST
   ========================================================= */
 
   const createConsultationRequest = useCallback(async () => {
@@ -151,45 +182,7 @@ const Report = () => {
       console.error(err);
       setConsultationStatus('error');
     }
-  }, [session, consultationStatus]);
-
-  /* =========================================================
-     WAIT FOR DATA
-  ========================================================= */
-
-  if (!vital || !session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading session...
-      </div>
-    );
-  }
-
-  /* =========================================================
-     CALCULATIONS
-  ========================================================= */
-
-  const tempEval = evaluate(
-    vital.temp,
-    CLINICAL_RANGES.temp.min,
-    CLINICAL_RANGES.temp.max
-  );
-  const hrEval = evaluate(
-    vital.hr,
-    CLINICAL_RANGES.hr.min,
-    CLINICAL_RANGES.hr.max
-  );
-  const spo2Eval = evaluate(
-    vital.spo2,
-    CLINICAL_RANGES.spo2.min,
-    CLINICAL_RANGES.spo2.max
-  );
-
-  const risk = calculateRisk(tempEval, hrEval, spo2Eval);
-  const label = riskLabel(risk.level);
-
-  const isHighRisk = risk.level === 'RED';
-  const shouldAutoConsult = risk.score >= 85;
+  }, [session, consultationStatus, risk.level]);
 
   /* =========================================================
      AUTO TRIGGER
@@ -202,7 +195,7 @@ const Report = () => {
   }, [isHighRisk, shouldAutoConsult, consultationStatus, createConsultationRequest]);
 
   /* =========================================================
-     PDF
+     PDF GENERATION (MEDICAL GRADE)
   ========================================================= */
 
   const generatePDF = () => {
@@ -214,9 +207,10 @@ const Report = () => {
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
-    doc.text('AURA-STETH AI', 14, 15);
+    doc.text('AURA-STETH AI', 14, 16);
+
     doc.setFontSize(10);
-    doc.text('Advanced Clinical Monitoring Report', 14, 22);
+    doc.text('Advanced Clinical Monitoring Report', 14, 23);
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
@@ -224,13 +218,14 @@ const Report = () => {
     let y = 40;
 
     doc.text(`Patient: ${session.user_name}`, 14, y); y += 6;
-    doc.text(`Age: ${session.age} | Gender: ${session.gender}`, 14, y); y += 6;
+    doc.text(`Age: ${session.age}`, 14, y); y += 6;
+    doc.text(`Gender: ${session.gender}`, 14, y); y += 6;
     doc.text(`Mode: ${session.mode}`, 14, y); y += 6;
-    doc.text(`Session ID: ${session.id}`, 14, y); y += 10;
+    doc.text(`Session ID: ${session.id}`, 14, y);
 
     autoTable(doc, {
-      startY: y,
-      head: [['Parameter', 'Measured', 'Clinical Range', 'Flag']],
+      startY: 75,
+      head: [['Parameter', 'Measured', 'Clinical Range', 'Status']],
       body: [
         ['Temperature', `${vital.temp ?? '-'}`, '31 – 37.5 °C', tempEval.label],
         ['Heart Rate', `${vital.hr ?? '-'}`, '60 – 100 bpm', hrEval.label],
@@ -240,24 +235,16 @@ const Report = () => {
       headStyles: { fillColor: [37, 99, 235] },
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    doc.text(`Risk Level: ${label}`, 14, 140);
+    doc.text(`Risk Score: ${risk.score}/100`, 14, 148);
 
-    doc.text('Clinical Risk Assessment', 14, finalY);
-
-    const barWidth = pageWidth - 40;
-    const riskWidth = (risk.score / 100) * barWidth;
-
-    doc.setFillColor(220, 220, 220);
-    doc.rect(14, finalY + 5, barWidth, 8, 'F');
-
-    if (risk.level === 'GREEN') doc.setFillColor(34, 197, 94);
-    if (risk.level === 'YELLOW') doc.setFillColor(234, 179, 8);
-    if (risk.level === 'RED') doc.setFillColor(220, 38, 38);
-
-    doc.rect(14, finalY + 5, riskWidth, 8, 'F');
-
-    doc.text(`Risk Level: ${label}`, 14, finalY + 20);
-    doc.text(`Risk Score: ${risk.score}/100`, 14, finalY + 27);
+    doc.setFontSize(8);
+    doc.text(
+      'Confidential Medical Document • Generated by AURA-STETH AI • Not a substitute for professional diagnosis',
+      pageWidth / 2,
+      285,
+      { align: 'center' }
+    );
 
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
@@ -265,6 +252,13 @@ const Report = () => {
   /* =========================================================
      UI
   ========================================================= */
+
+  const vitals = [
+    { icon: Thermometer, label: 'Temperature', value: `${vital.temp ?? '-'}°C`, abnormal: tempEval.abnormal },
+    { icon: HeartPulse, label: 'Heart Rate', value: `${vital.hr ?? '-'} bpm`, abnormal: hrEval.abnormal },
+    { icon: Droplets, label: 'SpO₂', value: `${vital.spo2 ?? '-'}%`, abnormal: spo2Eval.abnormal },
+    { icon: Volume2, label: 'Audio', value: `${vital.audio ?? '-'}`, abnormal: false },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6">
@@ -291,15 +285,20 @@ const Report = () => {
                 Consultation request recorded
               </div>
             )}
-
-            {consultationStatus === 'error' && (
-              <div className="flex items-center justify-center gap-2 mt-3 text-red-600 text-xs">
-                <AlertCircle className="h-4 w-4" />
-                Failed to create consultation
-              </div>
-            )}
           </CardContent>
         </Card>
+
+        <div className="grid grid-cols-2 gap-3">
+          {vitals.map((v) => (
+            <Card key={v.label} className={v.abnormal ? 'border-2 border-red-500' : ''}>
+              <CardContent className="p-4 text-center">
+                <v.icon className="h-6 w-6 mb-2 mx-auto" />
+                <p className="text-xs">{v.label}</p>
+                <p className="text-xl font-bold">{v.value}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
         {isHighRisk && !shouldAutoConsult && consultationStatus === 'idle' && (
           <Button
@@ -323,7 +322,6 @@ const Report = () => {
           <RefreshCw className="h-4 w-4 mr-2" />
           Start New Session
         </Button>
-
       </div>
     </div>
   );
