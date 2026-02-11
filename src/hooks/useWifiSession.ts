@@ -20,12 +20,13 @@ export function useWifiSession() {
   const [statusHistory, setStatusHistory] = useState<Status[]>([]);
   const [vitalData, setVitalData] = useState<Vital | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const channelRef = useRef<RealtimeChannel | null>(null);
 
   /* =========================
-     REALTIME SUBSCRIPTION
-     ========================= */
+     REALTIME
+  ========================= */
   const subscribeToSession = useCallback((sessionId: string) => {
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
@@ -34,7 +35,6 @@ export function useWifiSession() {
     const channel = supabase
       .channel(`session-${sessionId}`)
 
-      // SESSION updates
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'sessions', filter: `id=eq.${sessionId}` },
@@ -45,7 +45,6 @@ export function useWifiSession() {
         }
       )
 
-      // STATUS updates (drives steps UI)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'statuses', filter: `session_id=eq.${sessionId}` },
@@ -56,7 +55,6 @@ export function useWifiSession() {
         }
       )
 
-      // FINAL VITALS
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'vitals', filter: `session_id=eq.${sessionId}` },
@@ -70,31 +68,58 @@ export function useWifiSession() {
   }, []);
 
   /* =========================
-     LOAD SESSION BY ID (🔥 FIX)
-     ========================= */
+     LOAD SESSION (PRODUCTION SAFE)
+  ========================= */
   const loadSessionById = useCallback(async (id: string) => {
-  try {
-    setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-    const { data, error } = await supabase
-      .from('sessions')
-      .select('*')
-      .eq('id', id)
-      .single();
+      const { data: sessionData, error: sessionError } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    if (error) throw error;
+      if (sessionError) throw sessionError;
+      if (!sessionData) return;
 
-    setSession(data as Session);
-    setSessionState(data.state as SessionState);
+      setSession(sessionData);
+      setSessionState(sessionData.state);
 
-    subscribeToSession(data.id);
-  } catch (err: any) {
-    setError(err.message);
-  }
-}, [subscribeToSession]);
+      const { data: statuses } = await supabase
+        .from('statuses')
+        .select('*')
+        .eq('session_id', id)
+        .order('created_at', { ascending: true });
+
+      if (statuses && statuses.length > 0) {
+        setStatusHistory(statuses);
+        setStatusMessage(statuses[statuses.length - 1].message);
+      }
+
+      const { data: vital } = await supabase
+        .from('vitals')
+        .select('*')
+        .eq('session_id', id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (vital) setVitalData(vital);
+
+      subscribeToSession(id);
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [subscribeToSession]);
+
   /* =========================
      CREATE SESSION
-     ========================= */
+  ========================= */
   const startSession = useCallback(async (input: SessionInput) => {
     if (!user) {
       setError('Not authenticated');
@@ -120,6 +145,7 @@ export function useWifiSession() {
       setSession(data);
       setSessionState(data.state);
       subscribeToSession(data.id);
+
       return data;
     } catch (err: any) {
       setError(err.message);
@@ -127,9 +153,6 @@ export function useWifiSession() {
     }
   }, [user, subscribeToSession]);
 
-  /* =========================
-     START MONITORING (UI ONLY)
-     ========================= */
   const beginMonitoring = useCallback(async () => {
     if (!session) return;
 
@@ -141,9 +164,6 @@ export function useWifiSession() {
     setSessionState('STARTED');
   }, [session]);
 
-  /* =========================
-     RESET
-     ========================= */
   const resetSession = useCallback(() => {
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
@@ -170,10 +190,10 @@ export function useWifiSession() {
     statusHistory,
     vitalData,
     error,
+    loading,
     startSession,
     beginMonitoring,
     resetSession,
-    loadSessionById, // 🔥 IMPORTANT
-    resetSession,
+    loadSessionById,
   };
 }
