@@ -4,18 +4,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { Users, Activity } from "lucide-react";
 
 interface DoctorProfile {
   id: string;
-  license_number: string;
-  specialization: string;
-  hospital: string;
-  doctor_status: string;
-  profiles: {
-    id: string;
-    role: string;
-  };
+  license_number: string | null;
+  specialization: string | null;
+  hospital: string | null;
+  doctor_status: string | null;
 }
 
 interface SessionData {
@@ -67,28 +65,50 @@ const AdminDashboard = () => {
   const fetchDoctorRequests = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id, license_number, specialization, hospital, doctor_status")
       .eq("role", "doctor")
       .eq("doctor_status", "pending");
 
-    if (data) setDoctorRequests(data as any);
+    if (data) setDoctorRequests(data);
   };
 
   const fetchSessions = async () => {
     const { data } = await supabase
       .from("sessions")
-      .select("*")
+      .select("id, user_name, state, created_at")
       .order("created_at", { ascending: false })
       .limit(10);
 
-    if (data) setSessions(data as any);
+    if (data) setSessions(data);
   };
+
+  /* ===============================
+     REALTIME LISTENERS
+  ================================ */
 
   useEffect(() => {
     if (!authorized) return;
 
     fetchDoctorRequests();
     fetchSessions();
+
+    const channel = supabase
+      .channel("admin_updates")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles" },
+        fetchDoctorRequests
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "sessions" },
+        fetchSessions
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [authorized]);
 
   /* ===============================
@@ -104,7 +124,18 @@ const AdminDashboard = () => {
     fetchDoctorRequests();
   };
 
-  if (loading) return null;
+  /* ===============================
+     UI GUARD
+  ================================ */
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   if (!authorized) return null;
 
   /* ===============================
@@ -112,53 +143,79 @@ const AdminDashboard = () => {
   ================================ */
 
   return (
-    <div className="min-h-screen bg-background p-6 space-y-8">
+    <div className="min-h-screen bg-background p-6 space-y-10">
 
       <h1 className="text-3xl font-bold">Admin Dashboard</h1>
 
-      {/* Doctor Approval Section */}
+      {/* =================================
+          DOCTOR APPROVAL SECTION
+      ================================= */}
+
       <div>
-        <h2 className="text-xl font-semibold mb-4">Pending Doctor Approvals</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <Users className="h-5 w-5" />
+          <h2 className="text-xl font-semibold">Pending Doctor Approvals</h2>
+          <Badge variant="secondary">{doctorRequests.length}</Badge>
+        </div>
 
         {doctorRequests.length === 0 && (
           <p className="text-muted-foreground">No pending approvals.</p>
         )}
 
         {doctorRequests.map((doc) => (
-          <motion.div key={doc.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <Card className="mb-4">
-              <CardContent className="p-4 space-y-2">
-                <p><strong>Doctor ID:</strong> {doc.id}</p>
-                <p><strong>License:</strong> {doc.license_number}</p>
-                <p><strong>Specialization:</strong> {doc.specialization}</p>
-                <p><strong>Hospital:</strong> {doc.hospital}</p>
+          <motion.div
+            key={doc.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Card className="mb-4 hover:shadow-lg transition-all">
+              <CardContent className="p-5 space-y-3">
+
+                <div className="space-y-1">
+                  <p><strong>Doctor ID:</strong> {doc.id}</p>
+                  <p><strong>License:</strong> {doc.license_number || "—"}</p>
+                  <p><strong>Specialization:</strong> {doc.specialization || "—"}</p>
+                  <p><strong>Hospital:</strong> {doc.hospital || "—"}</p>
+                </div>
 
                 <Button onClick={() => approveDoctor(doc.id)}>
                   Approve Doctor
                 </Button>
+
               </CardContent>
             </Card>
           </motion.div>
         ))}
       </div>
 
-      {/* Session Monitoring Section */}
+      {/* =================================
+          SESSION MONITORING SECTION
+      ================================= */}
+
       <div>
-        <h2 className="text-xl font-semibold mb-4">Recent Sessions</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <Activity className="h-5 w-5" />
+          <h2 className="text-xl font-semibold">Recent Sessions</h2>
+        </div>
 
         {sessions.map((session) => (
-          <Card key={session.id} className="mb-3">
+          <Card key={session.id} className="mb-3 hover:border-primary/40 transition-colors">
             <CardContent className="p-4 flex justify-between items-center">
+
               <div>
                 <p className="font-semibold">{session.user_name}</p>
-                <p className="text-sm text-muted-foreground">
+                <Badge variant="outline" className="mt-1">
                   {session.state}
-                </p>
+                </Badge>
               </div>
 
-              <Button onClick={() => navigate(`/report/${session.id}`)}>
+              <Button
+                variant="secondary"
+                onClick={() => navigate(`/report/${session.id}`)}
+              >
                 View
               </Button>
+
             </CardContent>
           </Card>
         ))}
