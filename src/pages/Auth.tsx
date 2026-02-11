@@ -28,7 +28,8 @@ const Auth = () => {
     if (isLogin) {
       const { error } = await signIn(email, password);
       if (error) setError(error.message);
-      else navigate('/new-session');
+      else navigate('/'); // Let Splash handle role-based routing
+    }
     } else {
       const { error } = await signUp(email, password, fullName);
       if (error) setError(error.message);
