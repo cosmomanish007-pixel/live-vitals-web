@@ -3,13 +3,53 @@ import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Splash = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  const handleGetStarted = () => {
-    navigate(user ? '/new-session' : '/auth');
+  /* =================================
+     ROLE-BASED ROUTING LOGIC
+  ================================= */
+
+  const handleGetStarted = async () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    setLoading(true);
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, doctor_status')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    setLoading(false);
+
+    if (!profile) {
+      navigate('/new-session');
+      return;
+    }
+
+    // Doctor Approved
+    if (profile.role === 'doctor' && profile.doctor_status === 'approved') {
+      navigate('/doctor');
+      return;
+    }
+
+    // Doctor Pending
+    if (profile.role === 'doctor' && profile.doctor_status === 'pending') {
+      alert('Your doctor application is under review.');
+      return;
+    }
+
+    // Default User
+    navigate('/new-session');
   };
 
   return (
@@ -57,10 +97,11 @@ const Splash = () => {
       >
         <Button
           onClick={handleGetStarted}
+          disabled={loading}
           className="w-full h-12 text-base font-semibold rounded-xl"
           size="lg"
         >
-          Get Started
+          {loading ? 'Checking...' : 'Get Started'}
         </Button>
       </motion.div>
     </div>
