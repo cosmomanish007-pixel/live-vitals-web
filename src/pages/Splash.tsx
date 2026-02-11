@@ -31,8 +31,9 @@ const Splash = () => {
 
     setLoading(false);
 
-    if (!profile) {
-      navigate('/new-session');
+    // Admin
+    if (profile.role === 'admin') {
+      navigate('/admin');
       return;
     }
 
@@ -50,7 +51,6 @@ const Splash = () => {
 
     // Default User
     navigate('/new-session');
-  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
