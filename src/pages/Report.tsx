@@ -123,11 +123,10 @@ const Report = () => {
    DOCTOR CONSULTATION ENGINE
 ================================= */
 
-const createConsultationRequest = async () => {
+const createConsultationRequest = useCallback(async () => {
   if (!session) return;
   if (risk.level !== "RED") return;
 
-  // Check if request already exists
   const { data: existing } = await supabase
     .from('consultation_requests')
     .select('id')
@@ -136,7 +135,6 @@ const createConsultationRequest = async () => {
 
   if (existing) return;
 
-  // Get available doctor
   const { data: doctor } = await supabase
     .from('doctors')
     .select('id')
@@ -152,15 +150,15 @@ const createConsultationRequest = async () => {
     risk_level: risk.level,
     status: 'PENDING'
   });
-};
+
+}, [session, risk.level]);
 
 /* ===============================
    AUTO TRIGGER
 ================================= */
-
 useEffect(() => {
   createConsultationRequest();
-}, [risk.level, session]);
+}, [createConsultationRequest]);
   /* ===============================
      PDF GENERATION
   ================================= */
