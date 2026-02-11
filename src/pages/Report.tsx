@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import type { Vital, Session, HealthStatus } from '@/types/database';
-import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw } from 'lucide-react';
+import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw, Download } from 'lucide-react';
+
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 function statusColor(status: HealthStatus | null) {
   switch (status) {
@@ -20,21 +23,82 @@ const Report = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+
   const [vital, setVital] = useState<Vital | null>((location.state as any)?.vital ?? null);
   const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
 
   useEffect(() => {
     if (!vital && sessionId) {
-      supabase.from('vitals').select('*').eq('session_id', sessionId).order('created_at', { ascending: false }).limit(1).maybeSingle()
-        .then(({ data }) => { if (data) setVital(data as Vital); });
+      supabase
+        .from('vitals')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) setVital(data as Vital);
+        });
     }
+
     if (!session && sessionId) {
-      supabase.from('sessions').select('*').eq('id', sessionId).maybeSingle()
-        .then(({ data }) => { if (data) setSession(data as Session); });
+      supabase
+        .from('sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data) setSession(data as Session);
+        });
     }
   }, [sessionId, vital, session]);
 
   const status = statusColor(vital?.status ?? null);
+
+  /* ================= PDF GENERATOR ================= */
+  const generatePDF = () => {
+    if (!vital || !session) return;
+
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text('AURA-STETH AI', 20, 20);
+
+    doc.setFontSize(12);
+    doc.text('Clinical Monitoring Report', 20, 28);
+
+    doc.setFontSize(11);
+    doc.text(`Patient Name: ${session.user_name}`, 20, 40);
+    doc.text(`Age: ${session.age}`, 20, 46);
+    doc.text(`Gender: ${session.gender}`, 20, 52);
+    doc.text(`Mode: ${session.mode}`, 20, 58);
+    doc.text(`Session ID: ${session.id}`, 20, 64);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 70);
+
+    autoTable(doc, {
+      startY: 80,
+      head: [['Parameter', 'Value']],
+      body: [
+        ['Skin Temperature', `${vital.temp ?? '—'} °C`],
+        ['Heart Rate', `${vital.hr ?? '—'} bpm`],
+        ['SpO₂', `${vital.spo2 ?? '—'} %`],
+        ['Audio Peak', `${vital.audio ?? '—'}`],
+        ['Overall Status', vital.status ?? '—'],
+      ],
+    });
+
+    doc.setFontSize(10);
+    doc.text(
+      vital.status === 'RED'
+        ? '⚠ Alert: Abnormal parameters detected. Clinical attention advised.'
+        : 'Vitals within acceptable physiological range.',
+      20,
+      doc.lastAutoTable.finalY + 15
+    );
+
+    doc.save(`AURA_Report_${session.user_name}_${session.id}.pdf`);
+  };
+  /* ================================================= */
 
   const vitals = [
     { icon: Thermometer, label: 'Skin Temperature', value: vital?.temp != null ? `${vital.temp}°C` : '—', color: 'text-primary' },
@@ -46,53 +110,58 @@ const Report = () => {
   return (
     <div className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-md space-y-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-lg font-bold text-foreground">Final Report</h1>
-          {session && <p className="text-sm text-muted-foreground mt-1">{session.user_name} • Age {session.age}</p>}
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <h1 className="text-lg font-bold">Final Report</h1>
+          {session && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {session.user_name} • Age {session.age}
+            </p>
+          )}
         </motion.div>
 
-        {/* Overall Status */}
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1 }}>
-          <Card className={`border ${status.border} ${status.bg}`}>
-            <CardContent className="flex flex-col items-center p-6">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Overall Health Status</p>
-              <p className={`text-2xl font-bold vital-font ${status.text}`}>{vital?.status ?? '—'}</p>
-              <p className={`text-sm mt-1 ${status.text}`}>{status.label}</p>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <Card className={`border ${status.border} ${status.bg}`}>
+          <CardContent className="flex flex-col items-center p-6">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+              Overall Health Status
+            </p>
+            <p className={`text-2xl font-bold ${status.text}`}>
+              {vital?.status ?? '—'}
+            </p>
+            <p className={`text-sm mt-1 ${status.text}`}>
+              {status.label}
+            </p>
+          </CardContent>
+        </Card>
 
-        {/* Vital Cards */}
         <div className="grid grid-cols-2 gap-3">
           {vitals.map((v, i) => (
-            <motion.div
-              key={v.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.1 }}
-            >
-              <Card className="border-border/50 bg-card h-full">
+            <motion.div key={v.label} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 * i }}>
+              <Card>
                 <CardContent className="flex flex-col items-center p-4 text-center">
                   <v.icon className={`h-6 w-6 mb-2 ${v.color}`} />
-                  <p className="text-xs text-muted-foreground mb-1">{v.label}</p>
-                  <p className={`text-xl font-bold vital-font ${v.color}`}>{v.value}</p>
+                  <p className="text-xs text-muted-foreground">{v.label}</p>
+                  <p className={`text-xl font-bold ${v.color}`}>{v.value}</p>
                 </CardContent>
               </Card>
             </motion.div>
           ))}
         </div>
 
-        {/* New Session */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
-          <Button
-            onClick={() => navigate('/new-session')}
-            className="w-full h-12 text-base font-semibold gap-2"
-            size="lg"
-          >
-            <RefreshCw className="h-5 w-5" />
-            Start New Session
-          </Button>
-        </motion.div>
+        {/* Download PDF Button */}
+        <Button onClick={generatePDF} className="w-full h-12 gap-2">
+          <Download className="h-5 w-5" />
+          Download Clinical Report (PDF)
+        </Button>
+
+        <Button
+          onClick={() => navigate('/new-session')}
+          className="w-full h-12 gap-2"
+        >
+          <RefreshCw className="h-5 w-5" />
+          Start New Session
+        </Button>
+
       </div>
     </div>
   );
