@@ -119,7 +119,46 @@ const Report = () => {
     vital.temp != null && vital.hr != null && vital.spo2 != null
       ? "GOOD"
       : "PARTIAL";
+  /* ===============================
+   DOCTOR CONSULTATION ENGINE
+================================= */
 
+const createConsultationRequest = useCallback(async () => {
+  if (!session) return;
+  if (risk.level !== "RED") return;
+
+  const { data: existing } = await supabase
+    .from('consultation_requests')
+    .select('id')
+    .eq('session_id', session.id)
+    .maybeSingle();
+
+  if (existing) return;
+
+  const { data: doctor } = await supabase
+    .from('doctors')
+    .select('id')
+    .eq('is_available', true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!doctor) return;
+
+  await supabase.from('consultation_requests').insert({
+    session_id: session.id,
+    doctor_id: doctor.id,
+    risk_level: risk.level,
+    status: 'PENDING'
+  });
+
+}, [session, risk.level]);
+
+/* ===============================
+   AUTO TRIGGER
+================================= */
+useEffect(() => {
+  createConsultationRequest();
+}, [createConsultationRequest]);
   /* ===============================
      PDF GENERATION
   ================================= */
