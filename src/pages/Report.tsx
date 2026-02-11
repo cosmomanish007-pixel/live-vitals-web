@@ -10,7 +10,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 /* ===============================
-   UPDATED CLINICAL RANGES
+   CLINICAL RANGES
 ================================= */
 
 const CLINICAL_RANGES = {
@@ -20,34 +20,41 @@ const CLINICAL_RANGES = {
 };
 
 /* ===============================
-   MEDICAL EVALUATION ENGINE
+   EVALUATION ENGINE
 ================================= */
 
 function evaluateValue(value: number | null | undefined, min: number, max: number) {
-  if (value == null) return { label: "Not Recorded", severity: 0 };
+  if (value == null) return { label: "Not Recorded", abnormal: false };
 
-  if (value < min) return { label: "Low", severity: 2 };
-  if (value > max) return { label: "High", severity: 2 };
+  if (value < min || value > max)
+    return { label: "Abnormal", abnormal: true };
 
-  return { label: "Normal", severity: 0 };
+  return { label: "Normal", abnormal: false };
 }
 
 /* ===============================
-   DERIVE OVERALL STATUS
+   RISK ENGINE
 ================================= */
 
-function deriveOverallStatus(
+function calculateRisk(
   tempEval: any,
   hrEval: any,
   spo2Eval: any
-): HealthStatus {
+) {
 
-  const severities = [tempEval.severity, hrEval.severity, spo2Eval.severity];
-  const maxSeverity = Math.max(...severities);
+  let score = 0;
 
-  if (maxSeverity === 2) return "RED";
-  if (maxSeverity === 1) return "YELLOW";
-  return "GREEN";
+  if (tempEval.abnormal) score += 35;
+  if (hrEval.abnormal) score += 35;
+  if (spo2Eval.abnormal) score += 30;
+
+  let level: HealthStatus = "GREEN";
+
+  if (score >= 70) level = "RED";
+  else if (score >= 30) level = "YELLOW";
+  else level = "GREEN";
+
+  return { score, level };
 }
 
 function statusColor(status: HealthStatus | null) {
@@ -69,7 +76,6 @@ const Report = () => {
   const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
 
   useEffect(() => {
-
     if (!vital && sessionId) {
       supabase.from('vitals')
         .select('*')
@@ -93,14 +99,26 @@ const Report = () => {
   if (!vital || !session) return null;
 
   /* ===============================
-     EVALUATE VALUES
+     EVALUATION
   ================================= */
 
   const tempEval = evaluateValue(vital.temp, CLINICAL_RANGES.temp.min, CLINICAL_RANGES.temp.max);
   const hrEval = evaluateValue(vital.hr, CLINICAL_RANGES.hr.min, CLINICAL_RANGES.hr.max);
   const spo2Eval = evaluateValue(vital.spo2, CLINICAL_RANGES.spo2.min, CLINICAL_RANGES.spo2.max);
 
-  const overallStatus = deriveOverallStatus(tempEval, hrEval, spo2Eval);
+  const risk = calculateRisk(tempEval, hrEval, spo2Eval);
+
+  const riskLabel =
+    risk.level === "GREEN"
+      ? "LOW"
+      : risk.level === "YELLOW"
+      ? "MODERATE"
+      : "HIGH";
+
+  const dataQuality =
+    vital.temp != null && vital.hr != null && vital.spo2 != null
+      ? "GOOD"
+      : "PARTIAL";
 
   /* ===============================
      PDF GENERATION
@@ -111,6 +129,7 @@ const Report = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
+    /* HEADER */
     doc.setFillColor(15, 23, 42);
     doc.rect(0, 0, pageWidth, 28, "F");
 
@@ -125,18 +144,19 @@ const Report = () => {
 
     let y = 40;
 
-    doc.text(`Patient Name: ${session.user_name}`, 14, y); y += 6;
-    doc.text(`Age: ${session.age}`, 14, y); y += 6;
-    doc.text(`Gender: ${session.gender}`, 14, y); y += 6;
+    doc.text(`Patient: ${session.user_name}`, 14, y); y += 6;
+    doc.text(`Age: ${session.age} | Gender: ${session.gender}`, 14, y); y += 6;
     doc.text(`Mode: ${session.mode}`, 14, y); y += 6;
     doc.text(`Session ID: ${session.id}`, 14, y); y += 6;
     doc.text(`Generated: ${new Date().toLocaleString()}`, 14, y);
 
     y += 12;
 
+    /* TABLE */
+
     autoTable(doc, {
       startY: y,
-      head: [["Parameter", "Measured", "Clinical Range", "Status"]],
+      head: [["Parameter", "Measured", "Clinical Range", "Flag"]],
       body: [
         [
           "Temperature",
@@ -160,35 +180,56 @@ const Report = () => {
           "Audio Peak",
           vital.audio ?? "—",
           "N/A",
-          "Informational",
+          "Info",
         ],
       ],
+      didParseCell: function (data) {
+        if (data.column.index === 3 && data.cell.raw === "Abnormal") {
+          data.cell.styles.textColor = [220, 38, 38];
+          data.cell.styles.fontStyle = "bold";
+        }
+      },
       headStyles: { fillColor: [37, 99, 235] },
       styles: { fontSize: 10 },
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY + 12;
+    let finalY = (doc as any).lastAutoTable.finalY + 15;
 
-    doc.setDrawColor(0);
-    doc.rect(14, finalY, pageWidth - 28, 30);
+    /* RISK SECTION */
 
-    doc.setFontSize(12);
-    doc.text("Clinical Interpretation", 18, finalY + 8);
+    doc.setFontSize(13);
+    doc.text("Clinical Risk Assessment", 14, finalY);
+    finalY += 8;
 
-    doc.setFontSize(10);
+    const barWidth = pageWidth - 28;
+    const filledWidth = (risk.score / 100) * barWidth;
+
+    // background
+    doc.setFillColor(230, 230, 230);
+    doc.rect(14, finalY, barWidth, 8, "F");
+
+    // filled
+    if (risk.level === "GREEN") doc.setFillColor(22, 163, 74);
+    else if (risk.level === "YELLOW") doc.setFillColor(234, 179, 8);
+    else doc.setFillColor(220, 38, 38);
+
+    doc.rect(14, finalY, filledWidth, 8, "F");
+
+    finalY += 15;
+
+    doc.setFontSize(11);
+    doc.text(`Risk Level: ${riskLabel}`, 14, finalY); finalY += 6;
+    doc.text(`Risk Score: ${risk.score}/100`, 14, finalY); finalY += 6;
+    doc.text(`Data Quality: ${dataQuality}`, 14, finalY); finalY += 10;
 
     const interpretation =
-      overallStatus === "RED"
-        ? "Critical deviation detected in one or more physiological parameters. Immediate medical consultation is strongly recommended."
-        : overallStatus === "YELLOW"
-        ? "Borderline physiological values observed. Continuous monitoring advised."
-        : "All measured parameters fall within acceptable physiological limits.";
+      risk.level === "RED"
+        ? "Critical physiological deviations detected. Immediate medical consultation recommended."
+        : risk.level === "YELLOW"
+        ? "Some parameters outside normal range. Monitoring recommended."
+        : "Vitals within acceptable physiological limits.";
 
-    doc.text(
-      doc.splitTextToSize(interpretation, pageWidth - 36),
-      18,
-      finalY + 18
-    );
+    doc.text(doc.splitTextToSize(interpretation, pageWidth - 28), 14, finalY);
 
     doc.setFontSize(8);
     doc.text(
@@ -206,10 +247,10 @@ const Report = () => {
   ================================= */
 
   const vitals = [
-    { icon: Thermometer, label: 'Temperature', value: vital.temp != null ? `${vital.temp}°C` : '—' },
-    { icon: HeartPulse, label: 'Heart Rate', value: vital.hr != null ? `${vital.hr} bpm` : '—' },
-    { icon: Droplets, label: 'SpO₂', value: vital.spo2 != null ? `${vital.spo2}%` : '—' },
-    { icon: Volume2, label: 'Audio', value: vital.audio != null ? `${vital.audio}` : '—' },
+    { icon: Thermometer, label: 'Temperature', value: vital.temp != null ? `${vital.temp}°C` : '—', abnormal: tempEval.abnormal },
+    { icon: HeartPulse, label: 'Heart Rate', value: vital.hr != null ? `${vital.hr} bpm` : '—', abnormal: hrEval.abnormal },
+    { icon: Droplets, label: 'SpO₂', value: vital.spo2 != null ? `${vital.spo2}%` : '—', abnormal: spo2Eval.abnormal },
+    { icon: Volume2, label: 'Audio', value: vital.audio != null ? `${vital.audio}` : '—', abnormal: false },
   ];
 
   return (
@@ -225,20 +266,26 @@ const Report = () => {
 
         <Card>
           <CardContent className="flex flex-col items-center p-6">
-            <p className="text-xs uppercase tracking-wider mb-2">Overall Health Status</p>
-            <p className={`text-2xl font-bold ${statusColor(overallStatus)}`}>
-              {overallStatus}
+            <p className="text-xs uppercase tracking-wider mb-2">RISK ASSESSMENT</p>
+            <p className={`text-3xl font-bold ${statusColor(risk.level)}`}>
+              {riskLabel}
+            </p>
+            <p className="text-sm mt-1">Score: {risk.score}/100</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Data Quality: {dataQuality}
             </p>
           </CardContent>
         </Card>
 
         <div className="grid grid-cols-2 gap-3">
           {vitals.map((v) => (
-            <Card key={v.label}>
+            <Card key={v.label} className={v.abnormal ? "border-2 border-red-500" : ""}>
               <CardContent className="flex flex-col items-center p-4 text-center">
                 <v.icon className="h-6 w-6 mb-2" />
                 <p className="text-xs mb-1">{v.label}</p>
-                <p className="text-xl font-bold">{v.value}</p>
+                <p className={`text-xl font-bold ${v.abnormal ? "text-red-500" : ""}`}>
+                  {v.value}
+                </p>
               </CardContent>
             </Card>
           ))}
