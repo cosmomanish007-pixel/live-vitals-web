@@ -1,11 +1,11 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import type { Vital, Session, HealthStatus } from '@/types/database';
-import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw, Download } from 'lucide-react';
+import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw, Download, Stethoscope, CheckCircle, AlertCircle } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -74,6 +74,9 @@ const Report = () => {
 
   const [vital, setVital] = useState<Vital | null>((location.state as any)?.vital ?? null);
   const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
+  
+  // Consultation State
+  const [consultationStatus, setConsultationStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     if (!vital && sessionId) {
@@ -99,8 +102,8 @@ const Report = () => {
   if (!vital || !session) return null;
 
   /* ===============================
-     EVALUATION
-  ================================= */
+      EVALUATION
+   ================================= */
 
   const tempEval = evaluateValue(vital.temp, CLINICAL_RANGES.temp.min, CLINICAL_RANGES.temp.max);
   const hrEval = evaluateValue(vital.hr, CLINICAL_RANGES.hr.min, CLINICAL_RANGES.hr.max);
@@ -121,8 +124,82 @@ const Report = () => {
       : "PARTIAL";
 
   /* ===============================
-     PDF GENERATION
-  ================================= */
+     CONSULTATION DECISION ENGINE
+   ================================= */
+
+  const isHighRisk = risk.level === "RED";
+  const shouldAutoConsult = risk.score >= 85;
+
+  /* ===============================
+     CREATE CONSULTATION REQUEST
+   ================================= */
+
+  const createConsultationRequest = useCallback(async () => {
+    if (!session || consultationStatus === 'success' || consultationStatus === 'loading') return;
+
+    setConsultationStatus('loading');
+
+    try {
+      // 1. Check if a request already exists for this session
+      const { data: existing } = await supabase
+        .from("consultation_requests")
+        .select("id")
+        .eq("session_id", session.id)
+        .maybeSingle();
+
+      if (existing) {
+        setConsultationStatus('success');
+        return;
+      }
+
+      // 2. Find an available approved doctor
+      const { data: doctor } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("role", "doctor")
+        .eq("doctor_status", "approved")
+        .eq("is_available", true)
+        .limit(1)
+        .maybeSingle();
+
+      // Note: If no doctor is found, we can either queue it without an ID or just log it.
+      // Here we proceed with doctor_id as null if none found, or you can return.
+      const doctorId = doctor?.id || null;
+
+      // 3. Insert the request
+      const { error } = await supabase.from("consultation_requests").insert({
+        session_id: session.id,
+        doctor_id: doctorId,
+        risk_level: risk.level,
+        status: "PENDING",
+      });
+
+      if (error) throw error;
+
+      setConsultationStatus('success');
+      console.log("Consultation request created successfully.");
+
+    } catch (err) {
+      console.error("Failed to create consultation:", err);
+      setConsultationStatus('error');
+    }
+  }, [session, risk.level, consultationStatus]);
+
+  /* ===============================
+     AUTO-TRIGGER EFFECT
+   ================================= */
+   
+  useEffect(() => {
+    // Only trigger if high risk, score >= 85, and we haven't already processed it
+    if (isHighRisk && shouldAutoConsult && consultationStatus === 'idle') {
+      createConsultationRequest();
+    }
+  }, [isHighRisk, shouldAutoConsult, consultationStatus, createConsultationRequest]);
+
+
+  /* ===============================
+      PDF GENERATION
+   ================================= */
 
   const generatePDF = () => {
 
@@ -243,8 +320,8 @@ const Report = () => {
   };
 
   /* ===============================
-     UI
-  ================================= */
+      UI
+   ================================= */
 
   const vitals = [
     { icon: Thermometer, label: 'Temperature', value: vital.temp != null ? `${vital.temp}°C` : '—', abnormal: tempEval.abnormal },
@@ -274,6 +351,23 @@ const Report = () => {
             <p className="text-xs text-muted-foreground mt-1">
               Data Quality: {dataQuality}
             </p>
+            
+            {/* Auto-Consultation Notice */}
+            {isHighRisk && shouldAutoConsult && consultationStatus === 'success' && (
+              <div className="flex items-center gap-2 mt-4 text-red-600 bg-red-50 px-3 py-2 rounded-md text-xs font-semibold animate-pulse">
+                <AlertCircle className="h-4 w-4" />
+                Emergency doctor notified automatically.
+              </div>
+            )}
+            
+            {/* Success Manual Notice */}
+            {consultationStatus === 'success' && !shouldAutoConsult && (
+              <div className="flex items-center gap-2 mt-4 text-green-600 bg-green-50 px-3 py-2 rounded-md text-xs font-semibold">
+                <CheckCircle className="h-4 w-4" />
+                Consultation request sent.
+              </div>
+            )}
+
           </CardContent>
         </Card>
 
@@ -291,7 +385,19 @@ const Report = () => {
           ))}
         </div>
 
-        <Button onClick={generatePDF} className="w-full gap-2">
+        {/* Manual Consultation Button (Only if High Risk but NOT auto-triggered) */}
+        {isHighRisk && !shouldAutoConsult && consultationStatus !== 'success' && (
+          <Button 
+            className="w-full gap-2 bg-red-600 hover:bg-red-700 text-white" 
+            onClick={createConsultationRequest}
+            disabled={consultationStatus === 'loading'}
+          >
+            <Stethoscope className="h-4 w-4" />
+            {consultationStatus === 'loading' ? 'Requesting...' : 'Request Immediate Consultation'}
+          </Button>
+        )}
+
+        <Button onClick={generatePDF} className="w-full gap-2" variant="outline">
           <Download className="h-4 w-4" />
           Download Clinical PDF
         </Button>
