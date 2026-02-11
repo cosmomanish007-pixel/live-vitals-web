@@ -16,25 +16,32 @@ const ApplyDoctor = () => {
   const [loading, setLoading] = useState(false);
 
   const handleApply = async () => {
-    if (!user) return;
+  if (!user) return;
 
-    setLoading(true);
+  setLoading(true);
 
-    await supabase
-      .from("profiles")
-      .update({
-        role: "doctor",
-        doctor_status: "pending",
-        license_number: license,
-        specialization: specialization,
-        hospital: hospital,
-      })
-      .eq("id", user.id);
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      role: "doctor",
+      doctor_status: "pending",
+      license_number: license,
+      specialization: specialization,
+      hospital: hospital,
+    })
+    .eq("id", user.id);
 
-    setLoading(false);
-    alert("Application submitted. Await admin approval.");
-    navigate("/");
-  };
+  setLoading(false);
+
+  if (error) {
+    console.error(error);
+    alert(error.message);
+    return;
+  }
+
+  alert("Application submitted. Await admin approval.");
+  navigate("/");
+};
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
