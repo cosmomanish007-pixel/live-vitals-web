@@ -28,7 +28,7 @@ const Splash = () => {
     setLoading(false);
 
     if (!profile) {
-      navigate('/new-session');
+      navigate('/history');
       return;
     }
 
@@ -61,7 +61,7 @@ const Splash = () => {
     }
 
     // 🔥 Default User
-    navigate('/new-session');
+    navigate('/history');
   };
 
   return (
