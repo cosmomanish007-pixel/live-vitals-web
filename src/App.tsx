@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+
 import Splash from "./pages/Splash";
 import Auth from "./pages/Auth";
 import UserDetails from "./pages/UserDetails";
@@ -22,17 +23,67 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+
         <BrowserRouter>
           <Routes>
+
+            {/* Public Routes */}
             <Route path="/" element={<Splash />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/new-session" element={<ProtectedRoute><UserDetails /></ProtectedRoute>} />
-            <Route path="/monitor/:sessionId" element={<ProtectedRoute><Monitor /></ProtectedRoute>} />
-            <Route path="/report/:sessionId" element={<ProtectedRoute><Report /></ProtectedRoute>} />
-            <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+
+            {/* User Protected Routes */}
+            <Route
+              path="/new-session"
+              element={
+                <ProtectedRoute>
+                  <UserDetails />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/monitor/:sessionId"
+              element={
+                <ProtectedRoute>
+                  <Monitor />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/report/:sessionId"
+              element={
+                <ProtectedRoute>
+                  <Report />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <History />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 🔥 Doctor Dashboard Route */}
+            <Route
+              path="/doctor"
+              element={
+                <ProtectedRoute>
+                  <DoctorDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 404 */}
             <Route path="*" element={<NotFound />} />
+
           </Routes>
         </BrowserRouter>
+
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
