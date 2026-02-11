@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Consultation {
   id: string;
@@ -18,13 +19,75 @@ interface Consultation {
 }
 
 const DoctorDashboard = () => {
-  const [requests, setRequests] = useState<Consultation[]>([]);
+  const { user } = useAuth();
   const navigate = useNavigate();
 
+  const [requests, setRequests] = useState<Consultation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
+  /* =================================
+     ROLE VERIFICATION
+  ================================= */
+
   useEffect(() => {
+    const checkDoctorRole = async () => {
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!data || data.role !== "doctor") {
+        navigate("/"); // redirect non-doctors
+        return;
+      }
+
+      setAuthorized(true);
+      setLoading(false);
+    };
+
+    checkDoctorRole();
+  }, [user, navigate]);
+
+  /* =================================
+     FETCH CONSULTATIONS
+  ================================= */
+
+  const fetchRequests = async () => {
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("consultation_requests")
+      .select(`
+        id,
+        risk_level,
+        status,
+        created_at,
+        sessions (
+          id,
+          user_name,
+          age
+        )
+      `)
+      .eq("doctor_id", user.id)
+      .eq("status", "PENDING")
+      .order("created_at", { ascending: false });
+
+    if (data) setRequests(data as any);
+  };
+
+  /* =================================
+     REALTIME SUBSCRIPTION
+  ================================= */
+
+  useEffect(() => {
+    if (!authorized) return;
+
     fetchRequests();
 
-    // 🔴 REALTIME SUBSCRIPTION
     const channel = supabase
       .channel("consultation_updates")
       .on(
@@ -43,27 +106,11 @@ const DoctorDashboard = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [authorized]);
 
-  const fetchRequests = async () => {
-    const { data } = await supabase
-      .from("consultation_requests")
-      .select(`
-        id,
-        risk_level,
-        status,
-        created_at,
-        sessions (
-          id,
-          user_name,
-          age
-        )
-      `)
-      .eq("status", "PENDING")
-      .order("created_at", { ascending: false });
-
-    if (data) setRequests(data as any);
-  };
+  /* =================================
+     ACCEPT REQUEST
+  ================================= */
 
   const acceptRequest = async (id: string) => {
     await supabase
@@ -74,13 +121,31 @@ const DoctorDashboard = () => {
     fetchRequests();
   };
 
+  /* =================================
+     LOADING / AUTH GUARD
+  ================================= */
+
+  if (loading) return null;
+  if (!authorized) return null;
+
+  /* =================================
+     UI
+  ================================= */
+
   return (
     <div className="min-h-screen bg-background p-6">
-      <h1 className="text-2xl font-bold mb-6">Doctor Dashboard</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-bold">Doctor Dashboard</h1>
+        <div className="text-sm text-green-500 font-semibold">
+          ● Online
+        </div>
+      </div>
 
       <div className="space-y-4">
         {requests.length === 0 && (
-          <p className="text-muted-foreground">No active consultations.</p>
+          <p className="text-muted-foreground">
+            No active consultations.
+          </p>
         )}
 
         {requests.map((req) => (
@@ -89,11 +154,11 @@ const DoctorDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Card className="border-border/50 bg-card">
-              <CardContent className="p-5 space-y-3">
-                <div className="flex justify-between">
+            <Card className="border-border/50 bg-card hover:shadow-lg transition-all">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-semibold">
+                    <p className="font-semibold text-lg">
                       {req.sessions.user_name}
                     </p>
                     <p className="text-sm text-muted-foreground">
