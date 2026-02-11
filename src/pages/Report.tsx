@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Thermometer,
@@ -21,9 +21,9 @@ import type { Vital, Session, HealthStatus } from '@/types/database';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-/* ===============================
+/* =========================================================
    CLINICAL RANGES
-================================= */
+========================================================= */
 
 const CLINICAL_RANGES = {
   temp: { min: 31, max: 37.5 },
@@ -31,9 +31,9 @@ const CLINICAL_RANGES = {
   spo2: { min: 80, max: 100 },
 };
 
-/* ===============================
-   HELPERS
-================================= */
+/* =========================================================
+   EVALUATION
+========================================================= */
 
 function evaluate(value: number | null, min: number, max: number) {
   if (value == null) return { abnormal: false, label: 'Not Recorded' };
@@ -71,9 +71,9 @@ function riskColor(level: HealthStatus) {
   return 'text-red-600';
 }
 
-/* ===============================
+/* =========================================================
    COMPONENT
-================================= */
+========================================================= */
 
 const Report = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -86,12 +86,13 @@ const Report = () => {
   const [session, setSession] = useState<Session | null>(
     (location.state as any)?.session ?? null
   );
+
   const [consultationStatus, setConsultationStatus] =
     useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  /* ===============================
+  /* =========================================================
      FETCH DATA
-  ================================= */
+  ========================================================= */
 
   useEffect(() => {
     if (!sessionId) return;
@@ -121,72 +122,40 @@ const Report = () => {
     };
 
     fetchData();
-  }, [sessionId]); // SAFE dependency
+  }, [sessionId]);
 
-  /* ===============================
-     AUTO CONSULT TRIGGER
-     (Always defined before return)
-  ================================= */
+  /* =========================================================
+     CONSULTATION INSERT
+  ========================================================= */
 
-  useEffect(() => {
-    if (!vital || !session) return;
+  const createConsultationRequest = useCallback(async () => {
+    if (!session || consultationStatus !== 'idle') return;
 
-    const tempEval = evaluate(
-      vital.temp,
-      CLINICAL_RANGES.temp.min,
-      CLINICAL_RANGES.temp.max
-    );
-    const hrEval = evaluate(
-      vital.hr,
-      CLINICAL_RANGES.hr.min,
-      CLINICAL_RANGES.hr.max
-    );
-    const spo2Eval = evaluate(
-      vital.spo2,
-      CLINICAL_RANGES.spo2.min,
-      CLINICAL_RANGES.spo2.max
-    );
+    try {
+      setConsultationStatus('loading');
 
-    const risk = calculateRisk(tempEval, hrEval, spo2Eval);
+      const { error } = await supabase
+        .from('consultation_requests')
+        .insert({
+          session_id: session.id,
+          doctor_id: null,
+          risk_level: risk.level,
+          status: 'PENDING',
+          doctor_notes: null,
+        });
 
-    const isHighRisk = risk.level === 'RED';
-    const shouldAutoConsult = risk.score >= 85;
+      if (error) throw error;
 
-    if (isHighRisk && shouldAutoConsult && consultationStatus === 'idle') {
-      (async () => {
-        try {
-          setConsultationStatus('loading');
-
-          const { data: existing } = await supabase
-            .from('consultation_requests')
-            .select('id')
-            .eq('session_id', session.id)
-            .maybeSingle();
-
-          if (existing) {
-            setConsultationStatus('success');
-            return;
-          }
-
-          await supabase.from('consultation_requests').insert({
-            session_id: session.id,
-            doctor_id: null,
-            risk_level: risk.level,
-            status: 'PENDING',
-          });
-
-          setConsultationStatus('success');
-        } catch {
-          setConsultationStatus('error');
-        }
-      })();
+      setConsultationStatus('success');
+    } catch (err) {
+      console.error(err);
+      setConsultationStatus('error');
     }
-  }, [vital, session]); // SAFE & STABLE
+  }, [session, consultationStatus]);
 
-  /* ===============================
-     LOADING SCREEN
-     (AFTER ALL HOOKS)
-  ================================= */
+  /* =========================================================
+     WAIT FOR DATA
+  ========================================================= */
 
   if (!vital || !session) {
     return (
@@ -196,9 +165,9 @@ const Report = () => {
     );
   }
 
-  /* ===============================
-     COMPUTATION
-  ================================= */
+  /* =========================================================
+     CALCULATIONS
+  ========================================================= */
 
   const tempEval = evaluate(
     vital.temp,
@@ -222,41 +191,80 @@ const Report = () => {
   const isHighRisk = risk.level === 'RED';
   const shouldAutoConsult = risk.score >= 85;
 
-  /* ===============================
+  /* =========================================================
+     AUTO TRIGGER
+  ========================================================= */
+
+  useEffect(() => {
+    if (isHighRisk && shouldAutoConsult && consultationStatus === 'idle') {
+      createConsultationRequest();
+    }
+  }, [isHighRisk, shouldAutoConsult, consultationStatus, createConsultationRequest]);
+
+  /* =========================================================
      PDF
-  ================================= */
+  ========================================================= */
 
   const generatePDF = () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, pageWidth, 28, 'F');
+
+    doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
-    doc.text('AURA-STETH AI Clinical Report', 14, 20);
+    doc.text('AURA-STETH AI', 14, 15);
+    doc.setFontSize(10);
+    doc.text('Advanced Clinical Monitoring Report', 14, 22);
 
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
-    doc.text(`Patient: ${session.user_name}`, 14, 35);
-    doc.text(`Age: ${session.age}`, 14, 42);
-    doc.text(`Gender: ${session.gender}`, 14, 49);
-    doc.text(`Mode: ${session.mode}`, 14, 56);
+
+    let y = 40;
+
+    doc.text(`Patient: ${session.user_name}`, 14, y); y += 6;
+    doc.text(`Age: ${session.age} | Gender: ${session.gender}`, 14, y); y += 6;
+    doc.text(`Mode: ${session.mode}`, 14, y); y += 6;
+    doc.text(`Session ID: ${session.id}`, 14, y); y += 10;
 
     autoTable(doc, {
-      startY: 70,
-      head: [['Parameter', 'Value', 'Status']],
+      startY: y,
+      head: [['Parameter', 'Measured', 'Clinical Range', 'Flag']],
       body: [
-        ['Temperature', `${vital.temp ?? '-'}`, tempEval.label],
-        ['Heart Rate', `${vital.hr ?? '-'}`, hrEval.label],
-        ['SpO₂', `${vital.spo2 ?? '-'}`, spo2Eval.label],
+        ['Temperature', `${vital.temp ?? '-'}`, '31 – 37.5 °C', tempEval.label],
+        ['Heart Rate', `${vital.hr ?? '-'}`, '60 – 100 bpm', hrEval.label],
+        ['SpO₂', `${vital.spo2 ?? '-'}`, '80 – 100 %', spo2Eval.label],
+        ['Audio Peak', `${vital.audio ?? '-'}`, 'N/A', 'Info'],
       ],
+      headStyles: { fillColor: [37, 99, 235] },
     });
 
-    doc.text(`Risk Level: ${label}`, 14, 130);
-    doc.text(`Risk Score: ${risk.score}/100`, 14, 138);
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+
+    doc.text('Clinical Risk Assessment', 14, finalY);
+
+    const barWidth = pageWidth - 40;
+    const riskWidth = (risk.score / 100) * barWidth;
+
+    doc.setFillColor(220, 220, 220);
+    doc.rect(14, finalY + 5, barWidth, 8, 'F');
+
+    if (risk.level === 'GREEN') doc.setFillColor(34, 197, 94);
+    if (risk.level === 'YELLOW') doc.setFillColor(234, 179, 8);
+    if (risk.level === 'RED') doc.setFillColor(220, 38, 38);
+
+    doc.rect(14, finalY + 5, riskWidth, 8, 'F');
+
+    doc.text(`Risk Level: ${label}`, 14, finalY + 20);
+    doc.text(`Risk Score: ${risk.score}/100`, 14, finalY + 27);
 
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
 
-  /* ===============================
+  /* =========================================================
      UI
-  ================================= */
+  ========================================================= */
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6">
@@ -278,16 +286,16 @@ const Report = () => {
             <p className="text-sm mt-1">Score: {risk.score}/100</p>
 
             {consultationStatus === 'success' && (
-              <div className="flex justify-center mt-3 text-green-600 text-xs">
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Consultation recorded
+              <div className="flex items-center justify-center gap-2 mt-3 text-green-600 text-xs">
+                <CheckCircle className="h-4 w-4" />
+                Consultation request recorded
               </div>
             )}
 
             {consultationStatus === 'error' && (
-              <div className="flex justify-center mt-3 text-red-600 text-xs">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                Consultation failed
+              <div className="flex items-center justify-center gap-2 mt-3 text-red-600 text-xs">
+                <AlertCircle className="h-4 w-4" />
+                Failed to create consultation
               </div>
             )}
           </CardContent>
@@ -295,24 +303,17 @@ const Report = () => {
 
         {isHighRisk && !shouldAutoConsult && consultationStatus === 'idle' && (
           <Button
-            onClick={() =>
-              supabase.from('consultation_requests').insert({
-                session_id: session.id,
-                doctor_id: null,
-                risk_level: risk.level,
-                status: 'PENDING',
-              })
-            }
+            onClick={createConsultationRequest}
             className="w-full bg-red-600 hover:bg-red-700 text-white"
           >
             <Stethoscope className="h-4 w-4 mr-2" />
-            Request Consultation
+            Request Immediate Consultation
           </Button>
         )}
 
         <Button onClick={generatePDF} variant="outline" className="w-full">
           <Download className="h-4 w-4 mr-2" />
-          Download PDF
+          Download Clinical PDF
         </Button>
 
         <Button
