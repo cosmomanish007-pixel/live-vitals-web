@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 interface Consultation {
   id: string;
   session_id: string;
-  risk_level: string;
-  status: string;
+  risk_level: "GREEN" | "YELLOW" | "RED";
+  status: "PENDING" | "ACTIVE" | "COMPLETED";
   doctor_notes: string | null;
   created_at: string;
 }
@@ -21,11 +22,12 @@ const DoctorDashboard = () => {
   const navigate = useNavigate();
 
   const [consultations, setConsultations] = useState<Consultation[]>([]);
-  const [availability, setAvailability] = useState(true);
+  const [availability, setAvailability] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  /* ===============================
+  /* =================================
      FETCH DOCTOR PROFILE
-  ================================ */
+  ================================= */
 
   useEffect(() => {
     if (!user) return;
@@ -37,17 +39,17 @@ const DoctorDashboard = () => {
         .eq("id", user.id)
         .maybeSingle();
 
-      if (data) setAvailability(data.is_available);
+      if (data) setAvailability(data.is_available ?? false);
     };
 
     fetchProfile();
   }, [user]);
 
-  /* ===============================
+  /* =================================
      FETCH CONSULTATIONS
-  ================================ */
+  ================================= */
 
-  const fetchConsultations = async () => {
+  const fetchConsultations = useCallback(async () => {
     if (!user) return;
 
     const { data } = await supabase
@@ -56,16 +58,42 @@ const DoctorDashboard = () => {
       .eq("doctor_id", user.id)
       .order("created_at", { ascending: false });
 
-    if (data) setConsultations(data);
-  };
+    if (data) setConsultations(data as Consultation[]);
+    setLoading(false);
+  }, [user]);
 
   useEffect(() => {
     fetchConsultations();
-  }, [user]);
+  }, [fetchConsultations]);
 
-  /* ===============================
+  /* =================================
+     REALTIME LISTENER
+  ================================= */
+
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("doctor_consultation_updates")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "consultation_requests",
+        },
+        fetchConsultations
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchConsultations]);
+
+  /* =================================
      TOGGLE AVAILABILITY
-  ================================ */
+  ================================= */
 
   const toggleAvailability = async () => {
     const newValue = !availability;
@@ -77,11 +105,14 @@ const DoctorDashboard = () => {
       .eq("id", user?.id);
   };
 
-  /* ===============================
+  /* =================================
      UPDATE STATUS
-  ================================ */
+  ================================= */
 
-  const updateStatus = async (id: string, status: string) => {
+  const updateStatus = async (
+    id: string,
+    status: "PENDING" | "ACTIVE" | "COMPLETED"
+  ) => {
     await supabase
       .from("consultation_requests")
       .update({ status })
@@ -90,9 +121,9 @@ const DoctorDashboard = () => {
     fetchConsultations();
   };
 
-  /* ===============================
+  /* =================================
      ADD NOTES
-  ================================ */
+  ================================= */
 
   const addNotes = async (id: string) => {
     const notes = prompt("Enter consultation notes:");
@@ -106,80 +137,149 @@ const DoctorDashboard = () => {
     fetchConsultations();
   };
 
-  /* ===============================
+  /* =================================
+     UI HELPERS
+  ================================= */
+
+  const riskBadge = (risk: string) => {
+    if (risk === "RED")
+      return <Badge className="bg-red-500 text-white">HIGH</Badge>;
+    if (risk === "YELLOW")
+      return <Badge className="bg-yellow-400 text-black">MODERATE</Badge>;
+    return <Badge className="bg-green-500 text-white">LOW</Badge>;
+  };
+
+  const statusBadge = (status: string) => {
+    if (status === "PENDING")
+      return <Badge variant="secondary">Pending</Badge>;
+    if (status === "ACTIVE")
+      return <Badge className="bg-blue-500 text-white">Active</Badge>;
+    return <Badge className="bg-gray-500 text-white">Completed</Badge>;
+  };
+
+  const activeConsultations = consultations.filter(
+    (c) => c.status !== "COMPLETED"
+  );
+
+  const completedConsultations = consultations.filter(
+    (c) => c.status === "COMPLETED"
+  );
+
+  /* =================================
      UI
-  ================================ */
+  ================================= */
 
   return (
-    <div className="min-h-screen bg-background p-6 space-y-8">
+    <div className="min-h-screen bg-background p-6 space-y-10">
 
       <h1 className="text-3xl font-bold">Doctor Dashboard</h1>
 
       {/* Availability */}
       <Card>
         <CardContent className="flex items-center justify-between p-6">
-          <p className="font-semibold">Available for Consultation</p>
+          <p className="font-semibold">
+            {availability ? "🟢 Online" : "🔴 Offline"}
+          </p>
           <Switch checked={availability} onCheckedChange={toggleAvailability} />
         </CardContent>
       </Card>
 
-      {/* Assigned Consultations */}
+      {/* ACTIVE CONSULTATIONS */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Assigned Consultations</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          Active / Pending Consultations
+        </h2>
 
-        {consultations.length === 0 && (
-          <p className="text-muted-foreground">No consultations assigned.</p>
+        {loading && <p>Loading...</p>}
+
+        {activeConsultations.length === 0 && (
+          <p className="text-muted-foreground">
+            No active consultations.
+          </p>
         )}
 
-        {consultations.map((c) => (
-          <Card key={c.id} className="mb-4">
-            <CardContent className="p-5 space-y-3">
+        {activeConsultations.map((c) => (
+          <motion.div
+            key={c.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Card className="mb-4 hover:shadow-lg transition-all">
+              <CardContent className="p-5 space-y-3">
 
-              <div className="flex justify-between items-center">
-                <div>
-                  <p><strong>Session:</strong> {c.session_id}</p>
-                  <Badge variant="outline">{c.risk_level}</Badge>
+                <div className="flex justify-between items-center">
+                  <div className="space-y-1">
+                    <p className="font-semibold">
+                      Session: {c.session_id}
+                    </p>
+                    {riskBadge(c.risk_level)}
+                  </div>
+                  {statusBadge(c.status)}
                 </div>
-                <Badge>{c.status}</Badge>
-              </div>
 
-              {c.doctor_notes && (
-                <p className="text-sm text-muted-foreground">
-                  Notes: {c.doctor_notes}
-                </p>
-              )}
-
-              <div className="flex gap-2 flex-wrap">
-                {c.status === "PENDING" && (
-                  <Button onClick={() => updateStatus(c.id, "ACTIVE")}>
-                    Start
-                  </Button>
+                {c.doctor_notes && (
+                  <p className="text-sm text-muted-foreground">
+                    Notes: {c.doctor_notes}
+                  </p>
                 )}
 
-                {c.status !== "COMPLETED" && (
+                <div className="flex gap-2 flex-wrap">
+                  {c.status === "PENDING" && (
+                    <Button onClick={() => updateStatus(c.id, "ACTIVE")}>
+                      Start
+                    </Button>
+                  )}
+
+                  {c.status !== "COMPLETED" && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => updateStatus(c.id, "COMPLETED")}
+                    >
+                      Complete
+                    </Button>
+                  )}
+
                   <Button
-                    variant="secondary"
-                    onClick={() => updateStatus(c.id, "COMPLETED")}
+                    variant="outline"
+                    onClick={() => addNotes(c.id)}
                   >
-                    Complete
+                    Add Notes
                   </Button>
-                )}
 
-                <Button
-                  variant="outline"
-                  onClick={() => addNotes(c.id)}
-                >
-                  Add Notes
-                </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate(`/report/${c.session_id}`)}
+                  >
+                    View Report
+                  </Button>
+                </div>
 
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate(`/report/${c.session_id}`)}
-                >
-                  View Report
-                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* COMPLETED CONSULTATIONS */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">
+          Completed Consultations
+        </h2>
+
+        {completedConsultations.length === 0 && (
+          <p className="text-muted-foreground">
+            No completed consultations.
+          </p>
+        )}
+
+        {completedConsultations.map((c) => (
+          <Card key={c.id} className="mb-3 opacity-80">
+            <CardContent className="p-4 flex justify-between items-center">
+              <div>
+                <p className="font-medium">Session: {c.session_id}</p>
+                {riskBadge(c.risk_level)}
               </div>
-
+              {statusBadge(c.status)}
             </CardContent>
           </Card>
         ))}
