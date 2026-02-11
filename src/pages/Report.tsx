@@ -16,39 +16,30 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import type {
-  Vital,
-  Session,
-  HealthStatus,
-  ConsultationStatus,
-} from '@/types/database';
+import type { Vital, Session, HealthStatus } from '@/types/database';
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-/* =========================================================
+/* ===============================
    CLINICAL RANGES
-========================================================= */
+================================= */
 
 const CLINICAL_RANGES = {
-  temp: { min: 31, max: 37.5, unit: '°C' },
-  hr: { min: 60, max: 100, unit: 'bpm' },
-  spo2: { min: 80, max: 100, unit: '%' },
+  temp: { min: 31, max: 37.5 },
+  hr: { min: 60, max: 100 },
+  spo2: { min: 80, max: 100 },
 };
 
-/* =========================================================
-   EVALUATION ENGINE
-========================================================= */
+/* ===============================
+   HELPERS
+================================= */
 
 function evaluate(value: number | null, min: number, max: number) {
   if (value == null) return { abnormal: false, label: 'Not Recorded' };
   if (value < min || value > max) return { abnormal: true, label: 'Abnormal' };
   return { abnormal: false, label: 'Normal' };
 }
-
-/* =========================================================
-   RISK ENGINE
-========================================================= */
 
 function calculateRisk(
   temp: ReturnType<typeof evaluate>,
@@ -62,7 +53,6 @@ function calculateRisk(
   if (spo2.abnormal) score += 30;
 
   let level: HealthStatus = 'GREEN';
-
   if (score >= 70) level = 'RED';
   else if (score >= 30) level = 'YELLOW';
 
@@ -81,9 +71,9 @@ function riskColor(level: HealthStatus) {
   return 'text-red-600';
 }
 
-/* =========================================================
+/* ===============================
    COMPONENT
-========================================================= */
+================================= */
 
 const Report = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -96,41 +86,107 @@ const Report = () => {
   const [session, setSession] = useState<Session | null>(
     (location.state as any)?.session ?? null
   );
-
   const [consultationStatus, setConsultationStatus] =
     useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  /* =========================================================
-     FETCH SESSION DATA
-  ========================================================= */
+  /* ===============================
+     FETCH DATA
+  ================================= */
 
   useEffect(() => {
     if (!sessionId) return;
 
-    if (!vital) {
-      supabase
-        .from('vitals')
-        .select('*')
-        .eq('session_id', sessionId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data) setVital(data);
-        });
-    }
+    const fetchData = async () => {
+      if (!vital) {
+        const { data } = await supabase
+          .from('vitals')
+          .select('*')
+          .eq('session_id', sessionId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-    if (!session) {
-      supabase
-        .from('sessions')
-        .select('*')
-        .eq('id', sessionId)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data) setSession(data);
-        });
+        if (data) setVital(data);
+      }
+
+      if (!session) {
+        const { data } = await supabase
+          .from('sessions')
+          .select('*')
+          .eq('id', sessionId)
+          .maybeSingle();
+
+        if (data) setSession(data);
+      }
+    };
+
+    fetchData();
+  }, [sessionId]); // SAFE dependency
+
+  /* ===============================
+     AUTO CONSULT TRIGGER
+     (Always defined before return)
+  ================================= */
+
+  useEffect(() => {
+    if (!vital || !session) return;
+
+    const tempEval = evaluate(
+      vital.temp,
+      CLINICAL_RANGES.temp.min,
+      CLINICAL_RANGES.temp.max
+    );
+    const hrEval = evaluate(
+      vital.hr,
+      CLINICAL_RANGES.hr.min,
+      CLINICAL_RANGES.hr.max
+    );
+    const spo2Eval = evaluate(
+      vital.spo2,
+      CLINICAL_RANGES.spo2.min,
+      CLINICAL_RANGES.spo2.max
+    );
+
+    const risk = calculateRisk(tempEval, hrEval, spo2Eval);
+
+    const isHighRisk = risk.level === 'RED';
+    const shouldAutoConsult = risk.score >= 85;
+
+    if (isHighRisk && shouldAutoConsult && consultationStatus === 'idle') {
+      (async () => {
+        try {
+          setConsultationStatus('loading');
+
+          const { data: existing } = await supabase
+            .from('consultation_requests')
+            .select('id')
+            .eq('session_id', session.id)
+            .maybeSingle();
+
+          if (existing) {
+            setConsultationStatus('success');
+            return;
+          }
+
+          await supabase.from('consultation_requests').insert({
+            session_id: session.id,
+            doctor_id: null,
+            risk_level: risk.level,
+            status: 'PENDING',
+          });
+
+          setConsultationStatus('success');
+        } catch {
+          setConsultationStatus('error');
+        }
+      })();
     }
-  }, [sessionId]);
+  }, [vital, session]); // SAFE & STABLE
+
+  /* ===============================
+     LOADING SCREEN
+     (AFTER ALL HOOKS)
+  ================================= */
 
   if (!vital || !session) {
     return (
@@ -140,22 +196,20 @@ const Report = () => {
     );
   }
 
-  /* =========================================================
-     EVALUATION
-  ========================================================= */
+  /* ===============================
+     COMPUTATION
+  ================================= */
 
   const tempEval = evaluate(
     vital.temp,
     CLINICAL_RANGES.temp.min,
     CLINICAL_RANGES.temp.max
   );
-
   const hrEval = evaluate(
     vital.hr,
     CLINICAL_RANGES.hr.min,
     CLINICAL_RANGES.hr.max
   );
-
   const spo2Eval = evaluate(
     vital.spo2,
     CLINICAL_RANGES.spo2.min,
@@ -168,62 +222,12 @@ const Report = () => {
   const isHighRisk = risk.level === 'RED';
   const shouldAutoConsult = risk.score >= 85;
 
-  /* =========================================================
-     CONSULTATION REQUEST
-  ========================================================= */
-
-  const createConsultationRequest = async () => {
-    if (!session || consultationStatus !== 'idle') return;
-
-    try {
-      setConsultationStatus('loading');
-
-      const { data: existing } = await supabase
-        .from('consultation_requests')
-        .select('id')
-        .eq('session_id', session.id)
-        .maybeSingle();
-
-      if (existing) {
-        setConsultationStatus('success');
-        return;
-      }
-
-      const { error } = await supabase
-        .from('consultation_requests')
-        .insert({
-          session_id: session.id,
-          doctor_id: null,
-          risk_level: risk.level,
-          status: 'PENDING' as ConsultationStatus,
-        });
-
-      if (error) throw error;
-
-      setConsultationStatus('success');
-    } catch (err) {
-      console.error(err);
-      setConsultationStatus('error');
-    }
-  };
-
-  /* =========================================================
-     AUTO TRIGGER
-  ========================================================= */
-
-  useEffect(() => {
-    if (isHighRisk && shouldAutoConsult && consultationStatus === 'idle') {
-      createConsultationRequest();
-    }
-  }, [isHighRisk, shouldAutoConsult]);
-
-  /* =========================================================
-     PDF GENERATION
-  ========================================================= */
+  /* ===============================
+     PDF
+  ================================= */
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
 
     doc.setFontSize(16);
     doc.text('AURA-STETH AI Clinical Report', 14, 20);
@@ -233,21 +237,14 @@ const Report = () => {
     doc.text(`Age: ${session.age}`, 14, 42);
     doc.text(`Gender: ${session.gender}`, 14, 49);
     doc.text(`Mode: ${session.mode}`, 14, 56);
-    doc.text(`Session ID: ${session.id}`, 14, 63);
 
     autoTable(doc, {
-      startY: 75,
-      head: [['Parameter', 'Measured', 'Range', 'Status']],
+      startY: 70,
+      head: [['Parameter', 'Value', 'Status']],
       body: [
-        [
-          'Temperature',
-          `${vital.temp ?? '-'} °C`,
-          '31 – 37.5 °C',
-          tempEval.label,
-        ],
-        ['Heart Rate', `${vital.hr ?? '-'} bpm`, '60 – 100 bpm', hrEval.label],
-        ['SpO₂', `${vital.spo2 ?? '-'} %`, '80 – 100 %', spo2Eval.label],
-        ['Audio', `${vital.audio ?? '-'}`, 'N/A', 'Informational'],
+        ['Temperature', `${vital.temp ?? '-'}`, tempEval.label],
+        ['Heart Rate', `${vital.hr ?? '-'}`, hrEval.label],
+        ['SpO₂', `${vital.spo2 ?? '-'}`, spo2Eval.label],
       ],
     });
 
@@ -257,16 +254,9 @@ const Report = () => {
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
 
-  /* =========================================================
+  /* ===============================
      UI
-  ========================================================= */
-
-  const vitals = [
-    { icon: Thermometer, label: 'Temperature', value: `${vital.temp ?? '-'}°C`, abnormal: tempEval.abnormal },
-    { icon: HeartPulse, label: 'Heart Rate', value: `${vital.hr ?? '-'} bpm`, abnormal: hrEval.abnormal },
-    { icon: Droplets, label: 'SpO₂', value: `${vital.spo2 ?? '-'}%`, abnormal: spo2Eval.abnormal },
-    { icon: Volume2, label: 'Audio', value: `${vital.audio ?? '-'}`, abnormal: false },
-  ];
+  ================================= */
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6">
@@ -288,46 +278,41 @@ const Report = () => {
             <p className="text-sm mt-1">Score: {risk.score}/100</p>
 
             {consultationStatus === 'success' && (
-              <div className="flex items-center justify-center gap-2 mt-3 text-green-600 text-xs">
-                <CheckCircle className="h-4 w-4" />
-                Consultation request recorded
+              <div className="flex justify-center mt-3 text-green-600 text-xs">
+                <CheckCircle className="h-4 w-4 mr-1" />
+                Consultation recorded
               </div>
             )}
 
             {consultationStatus === 'error' && (
-              <div className="flex items-center justify-center gap-2 mt-3 text-red-600 text-xs">
-                <AlertCircle className="h-4 w-4" />
-                Failed to create consultation
+              <div className="flex justify-center mt-3 text-red-600 text-xs">
+                <AlertCircle className="h-4 w-4 mr-1" />
+                Consultation failed
               </div>
             )}
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 gap-3">
-          {vitals.map((v) => (
-            <Card key={v.label} className={v.abnormal ? 'border-2 border-red-500' : ''}>
-              <CardContent className="p-4 text-center">
-                <v.icon className="h-6 w-6 mb-2 mx-auto" />
-                <p className="text-xs">{v.label}</p>
-                <p className="text-xl font-bold">{v.value}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
         {isHighRisk && !shouldAutoConsult && consultationStatus === 'idle' && (
           <Button
-            onClick={createConsultationRequest}
+            onClick={() =>
+              supabase.from('consultation_requests').insert({
+                session_id: session.id,
+                doctor_id: null,
+                risk_level: risk.level,
+                status: 'PENDING',
+              })
+            }
             className="w-full bg-red-600 hover:bg-red-700 text-white"
           >
             <Stethoscope className="h-4 w-4 mr-2" />
-            Request Immediate Consultation
+            Request Consultation
           </Button>
         )}
 
         <Button onClick={generatePDF} variant="outline" className="w-full">
           <Download className="h-4 w-4 mr-2" />
-          Download Clinical PDF
+          Download PDF
         </Button>
 
         <Button
@@ -337,6 +322,7 @@ const Report = () => {
           <RefreshCw className="h-4 w-4 mr-2" />
           Start New Session
         </Button>
+
       </div>
     </div>
   );
