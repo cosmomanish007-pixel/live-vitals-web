@@ -11,6 +11,7 @@ import UserDetails from "./pages/UserDetails";
 import Monitor from "./pages/Monitor";
 import Report from "./pages/Report";
 import History from "./pages/History";
+import DoctorDashboard from "./pages/DoctorDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
