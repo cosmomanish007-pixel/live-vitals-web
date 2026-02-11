@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Session, Vital, HealthStatus } from '@/types/database';
-import { Clock, User, Plus, LogOut } from 'lucide-react';
+import { Clock, User, Plus, LogOut, Stethoscope } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface SessionWithVital extends Session {
@@ -16,18 +16,52 @@ interface SessionWithVital extends Session {
 
 function statusBadge(status: HealthStatus | null | undefined) {
   switch (status) {
-    case 'GREEN': return <Badge className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]">Normal</Badge>;
-    case 'YELLOW': return <Badge className="bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))]">Attention</Badge>;
-    case 'RED': return <Badge className="bg-destructive text-destructive-foreground">Alert</Badge>;
-    default: return <Badge variant="secondary">Pending</Badge>;
+    case 'GREEN':
+      return <Badge className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]">Normal</Badge>;
+    case 'YELLOW':
+      return <Badge className="bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))]">Attention</Badge>;
+    case 'RED':
+      return <Badge className="bg-destructive text-destructive-foreground">Alert</Badge>;
+    default:
+      return <Badge variant="secondary">Pending</Badge>;
   }
 }
 
 const History = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
   const [sessions, setSessions] = useState<SessionWithVital[]>([]);
   const [loading, setLoading] = useState(true);
+  const [doctorStatus, setDoctorStatus] = useState<string | null>(null);
+
+  /* ===============================
+     FETCH USER ROLE STATUS
+  ================================ */
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('role, doctor_status')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (data?.role === 'doctor') {
+        setDoctorStatus(data.doctor_status);
+      } else {
+        setDoctorStatus(null);
+      }
+    };
+
+    fetchProfile();
+  }, [user]);
+
+  /* ===============================
+     FETCH SESSIONS
+  ================================ */
 
   useEffect(() => {
     if (!user) return;
@@ -39,60 +73,114 @@ const History = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (!sessionData) { setLoading(false); return; }
+      if (!sessionData) {
+        setLoading(false);
+        return;
+      }
 
       const sessionIds = sessionData.map((s: any) => s.id);
+
       const { data: vitalsData } = await supabase
         .from('vitals')
         .select('*')
         .in('session_id', sessionIds);
 
       const vitalsMap = new Map<string, Vital>();
-      (vitalsData ?? []).forEach((v: any) => vitalsMap.set(v.session_id, v as Vital));
+      (vitalsData ?? []).forEach((v: any) =>
+        vitalsMap.set(v.session_id, v as Vital)
+      );
 
       setSessions(
-        (sessionData as Session[]).map((s) => ({ ...s, vital: vitalsMap.get(s.id) ?? null }))
+        (sessionData as Session[]).map((s) => ({
+          ...s,
+          vital: vitalsMap.get(s.id) ?? null,
+        }))
       );
+
       setLoading(false);
     };
 
     fetchSessions();
   }, [user]);
 
+  /* ===============================
+     HEADER ACTIONS
+  ================================ */
+
+  const renderDoctorButton = () => {
+    if (!doctorStatus) {
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/apply-doctor')}
+        >
+          Apply as Doctor
+        </Button>
+      );
+    }
+
+    if (doctorStatus === 'pending') {
+      return <Badge variant="secondary">Doctor Application Pending</Badge>;
+    }
+
+    if (doctorStatus === 'approved') {
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/doctor')}
+        >
+          <Stethoscope className="h-4 w-4 mr-1" />
+          Doctor Panel
+        </Button>
+      );
+    }
+
+    return null;
+  };
+
+  /* ===============================
+     UI
+  ================================ */
+
   return (
     <div className="min-h-screen bg-background px-4 py-6">
-      <div className="mx-auto max-w-md space-y-4">
+      <div className="mx-auto max-w-md space-y-6">
+
+        {/* HEADER */}
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-foreground">Session History</h1>
+          <h1 className="text-lg font-bold text-foreground">
+            Session History
+          </h1>
+
           <div className="flex gap-2 items-center">
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/apply-doctor')}
-          >
-            Apply as Doctor
-          </Button>
+            {renderDoctorButton()}
 
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => navigate('/new-session')}
-          >
-            <Plus className="h-5 w-5" />
-          </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => navigate('/new-session')}
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
 
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => { signOut(); navigate('/'); }}
-          >
-            <LogOut className="h-5 w-5" />
-          </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => {
+                signOut();
+                navigate('/');
+              }}
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
 
-        </div>
+          </div>
         </div>
 
+        {/* BODY */}
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -100,7 +188,12 @@ const History = () => {
         ) : sessions.length === 0 ? (
           <div className="flex flex-col items-center py-12 text-muted-foreground">
             <p>No sessions yet</p>
-            <Button variant="link" onClick={() => navigate('/new-session')}>Start your first session</Button>
+            <Button
+              variant="link"
+              onClick={() => navigate('/new-session')}
+            >
+              Start your first session
+            </Button>
           </div>
         ) : (
           sessions.map((s, i) => (
@@ -118,11 +211,15 @@ const History = () => {
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <User className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="text-sm font-medium text-foreground">{s.user_name}</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {s.user_name}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="h-3 w-3" />
-                      <span>{format(new Date(s.created_at), 'MMM d, yyyy HH:mm')}</span>
+                      <span>
+                        {format(new Date(s.created_at), 'MMM d, yyyy HH:mm')}
+                      </span>
                     </div>
                   </div>
                   {statusBadge(s.vital?.status)}
