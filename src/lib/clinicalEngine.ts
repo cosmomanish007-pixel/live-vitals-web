@@ -1,3 +1,8 @@
+/* =========================================
+   CLINICAL ENGINE – AURA-STETH AI
+   Prototype + Intelligent Evaluation
+========================================= */
+
 export type RiskLevel = 'LOW' | 'MODERATE' | 'HIGH';
 
 export interface ClinicalResult {
@@ -9,27 +14,27 @@ export interface ClinicalResult {
   dataQuality: 'GOOD' | 'PARTIAL' | 'POOR';
 }
 
-/* =========================
+/* =========================================
    PROTOTYPE CLINICAL RANGES
-   (Aligned with ESP + Prototype)
-   ========================= */
+   (Aligned with ESP behaviour)
+========================================= */
 
 export const NORMAL_RANGES = {
-  temp: { min: 31.0, max: 37.5, unit: "°C" },
-  hr: { min: 60, max: 100, unit: "bpm" },
-  spo2: { min: 80, max: 100, unit: "%" },
+  temp: { min: 31.0, max: 37.5, unit: '°C' },
+  hr: { min: 60, max: 100, unit: 'bpm' },
+  spo2: { min: 80, max: 100, unit: '%' },
 };
 
-/* =========================
+/* =========================================
    MAIN ANALYSIS FUNCTION
-   ========================= */
+========================================= */
 
 export function analyzeVitals(vital: {
   temp: number | null;
   hr: number | null;
   spo2: number | null;
   audio: number | null;
-}) : ClinicalResult {
+}): ClinicalResult {
 
   let riskScore = 0;
   const abnormal: string[] = [];
@@ -38,25 +43,25 @@ export function analyzeVitals(vital: {
   let validCount = 0;
   let invalidCount = 0;
 
-  /* =========================
-     TEMPERATURE ANALYSIS
-     ========================= */
+  /* =========================================
+     TEMPERATURE
+  ========================================= */
 
   if (vital.temp == null) {
     invalidCount++;
-    recommendations.push('Temperature not recorded. Ensure skin contact.');
+    recommendations.push('Temperature not recorded. Ensure proper skin contact.');
   } else {
     validCount++;
 
-    if (vital.temp < 25 || vital.temp > 45) {
-      riskScore += 20;
+    if (vital.temp < 20 || vital.temp > 45) {
+      riskScore += 25;
       abnormal.push('Temperature (Sensor Error)');
-      recommendations.push('Temperature reading unrealistic. Check sensor wiring.');
+      recommendations.push('Unrealistic temperature value detected. Check sensor wiring.');
     }
     else if (vital.temp < NORMAL_RANGES.temp.min) {
       riskScore += 10;
       abnormal.push('Temperature (Low)');
-      recommendations.push('Possible hypothermia. Recheck sensor placement.');
+      recommendations.push('Low body temperature detected. Recheck placement.');
     }
     else if (vital.temp > NORMAL_RANGES.temp.max) {
       riskScore += 20;
@@ -65,13 +70,13 @@ export function analyzeVitals(vital: {
     }
   }
 
-  /* =========================
-     HEART RATE ANALYSIS
-     ========================= */
+  /* =========================================
+     HEART RATE
+  ========================================= */
 
   if (vital.hr == null) {
     invalidCount++;
-    recommendations.push('Heart rate not detected. Place finger properly.');
+    recommendations.push('Heart rate not detected. Place finger correctly.');
   } else {
     validCount++;
 
@@ -80,10 +85,10 @@ export function analyzeVitals(vital: {
       abnormal.push('Heart Rate (Invalid)');
       recommendations.push('No pulse detected. Ensure proper finger placement.');
     }
-    else if (vital.hr < 30 || vital.hr > 200) {
+    else if (vital.hr < 25 || vital.hr > 220) {
       riskScore += 30;
       abnormal.push('Heart Rate (Sensor Error)');
-      recommendations.push('Heart rate reading unrealistic. Check sensor.');
+      recommendations.push('Unrealistic heart rate value. Check sensor stability.');
     }
     else if (vital.hr < NORMAL_RANGES.hr.min) {
       riskScore += 25;
@@ -97,9 +102,9 @@ export function analyzeVitals(vital: {
     }
   }
 
-  /* =========================
-     SpO₂ ANALYSIS
-     ========================= */
+  /* =========================================
+     SpO₂
+  ========================================= */
 
   if (vital.spo2 == null) {
     invalidCount++;
@@ -110,7 +115,7 @@ export function analyzeVitals(vital: {
     if (vital.spo2 < 50 || vital.spo2 > 100) {
       riskScore += 30;
       abnormal.push('SpO₂ (Sensor Error)');
-      recommendations.push('SpO₂ reading unrealistic. Check sensor.');
+      recommendations.push('Unrealistic SpO₂ value. Check sensor positioning.');
     }
     else if (vital.spo2 < NORMAL_RANGES.spo2.min) {
       riskScore += 35;
@@ -119,43 +124,58 @@ export function analyzeVitals(vital: {
     }
   }
 
-  /* =========================
-     AUDIO QUALITY CHECK
-     ========================= */
+  /* =========================================
+     AUDIO QUALITY
+  ========================================= */
 
   if (vital.audio != null) {
     validCount++;
-    if (vital.audio < 1000) {
-      recommendations.push('Low acoustic signal detected. Reposition stethoscope.');
+
+    if (vital.audio < 800) {
+      recommendations.push('Weak acoustic signal detected. Reposition stethoscope.');
+    }
+
+    if (vital.audio > 1000000) {
+      abnormal.push('Audio (Noise Spike)');
+      recommendations.push('Excessive acoustic spike detected. Reduce environmental noise.');
     }
   }
 
-  /* =========================
-     DATA QUALITY SCORE
-     ========================= */
+  /* =========================================
+     DATA QUALITY EVALUATION
+  ========================================= */
 
   let dataQuality: 'GOOD' | 'PARTIAL' | 'POOR' = 'GOOD';
 
-  if (invalidCount >= 2) dataQuality = 'POOR';
-  else if (invalidCount === 1) dataQuality = 'PARTIAL';
+  if (invalidCount >= 2) {
+    dataQuality = 'POOR';
+    riskScore += 20;
+  }
+  else if (invalidCount === 1) {
+    dataQuality = 'PARTIAL';
+    riskScore += 10;
+  }
 
-  /* =========================
-     RISK LEVEL
-     ========================= */
+  /* Cap risk score */
+  if (riskScore > 100) riskScore = 100;
+
+  /* =========================================
+     RISK LEVEL DETERMINATION
+  ========================================= */
 
   let riskLevel: RiskLevel = 'LOW';
 
   if (riskScore >= 60) riskLevel = 'HIGH';
   else if (riskScore >= 30) riskLevel = 'MODERATE';
 
-  /* =========================
+  /* =========================================
      SUMMARY GENERATION
-     ========================= */
+  ========================================= */
 
   let summary = '';
 
   if (dataQuality === 'POOR') {
-    summary = 'Insufficient reliable data. Re-measure required.';
+    summary = 'Insufficient reliable data. Re-measurement required.';
   }
   else if (riskLevel === 'LOW') {
     summary = 'Vitals within acceptable physiological limits.';
