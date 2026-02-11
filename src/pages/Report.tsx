@@ -120,61 +120,47 @@ const Report = () => {
       ? "GOOD"
       : "PARTIAL";
   /* ===============================
-     Doctor Wala 
-  ================================= */
-  const createConsultationRequest = async () => {
-    if (!session) return;
-    if (risk.level !== "RED") return;
+   DOCTOR CONSULTATION ENGINE
+================================= */
 
-    // check if already exists
-    const { data: existing } = await supabase
-      .from('consultation_requests')
-      .select('id')
-      .eq('session_id', session.id)
-      .maybeSingle();
+const createConsultationRequest = async () => {
+  if (!session) return;
+  if (risk.level !== "RED") return;
 
-    if (existing) return;
+  // Check if request already exists
+  const { data: existing } = await supabase
+    .from('consultation_requests')
+    .select('id')
+    .eq('session_id', session.id)
+    .maybeSingle();
 
-    const { data: doctor } = await supabase
-      .from('doctors')
-      .select('*')
-      .eq('is_available', true)
-      .limit(1)
-      .maybeSingle();
+  if (existing) return;
 
-    if (!doctor) return;
+  // Get available doctor
+  const { data: doctor } = await supabase
+    .from('doctors')
+    .select('id')
+    .eq('is_available', true)
+    .limit(1)
+    .maybeSingle();
 
-    await supabase.from('consultation_requests').insert({
-      session_id: session.id,
-      doctor_id: doctor.id,
-      risk_level: risk.level,
-      status: 'PENDING'
-    });
-  };
+  if (!doctor) return;
+
+  await supabase.from('consultation_requests').insert({
+    session_id: session.id,
+    doctor_id: doctor.id,
+    risk_level: risk.level,
+    status: 'PENDING'
+  });
+};
+
 /* ===============================
-     DOCTOR TRIGGER
-  ================================= */
+   AUTO TRIGGER
+================================= */
 
-  useEffect(() => {
-    const triggerConsultation = async () => {
-      if (!session) return;
-      if (risk.level !== "RED") return;
-
-      // check if already exists
-      const { data: existing } = await supabase
-        .from('consultation_requests')
-        .select('id')
-        .eq('session_id', session.id)
-        .maybeSingle();
-
-      if (!existing) {
-        await createConsultationRequest();
-      }
-    };
-
-    triggerConsultation();
-  }, [risk.level, session]);
-
+useEffect(() => {
+  createConsultationRequest();
+}, [risk.level, session]);
   /* ===============================
      PDF GENERATION
   ================================= */
