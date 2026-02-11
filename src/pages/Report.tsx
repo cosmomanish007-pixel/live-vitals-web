@@ -6,16 +6,28 @@ import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import type { Vital, Session, HealthStatus } from '@/types/database';
 import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw, Download } from 'lucide-react';
-
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+const CLINICAL_RANGES = {
+  temp: { min: 36.1, max: 37.5, unit: "°C" },
+  hr: { min: 60, max: 100, unit: "bpm" },
+  spo2: { min: 95, max: 100, unit: "%" },
+};
+
+function evaluateValue(value: number | null | undefined, min: number, max: number) {
+  if (value == null) return { label: "Not Recorded", color: "#9ca3af" };
+  if (value < min) return { label: "Low", color: "#f59e0b" };
+  if (value > max) return { label: "High", color: "#ef4444" };
+  return { label: "Normal", color: "#16a34a" };
+}
+
 function statusColor(status: HealthStatus | null) {
   switch (status) {
-    case 'GREEN': return { bg: 'bg-[hsl(var(--success))]/15', text: 'text-[hsl(var(--success))]', label: 'Normal', border: 'border-[hsl(var(--success))]/30' };
-    case 'YELLOW': return { bg: 'bg-[hsl(var(--warning))]/15', text: 'text-[hsl(var(--warning))]', label: 'Attention Needed', border: 'border-[hsl(var(--warning))]/30' };
-    case 'RED': return { bg: 'bg-destructive/15', text: 'text-destructive', label: 'Alert', border: 'border-destructive/30' };
-    default: return { bg: 'bg-muted', text: 'text-muted-foreground', label: 'Unknown', border: 'border-border' };
+    case 'GREEN': return 'text-green-500';
+    case 'YELLOW': return 'text-yellow-500';
+    case 'RED': return 'text-red-500';
+    default: return 'text-muted-foreground';
   }
 }
 
@@ -29,136 +41,173 @@ const Report = () => {
 
   useEffect(() => {
     if (!vital && sessionId) {
-      supabase
-        .from('vitals')
+      supabase.from('vitals')
         .select('*')
         .eq('session_id', sessionId)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
-        .then(({ data }) => {
-          if (data) setVital(data as Vital);
-        });
+        .then(({ data }) => { if (data) setVital(data as Vital); });
     }
 
     if (!session && sessionId) {
-      supabase
-        .from('sessions')
+      supabase.from('sessions')
         .select('*')
         .eq('id', sessionId)
         .maybeSingle()
-        .then(({ data }) => {
-          if (data) setSession(data as Session);
-        });
+        .then(({ data }) => { if (data) setSession(data as Session); });
     }
   }, [sessionId, vital, session]);
 
-  const status = statusColor(vital?.status ?? null);
-
-  /* ================= PDF GENERATOR ================= */
   const generatePDF = () => {
     if (!vital || !session) return;
 
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-    doc.setFontSize(18);
-    doc.text('AURA-STETH AI', 20, 20);
+    // HEADER
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, pageWidth, 28, "F");
 
-    doc.setFontSize(12);
-    doc.text('Clinical Monitoring Report', 20, 28);
-
-    doc.setFontSize(11);
-    doc.text(`Patient Name: ${session.user_name}`, 20, 40);
-    doc.text(`Age: ${session.age}`, 20, 46);
-    doc.text(`Gender: ${session.gender}`, 20, 52);
-    doc.text(`Mode: ${session.mode}`, 20, 58);
-    doc.text(`Session ID: ${session.id}`, 20, 64);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 70);
-
-    autoTable(doc, {
-      startY: 80,
-      head: [['Parameter', 'Value']],
-      body: [
-        ['Skin Temperature', `${vital.temp ?? '—'} °C`],
-        ['Heart Rate', `${vital.hr ?? '—'} bpm`],
-        ['SpO₂', `${vital.spo2 ?? '—'} %`],
-        ['Audio Peak', `${vital.audio ?? '—'}`],
-        ['Overall Status', vital.status ?? '—'],
-      ],
-    });
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.text("AURA-STETH AI", 14, 15);
 
     doc.setFontSize(10);
+    doc.text("Advanced Clinical Monitoring Report", 14, 22);
+
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+
+    let y = 40;
+
+    // PATIENT INFO
+    doc.text(`Patient Name: ${session.user_name}`, 14, y); y += 6;
+    doc.text(`Age: ${session.age}`, 14, y); y += 6;
+    doc.text(`Gender: ${session.gender}`, 14, y); y += 6;
+    doc.text(`Mode: ${session.mode}`, 14, y); y += 6;
+    doc.text(`Session ID: ${session.id}`, 14, y); y += 6;
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, y);
+
+    y += 12;
+
+    const tempEval = evaluateValue(vital.temp, CLINICAL_RANGES.temp.min, CLINICAL_RANGES.temp.max);
+    const hrEval = evaluateValue(vital.hr, CLINICAL_RANGES.hr.min, CLINICAL_RANGES.hr.max);
+    const spo2Eval = evaluateValue(vital.spo2, CLINICAL_RANGES.spo2.min, CLINICAL_RANGES.spo2.max);
+
+    autoTable(doc, {
+      startY: y,
+      head: [["Parameter", "Measured Value", "Normal Range", "Interpretation"]],
+      body: [
+        [
+          "Skin Temperature",
+          vital.temp != null ? `${vital.temp} °C` : "—",
+          "36.1 – 37.5 °C",
+          tempEval.label,
+        ],
+        [
+          "Heart Rate",
+          vital.hr != null ? `${vital.hr} bpm` : "—",
+          "60 – 100 bpm",
+          hrEval.label,
+        ],
+        [
+          "SpO₂",
+          vital.spo2 != null ? `${vital.spo2}%` : "—",
+          "95 – 100 %",
+          spo2Eval.label,
+        ],
+        [
+          "Audio Peak",
+          vital.audio ?? "—",
+          "N/A",
+          "Acoustic Measurement",
+        ],
+      ],
+      headStyles: { fillColor: [37, 99, 235] },
+      styles: { fontSize: 10 },
+    });
+
+    const finalY = (doc as any).lastAutoTable.finalY + 12;
+
+    // CLINICAL SUMMARY BOX
+    doc.setDrawColor(0);
+    doc.rect(14, finalY, pageWidth - 28, 30);
+
+    doc.setFontSize(12);
+    doc.text("Clinical Interpretation", 18, finalY + 8);
+
+    doc.setFontSize(10);
+
+    const interpretation =
+      vital.status === "RED"
+        ? "Abnormal parameters detected. Immediate clinical attention is advised."
+        : vital.status === "YELLOW"
+        ? "Borderline readings detected. Monitoring recommended."
+        : "All measured parameters fall within clinically accepted ranges.";
+
     doc.text(
-      vital.status === 'RED'
-        ? '⚠ Alert: Abnormal parameters detected. Clinical attention advised.'
-        : 'Vitals within acceptable physiological range.',
-      20,
-      doc.lastAutoTable.finalY + 15
+      doc.splitTextToSize(interpretation, pageWidth - 36),
+      18,
+      finalY + 18
     );
 
-    doc.save(`AURA_Report_${session.user_name}_${session.id}.pdf`);
+    // FOOTER
+    doc.setFontSize(8);
+    doc.text(
+      "Confidential Medical Document • Generated by AURA-STETH AI • Not a substitute for professional diagnosis",
+      pageWidth / 2,
+      285,
+      { align: "center" }
+    );
+
+    doc.save(`AURA_Report_${session.id}.pdf`);
   };
-  /* ================================================= */
 
   const vitals = [
-    { icon: Thermometer, label: 'Skin Temperature', value: vital?.temp != null ? `${vital.temp}°C` : '—', color: 'text-primary' },
-    { icon: HeartPulse, label: 'Heart Rate', value: vital?.hr != null ? `${vital.hr} bpm` : '—', color: 'text-destructive' },
-    { icon: Droplets, label: 'SpO₂', value: vital?.spo2 != null ? `${vital.spo2}%` : '—', color: 'text-primary' },
-    { icon: Volume2, label: 'Audio Peak', value: vital?.audio != null ? `${vital.audio}` : '—', color: 'text-[hsl(var(--warning))]' },
+    { icon: Thermometer, label: 'Skin Temperature', value: vital?.temp != null ? `${vital.temp}°C` : '—' },
+    { icon: HeartPulse, label: 'Heart Rate', value: vital?.hr != null ? `${vital.hr} bpm` : '—' },
+    { icon: Droplets, label: 'SpO₂', value: vital?.spo2 != null ? `${vital.spo2}%` : '—' },
+    { icon: Volume2, label: 'Audio Peak', value: vital?.audio != null ? `${vital.audio}` : '—' },
   ];
 
   return (
     <div className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-md space-y-6">
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-lg font-bold">Final Report</h1>
-          {session && (
-            <p className="text-sm text-muted-foreground mt-1">
-              {session.user_name} • Age {session.age}
-            </p>
-          )}
+          {session && <p className="text-sm text-muted-foreground">{session.user_name} • Age {session.age}</p>}
         </motion.div>
 
-        <Card className={`border ${status.border} ${status.bg}`}>
+        <Card>
           <CardContent className="flex flex-col items-center p-6">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
-              Overall Health Status
-            </p>
-            <p className={`text-2xl font-bold ${status.text}`}>
+            <p className="text-xs uppercase tracking-wider mb-2">Overall Health Status</p>
+            <p className={`text-2xl font-bold ${statusColor(vital?.status ?? null)}`}>
               {vital?.status ?? '—'}
-            </p>
-            <p className={`text-sm mt-1 ${status.text}`}>
-              {status.label}
             </p>
           </CardContent>
         </Card>
 
         <div className="grid grid-cols-2 gap-3">
-          {vitals.map((v, i) => (
-            <motion.div key={v.label} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 * i }}>
-              <Card>
-                <CardContent className="flex flex-col items-center p-4 text-center">
-                  <v.icon className={`h-6 w-6 mb-2 ${v.color}`} />
-                  <p className="text-xs text-muted-foreground">{v.label}</p>
-                  <p className={`text-xl font-bold ${v.color}`}>{v.value}</p>
-                </CardContent>
-              </Card>
-            </motion.div>
+          {vitals.map((v) => (
+            <Card key={v.label}>
+              <CardContent className="flex flex-col items-center p-4 text-center">
+                <v.icon className="h-6 w-6 mb-2" />
+                <p className="text-xs mb-1">{v.label}</p>
+                <p className="text-xl font-bold">{v.value}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        {/* Download PDF Button */}
-        <Button onClick={generatePDF} className="w-full h-12 gap-2">
-          <Download className="h-5 w-5" />
-          Download Clinical Report (PDF)
+        <Button onClick={generatePDF} className="w-full gap-2">
+          <Download className="h-4 w-4" />
+          Download Clinical PDF
         </Button>
 
-        <Button
-          onClick={() => navigate('/new-session')}
-          className="w-full h-12 gap-2"
-        >
-          <RefreshCw className="h-5 w-5" />
+        <Button onClick={() => navigate('/new-session')} className="w-full gap-2">
+          <RefreshCw className="h-4 w-4" />
           Start New Session
         </Button>
 
