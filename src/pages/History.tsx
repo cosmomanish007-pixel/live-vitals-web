@@ -64,10 +64,33 @@ const History = () => {
       <div className="mx-auto max-w-md space-y-4">
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-bold text-foreground">Session History</h1>
-          <div className="flex gap-2">
-            <Button size="icon" variant="ghost" onClick={() => navigate('/new-session')}><Plus className="h-5 w-5" /></Button>
-            <Button size="icon" variant="ghost" onClick={() => { signOut(); navigate('/'); }}><LogOut className="h-5 w-5" /></Button>
-          </div>
+          <div className="flex gap-2 items-center">
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/apply-doctor')}
+          >
+            Apply as Doctor
+          </Button>
+
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => navigate('/new-session')}
+          >
+            <Plus className="h-5 w-5" />
+          </Button>
+
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => { signOut(); navigate('/'); }}
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
+
+        </div>
         </div>
 
         {loading ? (
