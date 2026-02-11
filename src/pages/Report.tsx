@@ -5,7 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import type { Vital, Session } from '@/types/database';
-import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw, Download } from 'lucide-react';
+import {
+  Thermometer,
+  HeartPulse,
+  Droplets,
+  Volume2,
+  RefreshCw,
+  Download,
+} from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -16,27 +23,37 @@ const Report = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [vital, setVital] = useState<Vital | null>((location.state as any)?.vital ?? null);
-  const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
+  const [vital, setVital] = useState<Vital | null>(
+    (location.state as any)?.vital ?? null
+  );
+  const [session, setSession] = useState<Session | null>(
+    (location.state as any)?.session ?? null
+  );
 
-  /* ================= FETCH IF REFRESHED ================= */
+  /* ================= FETCH ON REFRESH ================= */
   useEffect(() => {
     if (!vital && sessionId) {
-      supabase.from('vitals')
+      supabase
+        .from('vitals')
         .select('*')
         .eq('session_id', sessionId)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
-        .then(({ data }) => { if (data) setVital(data as Vital); });
+        .then(({ data }) => {
+          if (data) setVital(data as Vital);
+        });
     }
 
     if (!session && sessionId) {
-      supabase.from('sessions')
+      supabase
+        .from('sessions')
         .select('*')
         .eq('id', sessionId)
         .maybeSingle()
-        .then(({ data }) => { if (data) setSession(data as Session); });
+        .then(({ data }) => {
+          if (data) setSession(data as Session);
+        });
     }
   }, [sessionId, vital, session]);
 
@@ -53,6 +70,13 @@ const Report = () => {
       ? 'text-yellow-500'
       : 'text-green-500';
 
+  const qualityColor =
+    clinical?.dataQuality === 'POOR'
+      ? 'text-red-500'
+      : clinical?.dataQuality === 'PARTIAL'
+      ? 'text-yellow-500'
+      : 'text-green-500';
+
   /* ================= PDF GENERATION ================= */
   const generatePDF = () => {
     if (!vital || !session || !clinical) return;
@@ -61,11 +85,11 @@ const Report = () => {
     const pageWidth = doc.internal.pageSize.getWidth();
 
     doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, pageWidth, 30, "F");
+    doc.rect(0, 0, pageWidth, 30, 'F');
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16);
-    doc.text("AURA-STETH AI – Clinical Report", 14, 18);
+    doc.text('AURA-STETH AI – Clinical Report', 14, 18);
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
@@ -82,12 +106,12 @@ const Report = () => {
 
     autoTable(doc, {
       startY: y,
-      head: [["Parameter", "Measured", "Clinical Range", "Flag"]],
+      head: [['Parameter', 'Measured', 'Flag']],
       body: [
-        ["Temperature", vital.temp ?? "—", "36.1 – 37.5 °C", clinical.abnormalFields.includes("Temperature (High)") || clinical.abnormalFields.includes("Temperature (Low)") ? "Abnormal" : "Normal"],
-        ["Heart Rate", vital.hr ?? "—", "60 – 100 bpm", clinical.abnormalFields.some(f => f.includes("Heart Rate")) ? "Abnormal" : "Normal"],
-        ["SpO₂", vital.spo2 ?? "—", "95 – 100 %", clinical.abnormalFields.includes("SpO₂ (Low)") ? "Abnormal" : "Normal"],
-        ["Audio Peak", vital.audio ?? "—", "N/A", "Info"],
+        ['Temperature', vital.temp ?? '—', clinical.abnormalFields.some(f => f.includes('Temperature')) ? 'Abnormal' : 'Normal'],
+        ['Heart Rate', vital.hr ?? '—', clinical.abnormalFields.some(f => f.includes('Heart Rate')) ? 'Abnormal' : 'Normal'],
+        ['SpO₂', vital.spo2 ?? '—', clinical.abnormalFields.some(f => f.includes('SpO₂')) ? 'Abnormal' : 'Normal'],
+        ['Audio Peak', vital.audio ?? '—', 'Info'],
       ],
       headStyles: { fillColor: [37, 99, 235] },
       styles: { fontSize: 10 },
@@ -96,38 +120,36 @@ const Report = () => {
     const finalY = (doc as any).lastAutoTable.finalY + 15;
 
     doc.setFontSize(12);
-    doc.text("Clinical Risk Assessment", 14, finalY);
+    doc.text('Clinical Risk Assessment', 14, finalY);
 
     doc.setFontSize(10);
     doc.text(`Risk Level: ${clinical.riskLevel}`, 14, finalY + 8);
     doc.text(`Risk Score: ${clinical.riskScore}/100`, 14, finalY + 15);
+    doc.text(`Data Quality: ${clinical.dataQuality}`, 14, finalY + 22);
 
     doc.text(
       doc.splitTextToSize(clinical.summary, pageWidth - 28),
       14,
-      finalY + 25
-    );
-
-    doc.text("Recommendations:", 14, finalY + 40);
-    doc.text(
-      doc.splitTextToSize(clinical.recommendations.join(" • "), pageWidth - 28),
-      14,
-      finalY + 48
+      finalY + 32
     );
 
     doc.setFontSize(8);
     doc.text(
-      "Confidential Medical Document • Generated by AURA-STETH AI",
+      'Confidential Medical Document • Generated by AURA-STETH AI',
       pageWidth / 2,
       285,
-      { align: "center" }
+      { align: 'center' }
     );
 
     doc.save(`AURA_Clinical_Report_${session.id}.pdf`);
   };
 
   if (!vital || !session || !clinical) {
-    return <div className="min-h-screen flex items-center justify-center">Loading Report...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading Report...
+      </div>
+    );
   }
 
   return (
@@ -154,10 +176,13 @@ const Report = () => {
             <p className="text-sm text-muted-foreground">
               Score: {clinical.riskScore}/100
             </p>
+            <p className={`text-xs font-medium ${qualityColor}`}>
+              Data Quality: {clinical.dataQuality}
+            </p>
           </CardContent>
         </Card>
 
-        {/* VITALS */}
+        {/* VITAL CARDS */}
         <div className="grid grid-cols-2 gap-3">
           {[
             { icon: Thermometer, label: 'Temperature', value: vital.temp ?? '—', abnormal: clinical.abnormalFields.some(f => f.includes('Temperature')) },
@@ -165,11 +190,11 @@ const Report = () => {
             { icon: Droplets, label: 'SpO₂', value: vital.spo2 ?? '—', abnormal: clinical.abnormalFields.some(f => f.includes('SpO₂')) },
             { icon: Volume2, label: 'Audio', value: vital.audio ?? '—', abnormal: false },
           ].map((v) => (
-            <Card key={v.label} className={v.abnormal ? "border-red-500" : ""}>
+            <Card key={v.label} className={v.abnormal ? 'border-red-500 border-2' : ''}>
               <CardContent className="flex flex-col items-center p-4">
                 <v.icon className="h-6 w-6 mb-2" />
                 <p className="text-xs text-muted-foreground">{v.label}</p>
-                <p className={`text-xl font-bold ${v.abnormal ? "text-red-500" : ""}`}>
+                <p className={`text-xl font-bold ${v.abnormal ? 'text-red-500' : ''}`}>
                   {v.value}
                 </p>
               </CardContent>
