@@ -15,6 +15,7 @@ import Report from "./pages/Report";
 import History from "./pages/History";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import ApplyDoctor from "./pages/ApplyDoctor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -93,7 +94,15 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-
+            {/* ================= APPLY ROUTE ================= */}
+            <Route
+              path="/apply-doctor"
+              element={
+                <ProtectedRoute>
+                  <ApplyDoctor />
+                </ProtectedRoute>
+              }
+            />
             {/* ================= 404 ================= */}
             <Route path="*" element={<NotFound />} />
 
