@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Session, Vital, HealthStatus } from '@/types/database';
-import { Clock, User, Plus, LogOut, Stethoscope } from 'lucide-react';
+import { Clock, User, Plus, LogOut } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface SessionWithVital extends Session {
@@ -17,11 +17,23 @@ interface SessionWithVital extends Session {
 function statusBadge(status: HealthStatus | null | undefined) {
   switch (status) {
     case 'GREEN':
-      return <Badge className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]">Normal</Badge>;
+      return (
+        <Badge className="bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))]">
+          Normal
+        </Badge>
+      );
     case 'YELLOW':
-      return <Badge className="bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))]">Attention</Badge>;
+      return (
+        <Badge className="bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))]">
+          Attention
+        </Badge>
+      );
     case 'RED':
-      return <Badge className="bg-destructive text-destructive-foreground">Alert</Badge>;
+      return (
+        <Badge className="bg-destructive text-destructive-foreground">
+          Alert
+        </Badge>
+      );
     default:
       return <Badge variant="secondary">Pending</Badge>;
   }
@@ -33,12 +45,13 @@ const History = () => {
 
   const [sessions, setSessions] = useState<SessionWithVital[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [profileRole, setProfileRole] = useState<string | null>(null);
   const [doctorStatus, setDoctorStatus] = useState<string | null>(null);
 
   /* ===============================
-     FETCH USER ROLE STATUS
+     FETCH PROFILE ROLE
   ================================ */
-
   useEffect(() => {
     if (!user) return;
 
@@ -49,10 +62,9 @@ const History = () => {
         .eq('id', user.id)
         .maybeSingle();
 
-      if (data?.role === 'doctor') {
-        setDoctorStatus(data.doctor_status);
-      } else {
-        setDoctorStatus(null);
+      if (data) {
+        setProfileRole(data.role);
+        setDoctorStatus(data.doctor_status ?? null);
       }
     };
 
@@ -60,9 +72,8 @@ const History = () => {
   }, [user]);
 
   /* ===============================
-     FETCH SESSIONS
+     FETCH USER SESSIONS
   ================================ */
-
   useEffect(() => {
     if (!user) return;
 
@@ -104,11 +115,10 @@ const History = () => {
   }, [user]);
 
   /* ===============================
-     HEADER ACTIONS
+     ROLE-BASED BUTTON RENDER
   ================================ */
-
-  const renderDoctorButton = () => {
-    if (!doctorStatus) {
+  const renderRoleButton = () => {
+    if (profileRole === 'user') {
       return (
         <Button
           variant="outline"
@@ -120,19 +130,30 @@ const History = () => {
       );
     }
 
-    if (doctorStatus === 'pending') {
-      return <Badge variant="secondary">Doctor Application Pending</Badge>;
+    if (profileRole === 'doctor' && doctorStatus === 'pending') {
+      return <Badge variant="secondary">Application Pending</Badge>;
     }
 
-    if (doctorStatus === 'approved') {
+    if (profileRole === 'doctor' && doctorStatus === 'approved') {
       return (
         <Button
           variant="outline"
           size="sm"
           onClick={() => navigate('/doctor')}
         >
-          <Stethoscope className="h-4 w-4 mr-1" />
           Doctor Panel
+        </Button>
+      );
+    }
+
+    if (profileRole === 'admin') {
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/admin')}
+        >
+          Admin Panel
         </Button>
       );
     }
@@ -146,7 +167,7 @@ const History = () => {
 
   return (
     <div className="min-h-screen bg-background px-4 py-6">
-      <div className="mx-auto max-w-md space-y-6">
+      <div className="mx-auto max-w-md space-y-4">
 
         {/* HEADER */}
         <div className="flex items-center justify-between">
@@ -155,8 +176,7 @@ const History = () => {
           </h1>
 
           <div className="flex gap-2 items-center">
-
-            {renderDoctorButton()}
+            {renderRoleButton()}
 
             <Button
               size="icon"
@@ -176,11 +196,10 @@ const History = () => {
             >
               <LogOut className="h-5 w-5" />
             </Button>
-
           </div>
         </div>
 
-        {/* BODY */}
+        {/* LOADING */}
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -215,6 +234,7 @@ const History = () => {
                         {s.user_name}
                       </span>
                     </div>
+
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Clock className="h-3 w-3" />
                       <span>
@@ -222,6 +242,7 @@ const History = () => {
                       </span>
                     </div>
                   </div>
+
                   {statusBadge(s.vital?.status)}
                 </CardContent>
               </Card>
