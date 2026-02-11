@@ -27,7 +27,7 @@ const CLINICAL_RANGES = {
 };
 
 /* ===============================
-   EVALUATION ENGINE
+   EVALUATION
 ================================= */
 
 function evaluateValue(value: number | null | undefined, min: number, max: number) {
@@ -36,19 +36,13 @@ function evaluateValue(value: number | null | undefined, min: number, max: numbe
   return { label: "Normal", abnormal: false };
 }
 
-/* ===============================
-   RISK ENGINE
-================================= */
-
 function calculateRisk(tempEval: any, hrEval: any, spo2Eval: any) {
   let score = 0;
-
   if (tempEval.abnormal) score += 35;
   if (hrEval.abnormal) score += 35;
   if (spo2Eval.abnormal) score += 30;
 
   let level: HealthStatus = "GREEN";
-
   if (score >= 70) level = "RED";
   else if (score >= 30) level = "YELLOW";
 
@@ -67,15 +61,15 @@ function statusColor(status: HealthStatus | null) {
 const Report = () => {
 
   const { sessionId } = useParams<{ sessionId: string }>();
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [vital, setVital] = useState<Vital | null>((location.state as any)?.vital ?? null);
   const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
   const [loading, setLoading] = useState(true);
 
   /* ===============================
-     FETCH DATA (STABLE)
+     FETCH DATA (NO LOOP)
   ================================= */
 
   useEffect(() => {
@@ -83,25 +77,28 @@ const Report = () => {
 
     const fetchData = async () => {
 
-      // Fetch vitals
-      const { data: vitalData } = await supabase
-        .from('vitals')
-        .select('*')
-        .eq('session_id', sessionId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      try {
 
-      if (vitalData) setVital(vitalData as Vital);
+        const { data: vitalData } = await supabase
+          .from('vitals')
+          .select('*')
+          .eq('session_id', sessionId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-      // Fetch session
-      const { data: sessionData } = await supabase
-        .from('sessions')
-        .select('*')
-        .eq('id', sessionId)
-        .maybeSingle();
+        const { data: sessionData } = await supabase
+          .from('sessions')
+          .select('*')
+          .eq('id', sessionId)
+          .maybeSingle();
 
-      if (sessionData) setSession(sessionData as Session);
+        if (vitalData) setVital(vitalData as Vital);
+        if (sessionData) setSession(sessionData as Session);
+
+      } catch (err) {
+        console.error("Report Fetch Error:", err);
+      }
 
       setLoading(false);
     };
@@ -111,10 +108,10 @@ const Report = () => {
   }, [sessionId]);
 
   /* ===============================
-     LOADING STATE
+     SAFE LOADING UI
   ================================= */
 
-  if (loading || !vital || !session) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -122,8 +119,16 @@ const Report = () => {
     );
   }
 
+  if (!vital || !session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        Report data not available.
+      </div>
+    );
+  }
+
   /* ===============================
-     EVALUATION
+     RISK CALCULATION
   ================================= */
 
   const tempEval = evaluateValue(vital.temp, CLINICAL_RANGES.temp.min, CLINICAL_RANGES.temp.max);
@@ -139,13 +144,9 @@ const Report = () => {
       ? "MODERATE"
       : "HIGH";
 
-  const dataQuality =
-    vital.temp != null && vital.hr != null && vital.spo2 != null
-      ? "GOOD"
-      : "PARTIAL";
-
   /* ===============================
-     DOCTOR CONSULTATION ENGINE
+     CONSULTATION TRIGGER
+     (USES PROFILES TABLE ONLY)
   ================================= */
 
   const createConsultationRequest = useCallback(async () => {
@@ -160,10 +161,12 @@ const Report = () => {
 
     if (existing) return;
 
+    // FETCH APPROVED DOCTOR FROM PROFILES
     const { data: doctor } = await supabase
-      .from('doctors')
+      .from('profiles')
       .select('id')
-      .eq('is_available', true)
+      .eq('role', 'doctor')
+      .eq('doctor_status', 'approved')
       .limit(1)
       .maybeSingle();
 
@@ -176,7 +179,7 @@ const Report = () => {
       status: 'PENDING'
     });
 
-  }, [session.id, risk.level]);
+  }, [risk.level, session.id]);
 
   useEffect(() => {
     createConsultationRequest();
@@ -187,15 +190,9 @@ const Report = () => {
   ================================= */
 
   const generatePDF = () => {
-
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-
-    doc.setFontSize(16);
-    doc.text("AURA-STETH AI Clinical Report", 14, 20);
 
     autoTable(doc, {
-      startY: 30,
       head: [["Parameter", "Value", "Status"]],
       body: [
         ["Temperature", vital.temp ?? "—", tempEval.label],
@@ -207,7 +204,6 @@ const Report = () => {
 
     doc.text(`Risk Level: ${riskLabel}`, 14, 100);
     doc.text(`Risk Score: ${risk.score}/100`, 14, 110);
-    doc.text(`Data Quality: ${dataQuality}`, 14, 120);
 
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
@@ -217,9 +213,9 @@ const Report = () => {
   ================================= */
 
   const vitals = [
-    { icon: Thermometer, label: 'Temperature', value: vital.temp != null ? `${vital.temp}°C` : '—', abnormal: tempEval.abnormal },
-    { icon: HeartPulse, label: 'Heart Rate', value: vital.hr != null ? `${vital.hr} bpm` : '—', abnormal: hrEval.abnormal },
-    { icon: Droplets, label: 'SpO₂', value: vital.spo2 != null ? `${vital.spo2}%` : '—', abnormal: spo2Eval.abnormal },
+    { icon: Thermometer, label: 'Temperature', value: vital.temp ?? '—', abnormal: tempEval.abnormal },
+    { icon: HeartPulse, label: 'Heart Rate', value: vital.hr ?? '—', abnormal: hrEval.abnormal },
+    { icon: Droplets, label: 'SpO₂', value: vital.spo2 ?? '—', abnormal: spo2Eval.abnormal },
     { icon: Volume2, label: 'Audio', value: vital.audio ?? '—', abnormal: false },
   ];
 
@@ -236,23 +232,20 @@ const Report = () => {
 
         <Card>
           <CardContent className="flex flex-col items-center p-6">
-            <p className="text-xs uppercase tracking-wider mb-2">RISK ASSESSMENT</p>
+            <p className="text-xs uppercase tracking-wider mb-2">RISK</p>
             <p className={`text-3xl font-bold ${statusColor(risk.level)}`}>
               {riskLabel}
             </p>
-            <p className="text-sm mt-1">Score: {risk.score}/100</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Data Quality: {dataQuality}
-            </p>
+            <p className="text-sm">Score: {risk.score}/100</p>
           </CardContent>
         </Card>
 
         <div className="grid grid-cols-2 gap-3">
           {vitals.map((v) => (
-            <Card key={v.label} className={v.abnormal ? "border-2 border-red-500" : ""}>
-              <CardContent className="flex flex-col items-center p-4 text-center">
+            <Card key={v.label}>
+              <CardContent className="flex flex-col items-center p-4">
                 <v.icon className="h-6 w-6 mb-2" />
-                <p className="text-xs mb-1">{v.label}</p>
+                <p className="text-xs">{v.label}</p>
                 <p className={`text-xl font-bold ${v.abnormal ? "text-red-500" : ""}`}>
                   {v.value}
                 </p>
@@ -263,7 +256,7 @@ const Report = () => {
 
         <Button onClick={generatePDF} className="w-full gap-2">
           <Download className="h-4 w-4" />
-          Download Clinical PDF
+          Download PDF
         </Button>
 
         <Button onClick={() => navigate('/new-session')} className="w-full gap-2">
