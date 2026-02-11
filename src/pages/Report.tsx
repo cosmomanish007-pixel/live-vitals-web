@@ -52,26 +52,10 @@ const Report = () => {
     }
   }, [sessionId, vital, session]);
 
-  /* ================= SAFE ANALYSIS ================= */
+  /* ================= ANALYSIS ================= */
   const clinical = useMemo(() => {
-    try {
-      if (!vital) return null;
-      return analyzeVitals(vital);
-    } catch (err) {
-      console.error("Clinical Engine Error:", err);
-      return {
-        riskLevel: "MODERATE",
-        riskScore: 50,
-        dataQuality: "PARTIAL",
-        summary: "Unable to fully analyze data. Please review manually.",
-        recommendations: [],
-        flags: {
-          temp: "Normal",
-          hr: "Normal",
-          spo2: "Normal",
-        },
-      };
-    }
+    if (!vital) return null;
+    return analyzeVitals(vital);
   }, [vital]);
 
   if (!vital || !session || !clinical) {
@@ -102,12 +86,8 @@ const Report = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-<<<<<<< HEAD
-    doc.setFillColor(15, 23, 42);
-=======
     /* HEADER */
     doc.setFillColor(15, 23, 42);
->>>>>>> 95fb8487f9a3874d17a5bd6365d3c54fe3882ec2
     doc.rect(0, 0, pageWidth, 30, 'F');
 
     doc.setTextColor(255, 255, 255);
@@ -152,11 +132,15 @@ const Report = () => {
         ['Audio Peak', vital.audio ?? '—', 'N/A', 'Info'],
       ],
       headStyles: { fillColor: [37, 99, 235] },
+      didParseCell: function (data) {
+        if (data.column.index === 3 && data.cell.raw === 'Abnormal') {
+          data.cell.styles.textColor = [220, 38, 38];
+          data.cell.styles.fontStyle = 'bold';
+        }
+      },
       styles: { fontSize: 10 },
     });
 
-<<<<<<< HEAD
-=======
     const finalY = (doc as any).lastAutoTable.finalY + 12;
 
     /* Risk Bar */
@@ -194,7 +178,6 @@ const Report = () => {
       { align: 'center' }
     );
 
->>>>>>> 95fb8487f9a3874d17a5bd6365d3c54fe3882ec2
     doc.save(`AURA_Clinical_Report_${session.id}.pdf`);
   };
 
@@ -242,40 +225,12 @@ const Report = () => {
           />
         </div>
 
-<<<<<<< HEAD
-        {/* Detailed Findings */}
-        <Card className="border-blue-500 border">
-          <CardContent className="p-4 space-y-2">
-            <p className="font-semibold text-sm">Detailed Clinical Findings</p>
-=======
         {/* Metrics */}
         <div className="grid grid-cols-2 gap-3">
           {metrics.map((m) => {
             const abnormal = clinical.flags[m.key as keyof typeof clinical.flags] === 'Abnormal';
             const range = (NORMAL_RANGES as any)[m.key];
->>>>>>> 95fb8487f9a3874d17a5bd6365d3c54fe3882ec2
 
-<<<<<<< HEAD
-            {Object.entries(clinical.flags).map(([key, value]) => (
-              <div key={key} className="flex justify-between text-xs">
-                <span className="capitalize">{key}</span>
-                <span className={value === "Abnormal" ? "text-red-500 font-semibold" : "text-green-500"}>
-                  {value}
-                </span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Metrics */}
-        <div className="grid grid-cols-2 gap-3">
-          {metrics.map((m) => {
-            const abnormal =
-              clinical.flags[m.key as keyof typeof clinical.flags] === 'Abnormal';
-            const range = (NORMAL_RANGES as any)[m.key];
-
-=======
->>>>>>> 95fb8487f9a3874d17a5bd6365d3c54fe3882ec2
             return (
               <Card key={m.label} className={abnormal ? 'border-red-500 border-2' : ''}>
                 <CardContent className="flex flex-col items-center p-4 text-center space-y-1">
@@ -284,32 +239,14 @@ const Report = () => {
                   <p className={`text-xl font-bold ${abnormal ? 'text-red-500' : ''}`}>
                     {m.value ?? '—'}
                   </p>
-
                   {range && (
                     <p className="text-[10px] text-muted-foreground">
                       {range.min} – {range.max} {range.unit}
                     </p>
                   )}
-<<<<<<< HEAD
-
                   <span className={`text-[10px] px-2 py-1 rounded ${getBadge(abnormal)}`}>
                     {abnormal ? 'Abnormal' : 'Normal'}
                   </span>
-
-                  {/* Severity Bar */}
-                  <div className="w-full h-1 mt-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${
-                        abnormal ? "bg-red-500" : "bg-green-500"
-                      }`}
-                      style={{ width: abnormal ? "100%" : "60%" }}
-                    />
-                  </div>
-=======
-                  <span className={`text-[10px] px-2 py-1 rounded ${getBadge(abnormal)}`}>
-                    {abnormal ? 'Abnormal' : 'Normal'}
-                  </span>
->>>>>>> 95fb8487f9a3874d17a5bd6365d3c54fe3882ec2
                 </CardContent>
               </Card>
             );
