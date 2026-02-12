@@ -94,6 +94,23 @@ const Report = () => {
 
   }, [sessionId, vital, session]);
 
+/* ===============================
+   RLS DEBUG TEST (TEMPORARY)
+================================= */
+
+useEffect(() => {
+  const testProfiles = async () => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*");
+
+    console.log("Profiles visible to current user:", data);
+    console.log("Error:", error);
+  };
+
+  testProfiles();
+}, []);
+
   if (!vital || !session) return null;
 
   /* ===============================
