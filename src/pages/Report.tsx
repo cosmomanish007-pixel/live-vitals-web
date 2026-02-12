@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -65,14 +66,16 @@ const Report = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-
+  const { user } = useAuth();
   const [vital, setVital] = useState<Vital | null>((location.state as any)?.vital ?? null);
   const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
 
   /* NEW SAFE STATES */
   const [creatingConsultation, setCreatingConsultation] = useState(false);
   const [consultationCreated, setConsultationCreated] = useState(false);
-
+  const [profileRole, setProfileRole] = useState<string | null>(null);
+  
+  
   useEffect(() => {
     if (!vital && sessionId) {
       supabase.from('vitals')
@@ -93,6 +96,22 @@ const Report = () => {
     }
 
   }, [sessionId, vital, session]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchRole = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (data) setProfileRole(data.role);
+    };
+
+    fetchRole();
+  }, [user]);
 
 /* ===============================
    RLS DEBUG TEST (TEMPORARY)
@@ -297,7 +316,7 @@ const Report = () => {
           </CardContent>
         </Card>
 
-        {risk.score >= 70 && (
+        {risk.score >= 70 && profileRole === "user" && (
           <Card className="border-2 border-red-500">
             <CardContent className="p-5 text-center space-y-3">
               <p className="font-semibold text-red-600">
