@@ -223,17 +223,45 @@ const Report = () => {
       head: [["Parameter", "Measured", "Clinical Range", "Flag"]],
       body: [
         ["Temperature", vital.temp != null ? `${vital.temp} °C` : "—",
-          `${CLINICAL_RANGES.temp.min} – ${CLINICAL_RANGES.temp.max} °C`, tempEval.label],
+          `${CLINICAL_RANGES.temp.min} – ${CLINICAL_RANGES.temp.max} °C`,
+          tempEval.label],
         ["Heart Rate", vital.hr != null ? `${vital.hr} bpm` : "—",
-          `${CLINICAL_RANGES.hr.min} – ${CLINICAL_RANGES.hr.max} bpm`, hrEval.label],
+          `${CLINICAL_RANGES.hr.min} – ${CLINICAL_RANGES.hr.max} bpm`,
+          hrEval.label],
         ["SpO₂", vital.spo2 != null ? `${vital.spo2}%` : "—",
-          `${CLINICAL_RANGES.spo2.min} – ${CLINICAL_RANGES.spo2.max} %`, spo2Eval.label],
+          `${CLINICAL_RANGES.spo2.min} – ${CLINICAL_RANGES.spo2.max} %`,
+          spo2Eval.label],
         ["Audio Peak", vital.audio ?? "—", "N/A", "Info"],
       ],
+
+      didParseCell: function (data) {
+        if (data.column.index === 3 && data.cell.raw === "Abnormal") {
+          data.cell.styles.textColor = [220, 38, 38];
+          data.cell.styles.fontStyle = "bold";
+        }
+      },
+
       headStyles: { fillColor: [37, 99, 235] },
       styles: { fontSize: 10 },
     });
+    let finalY = (doc as any).lastAutoTable.finalY + 15;
 
+    doc.setFontSize(12);
+    doc.text("Clinical Interpretation", 14, finalY);
+    finalY += 8;
+
+    const interpretation =
+      risk.level === "RED"
+        ? "Critical physiological deviations detected. Immediate medical consultation recommended."
+        : risk.level === "YELLOW"
+        ? "Some parameters outside normal range. Monitoring recommended."
+        : "Vitals within acceptable physiological limits.";
+
+    doc.text(
+      doc.splitTextToSize(interpretation, pageWidth - 28),
+      14,
+      finalY
+    );
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
 
