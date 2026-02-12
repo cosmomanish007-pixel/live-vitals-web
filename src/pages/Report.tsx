@@ -98,18 +98,18 @@ const Report = () => {
    RLS DEBUG TEST (TEMPORARY)
 ================================= */
 
-useEffect(() => {
-  const testProfiles = async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*");
+  useEffect(() => {
+    const testProfiles = async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*");
 
-    console.log("Profiles visible to current user:", data);
-    console.log("Error:", error);
-  };
+      console.log("Profiles visible to current user:", data);
+      console.log("Error:", error);
+    };
 
-  testProfiles();
-}, []);
+    testProfiles();
+  }, []);
 
   if (!vital || !session) return null;
 
