@@ -49,25 +49,30 @@ const DoctorDashboard = () => {
   ]);
   const [complaints, setComplaints] = useState<string[]>([""]);
   const [diagnosisList, setDiagnosisList] = useState<string[]>([""]);
+  const [doctorProfile, setDoctorProfile] = useState<any>(null);
+ 
+  
   /* ================================
      FETCH PROFILE
   ================================= */
+useEffect(() => {
+  if (!user) return;
 
-  useEffect(() => {
-    if (!user) return;
+  const fetchProfile = async () => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("is_available, full_name")
+      .eq("id", user.id)
+      .maybeSingle();
 
-    const fetchProfile = async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("is_available")
-        .eq("id", user.id)
-        .maybeSingle();
+    if (data) {
+      setAvailability(data.is_available ?? false);
+      setDoctorProfile(data);
+    }
+  };
 
-      if (data) setAvailability(data.is_available ?? false);
-    };
-
-    fetchProfile();
-  }, [user]);
+  fetchProfile();
+}, [user]);
 
   /* ================================
      FETCH CONSULTATIONS
@@ -261,7 +266,13 @@ const finalizeConsultation = async () => {
   return (
     <div className="min-h-screen bg-background p-6 space-y-10">
 
-      <h1 className="text-3xl font-bold">Doctor Dashboard</h1>
+      <h1 className="text-3xl font-bold">
+  {doctorProfile?.full_name
+    ? doctorProfile.full_name.startsWith("Dr")
+      ? `Welcome ${doctorProfile.full_name}`
+      : `Welcome Dr. ${doctorProfile.full_name}`
+    : "Doctor Dashboard"}
+</h1>
 
       {/* Availability */}
       <Card>
@@ -535,6 +546,7 @@ const finalizeConsultation = async () => {
 };
 
 export default DoctorDashboard;
+
 
 
 
