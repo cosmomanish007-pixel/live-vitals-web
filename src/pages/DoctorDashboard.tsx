@@ -21,6 +21,9 @@ interface Consultation {
   risk_level: "GREEN" | "YELLOW" | "RED";
   status: "PENDING" | "ACTIVE" | "COMPLETED";
   doctor_notes: string | null;
+  diagnosis?: string | null;
+  advice?: string | null;
+  follow_up_date?: string | null;
   completed_at: string | null;
   created_at: string;
 }
@@ -36,6 +39,9 @@ const DoctorDashboard = () => {
   const [selectedConsultation, setSelectedConsultation] =
     useState<Consultation | null>(null);
   const [notes, setNotes] = useState("");
+  const [diagnosis, setDiagnosis] = useState("");
+  const [advice, setAdvice] = useState("");
+  const [followUpDate, setFollowUpDate] = useState("");
   const [medicines, setMedicines] = useState<MedicineItem[]>([
     { name: "", dosage: "", frequency: "", duration: "" }
   ]);
@@ -137,14 +143,16 @@ const DoctorDashboard = () => {
      OPEN COMPLETE MODAL
   ================================= */
 
-    const openCompleteModal = (consultation: Consultation) => {
-      setSelectedConsultation(consultation);
-      setNotes("");
-      setMedicines([
-        { name: "", dosage: "", frequency: "", duration: "" }
-      ]);
-    };
-
+  const openCompleteModal = (consultation: Consultation) => {
+  setSelectedConsultation(consultation);
+  setNotes("");
+  setDiagnosis("");
+  setAdvice("");
+  setFollowUpDate("");
+  setMedicines([
+    { name: "", dosage: "", frequency: "", duration: "" }
+  ]);
+};
   /* ================================
      FINAL COMPLETE
   ================================= */
@@ -159,6 +167,9 @@ const finalizeConsultation = async () => {
       .update({
         status: "COMPLETED",
         doctor_notes: notes,
+        diagnosis: diagnosis,
+        advice: advice,
+        follow_up_date: followUpDate || null,
         completed_at: new Date().toISOString(),
       })
       .eq("id", selectedConsultation.id);
@@ -373,8 +384,27 @@ const finalizeConsultation = async () => {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
-
-
+            <input
+              placeholder="Diagnosis"
+              className="w-full bg-background border border-border p-3 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              value={diagnosis}
+              onChange={(e) => setDiagnosis(e.target.value)}
+            />
+            
+            <textarea
+              placeholder="Advice"
+              className="w-full bg-background border border-border p-3 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              value={advice}
+              onChange={(e) => setAdvice(e.target.value)}
+            />
+            
+            <input
+              type="date"
+              className="w-full bg-background border border-border p-3 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              value={followUpDate}
+              onChange={(e) => setFollowUpDate(e.target.value)}
+            />
+            
           {medicines.map((med, index) => (
           <div key={index} className="grid grid-cols-2 gap-2">
             <input
@@ -453,6 +483,7 @@ const finalizeConsultation = async () => {
 };
 
 export default DoctorDashboard;
+
 
 
 
