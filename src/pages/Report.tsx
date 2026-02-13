@@ -407,37 +407,41 @@ if (doctorProfile?.hospital) {
   y += 12;
 
   /* CHIEF COMPLAINTS */
-  if (doctorResult.chief_complaints) {
-    doc.setFontSize(12);
-    doc.text("Chief Complaints", 14, y);
-    y += 8;
+  doc.setFontSize(12);
+doc.text("Chief Complaints", 14, y);
+y += 8;
 
-    const complaintsArray = doctorResult.chief_complaints.split(",");
+if (doctorResult.chief_complaints) {
+  const complaintsArray = doctorResult.chief_complaints.split(",");
+  complaintsArray.forEach((item: string, index: number) => {
+    doc.text(`${index + 1}. ${item.trim()}`, 14, y);
+    y += 6;
+  });
+} else {
+  doc.text("Not Provided", 14, y);
+  y += 6;
+}
 
-    complaintsArray.forEach((item: string, index: number) => {
-      doc.text(`${index + 1}. ${item.trim()}`, 14, y);
-      y += 6;
-    });
-
-    y += 4;
-  }
+y += 4;
 
   /* DIAGNOSIS */
-  if (doctorResult.diagnosis) {
-    doc.setFontSize(12);
-    doc.text("Diagnosis", 14, y);
-    y += 8;
+ doc.setFontSize(12);
+doc.text("Diagnosis", 14, y);
+y += 8;
 
-    const diagnosisArray = doctorResult.diagnosis.split(",");
+if (doctorResult.diagnosis) {
+  const diagnosisArray = doctorResult.diagnosis.split(",");
+  diagnosisArray.forEach((item: string, index: number) => {
+    doc.text(`${index + 1}. ${item.trim()}`, 14, y);
+    y += 6;
+  });
+} else {
+  doc.text("Not Provided", 14, y);
+  y += 6;
+}
 
-    diagnosisArray.forEach((item: string, index: number) => {
-      doc.text(`${index + 1}. ${item.trim()}`, 14, y);
-      y += 6;
-    });
-
-    y += 4;
-  }
-
+y += 4;
+    
   /* DOCTOR NOTES */
   if (doctorResult.doctor_notes) {
     doc.setFontSize(12);
@@ -453,48 +457,49 @@ if (doctorProfile?.hospital) {
   }
 
   /* MEDICINES TABLE */
-  if (medicineList.length > 0) {
-    doc.setFontSize(12);
-    doc.text("Prescribed Medicines", 14, y);
-    y += 6;
+  doc.setFontSize(12);
+doc.text("Prescribed Medicines", 14, y);
+y += 6;
 
-    autoTable(doc, {
-      startY: y,
-      head: [["#", "Medicine", "Dosage", "Frequency", "Duration"]],
-      body: medicineList.map((med: any, index: number) => [
-        index + 1,
-        med.medicine_name,
-        med.dosage,
-        med.frequency,
-        med.duration,
-      ]),
-      theme: "grid",
-      headStyles: {
-        fillColor: [22, 163, 74],
-        textColor: 255,
-      },
-      styles: {
-        fontSize: 10,
-      },
-    });
+autoTable(doc, {
+  startY: y,
+  head: [["#", "Medicine", "Dosage", "Frequency", "Duration"]],
+  body:
+    medicineList.length > 0
+      ? medicineList.map((med: any, index: number) => [
+          index + 1,
+          med.medicine_name,
+          med.dosage,
+          med.frequency,
+          med.duration,
+        ])
+      : [["-", "No Medicines Prescribed", "-", "-", "-"]],
+  theme: "grid",
+  headStyles: {
+    fillColor: [22, 163, 74],
+    textColor: 255,
+  },
+  styles: { fontSize: 10 },
+});
 
-    y = (doc as any).lastAutoTable.finalY + 10;
-  }
+y = (doc as any).lastAutoTable.finalY + 10;
 
   /* ADVICE */
-  if (doctorResult.advice) {
-    doc.setFontSize(12);
-    doc.text("General Advice", 14, y);
-    y += 8;
+  doc.setFontSize(12);
+doc.text("General Advice", 14, y);
+y += 8;
 
-    const splitAdvice = doc.splitTextToSize(
-      doctorResult.advice,
-      pageWidth - 28
-    );
-
-    doc.text(splitAdvice, 14, y);
-    y += splitAdvice.length * 6 + 6;
-  }
+if (doctorResult.advice) {
+  const splitAdvice = doc.splitTextToSize(
+    doctorResult.advice,
+    pageWidth - 28
+  );
+  doc.text(splitAdvice, 14, y);
+  y += splitAdvice.length * 6 + 6;
+} else {
+  doc.text("No Specific Advice Provided", 14, y);
+  y += 6;
+}
 
   /* FOLLOW UP */
   if (doctorResult.follow_up_date) {
