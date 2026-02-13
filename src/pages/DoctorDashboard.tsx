@@ -21,7 +21,6 @@ interface Consultation {
   risk_level: "GREEN" | "YELLOW" | "RED";
   status: "PENDING" | "ACTIVE" | "COMPLETED";
   doctor_notes: string | null;
-  prescription_items: MedicineItem[] | null;
   completed_at: string | null;
   created_at: string;
 }
@@ -150,22 +149,58 @@ const DoctorDashboard = () => {
      FINAL COMPLETE
   ================================= */
 
-  const finalizeConsultation = async () => {
-    if (!selectedConsultation) return;
+const finalizeConsultation = async () => {
+  if (!selectedConsultation) return;
 
-    await supabase
+  try {
+    /* 1️⃣ Update consultation header */
+    const { error } = await supabase
       .from("consultation_requests")
       .update({
-      status: "COMPLETED",
-      doctor_notes: notes,
-      prescription_items: medicines,
-      completed_at: new Date().toISOString(),
+        status: "COMPLETED",
+        doctor_notes: notes,
+        completed_at: new Date().toISOString(),
       })
       .eq("id", selectedConsultation.id);
 
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+/* 3 DELETE OLD MEDICINES (IMPORTANT) */
+    await supabase
+      .from("consultation_medicines")
+      .delete()
+      .eq("consultation_id", selectedConsultation.id);
+
+    
+    
+    /* 2️⃣ Insert medicines into consultation_medicines table */
+    const validMedicines = medicines.filter(
+      (m) => m.name && m.dosage && m.frequency && m.duration
+    );
+
+    if (validMedicines.length > 0) {
+      const formatted = validMedicines.map((med) => ({
+        consultation_id: selectedConsultation.id,
+        medicine_name: med.name,
+        dosage: med.dosage,
+        frequency: med.frequency,
+        duration: med.duration,
+      }));
+
+      await supabase
+        .from("consultation_medicines")
+        .insert(formatted);
+    }
+
     setSelectedConsultation(null);
     fetchConsultations();
-  };
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   /* ================================
      BADGES
@@ -312,17 +347,7 @@ const DoctorDashboard = () => {
               )}
 
               
-              {c.prescription_items && (
-                <div className="text-sm space-y-1">
-                  <strong>Prescription:</strong>
-                  {c.prescription_items.map((med: any, idx: number) => (
-                    <div key={idx} className="text-muted-foreground">
-                      {med.name} — {med.dosage} — {med.frequency} — {med.duration}
-                    </div>
-                  ))}
-                </div>
-              )}
-              
+                       
               {c.completed_at && (
                 <p className="text-xs text-muted-foreground">
                   Completed on: {new Date(c.completed_at).toLocaleString()}
@@ -428,5 +453,6 @@ const DoctorDashboard = () => {
 };
 
 export default DoctorDashboard;
+
 
 
