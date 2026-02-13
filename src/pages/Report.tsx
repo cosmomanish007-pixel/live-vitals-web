@@ -372,22 +372,6 @@ const generatePrescriptionPDF = () => {
     { align: "right" }
   );
 
-  /* ===============================
-     WATERMARK
-  ================================ */
-  doc.setFontSize(60);
-  doc.setTextColor(240);
-  doc.setFont("helvetica", "bold");
-  doc.text(
-    "AURA-STETH",
-    pageWidth / 2,
-    pageHeight / 2,
-    { align: "center", angle: 45 }
-  );
-
-  doc.setTextColor(0);
-  doc.setFont("helvetica", "normal");
-
   let y = 55;
 
   const doctorName = doctorProfile?.full_name
