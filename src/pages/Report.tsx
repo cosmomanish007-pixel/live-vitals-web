@@ -357,10 +357,12 @@ useEffect(() => {
   let y = 50;
 
 /* DOCTOR DETAILS */
-doc.setFontSize(12);
+doc.setFontSize(13);
+doc.setTextColor(22, 163, 74);
 doc.text("Doctor Information", 14, y);
 y += 8;
 
+doc.setTextColor(0, 0, 0);
 doc.setFontSize(11);
 
 const doctorName = doctorProfile?.full_name
@@ -369,16 +371,18 @@ const doctorName = doctorProfile?.full_name
     : `Dr. ${doctorProfile.full_name}`
   : "N/A";
 
-doc.text(`Name: ${doctorName}`, 14, y);
+doc.setFont("helvetica", "bold");
+doc.text(doctorName, 14, y);
+doc.setFont("helvetica", "normal");
 y += 6;
-
-if (doctorProfile?.license_number) {
-  doc.text(`License No: ${doctorProfile.license_number}`, 14, y);
-  y += 6;
-}
 
 if (doctorProfile?.specialization) {
   doc.text(`Specialization: ${doctorProfile.specialization}`, 14, y);
+  y += 6;
+}
+
+if (doctorProfile?.license_number) {
+  doc.text(`License No: ${doctorProfile.license_number}`, 14, y);
   y += 6;
 }
 
@@ -387,44 +391,32 @@ if (doctorProfile?.hospital) {
   y += 10;
 }
 
-  /* PATIENT INFO */
-  doc.setFontSize(12);
-  doc.text("Patient Information", 14, y);
-  y += 8;
-
-  doc.setFontSize(11);
-  doc.text(`Name: ${session.user_name}`, 14, y);
-  doc.text(`Age: ${session.age}`, 110, y);
-  y += 6;
-
-  doc.text(`Session ID: ${session.id}`, 14, y);
-  doc.text(
-    `Date: ${new Date(doctorResult.completed_at).toLocaleString()}`,
-    110,
-    y
-  );
-  y += 12;
-
-  /* CHIEF COMPLAINTS */
-  doc.setFontSize(12);
-doc.text("Chief Complaints", 14, y);
+    
+   /* PATIENT INFO */
+doc.setFontSize(13);
+doc.setTextColor(22, 163, 74);
+doc.text("Patient Information", 14, y);
 y += 8;
 
-if (doctorResult.chief_complaints) {
-  const complaintsArray = doctorResult.chief_complaints.split(",");
-  complaintsArray.forEach((item: string, index: number) => {
-    doc.text(`${index + 1}. ${item.trim()}`, 14, y);
-    y += 6;
-  });
-} else {
-  doc.text("Not Provided", 14, y);
-  y += 6;
-}
+doc.setTextColor(0, 0, 0);
+doc.setFontSize(11);
 
-y += 4;
+doc.text(`Patient Name: ${session.user_name}`, 14, y);
+doc.text(`Age: ${session.age}`, 120, y);
+y += 6;
+
+doc.text(`Session ID: ${session.id}`, 14, y);
+doc.text(
+  `Consultation Date: ${new Date(
+    doctorResult.completed_at
+  ).toLocaleString()}`,
+  120,
+  y
+);
+y += 12;
 
   /* DIAGNOSIS */
- doc.setFontSize(12);
+doc.setFontSize(12);
 doc.text("Diagnosis", 14, y);
 y += 8;
 
