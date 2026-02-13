@@ -69,7 +69,8 @@ const Report = () => {
   const { user } = useAuth();
   const [vital, setVital] = useState<Vital | null>((location.state as any)?.vital ?? null);
   const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
-
+const [loading, setLoading] = useState(true);
+   
   /* NEW SAFE STATES */
   const [creatingConsultation, setCreatingConsultation] = useState(false);
   const [consultationCreated, setConsultationCreated] = useState(false);
@@ -81,26 +82,34 @@ const Report = () => {
   const [medicineList, setMedicineList] = useState<any[]>([]);
 
    
-  useEffect(() => {
-    if (!vital && sessionId) {
-      supabase.from('vitals')
-        .select('*')
-        .eq('session_id', sessionId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-        .then(({ data }) => { if (data) setVital(data as Vital); });
-    }
+useEffect(() => {
+  const fetchData = async () => {
+    if (!sessionId) return;
 
-    if (!session && sessionId) {
-      supabase.from('sessions')
-        .select('*')
-        .eq('id', sessionId)
-        .maybeSingle()
-        .then(({ data }) => { if (data) setSession(data as Session); });
-    }
+    setLoading(true);
 
-  }, [sessionId, vital, session]);
+    const { data: vitalData } = await supabase
+      .from("vitals")
+      .select("*")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const { data: sessionData } = await supabase
+      .from("sessions")
+      .select("*")
+      .eq("id", sessionId)
+      .maybeSingle();
+
+    if (vitalData) setVital(vitalData as Vital);
+    if (sessionData) setSession(sessionData as Session);
+
+    setLoading(false);
+  };
+
+  fetchData();
+}, [sessionId]);
 
 useEffect(() => {
   if (!user) return;
@@ -178,7 +187,21 @@ useEffect(() => {
     testProfiles();
   }, []);
 
-  if (!session) return null;
+  if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-muted-foreground">Loading Report...</p>
+    </div>
+  );
+}
+
+if (!vital || !session) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-red-500">Report data not found.</p>
+    </div>
+  );
+}
   /* ===============================
      EVALUATION
   ================================= */
