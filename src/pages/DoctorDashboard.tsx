@@ -27,7 +27,12 @@ const DoctorDashboard = () => {
   const [availability, setAvailability] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  /* =================================
+  const [selectedConsultation, setSelectedConsultation] =
+    useState<Consultation | null>(null);
+  const [notes, setNotes] = useState("");
+  const [prescription, setPrescription] = useState("");
+
+  /* ================================
      FETCH PROFILE
   ================================= */
 
@@ -47,7 +52,7 @@ const DoctorDashboard = () => {
     fetchProfile();
   }, [user]);
 
-  /* =================================
+  /* ================================
      FETCH CONSULTATIONS
   ================================= */
 
@@ -68,8 +73,8 @@ const DoctorDashboard = () => {
     fetchConsultations();
   }, [fetchConsultations]);
 
-  /* =================================
-     REALTIME UPDATES
+  /* ================================
+     REALTIME LISTENER
   ================================= */
 
   useEffect(() => {
@@ -93,7 +98,7 @@ const DoctorDashboard = () => {
     };
   }, [user, fetchConsultations]);
 
-  /* =================================
+  /* ================================
      TOGGLE AVAILABILITY
   ================================= */
 
@@ -107,7 +112,7 @@ const DoctorDashboard = () => {
       .eq("id", user?.id);
   };
 
-  /* =================================
+  /* ================================
      START CONSULTATION
   ================================= */
 
@@ -120,16 +125,22 @@ const DoctorDashboard = () => {
     fetchConsultations();
   };
 
-  /* =================================
-     COMPLETE CONSULTATION
+  /* ================================
+     OPEN COMPLETE MODAL
   ================================= */
 
-  const completeConsultation = async (id: string) => {
-    const notes = prompt("Enter consultation notes:");
-    if (!notes) return;
+  const openCompleteModal = (consultation: Consultation) => {
+    setSelectedConsultation(consultation);
+    setNotes("");
+    setPrescription("");
+  };
 
-    const prescription = prompt("Enter prescription / medicines:");
-    if (!prescription) return;
+  /* ================================
+     FINAL COMPLETE
+  ================================= */
+
+  const finalizeConsultation = async () => {
+    if (!selectedConsultation) return;
 
     await supabase
       .from("consultation_requests")
@@ -139,12 +150,13 @@ const DoctorDashboard = () => {
         prescription: prescription,
         completed_at: new Date().toISOString(),
       })
-      .eq("id", id);
+      .eq("id", selectedConsultation.id);
 
+    setSelectedConsultation(null);
     fetchConsultations();
   };
 
-  /* =================================
+  /* ================================
      BADGES
   ================================= */
 
@@ -172,7 +184,7 @@ const DoctorDashboard = () => {
     (c) => c.status === "COMPLETED"
   );
 
-  /* =================================
+  /* ================================
      UI
   ================================= */
 
@@ -191,7 +203,7 @@ const DoctorDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* ACTIVE */}
+      {/* ACTIVE CONSULTATIONS */}
       <div>
         <h2 className="text-xl font-semibold mb-4">
           Active / Pending Consultations
@@ -211,11 +223,11 @@ const DoctorDashboard = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Card className="mb-4 hover:shadow-xl transition-all border border-border">
+            <Card className="mb-4 hover:shadow-xl transition-all border">
               <CardContent className="p-6 space-y-4">
 
                 <div className="flex justify-between items-center">
-                  <div className="space-y-1">
+                  <div>
                     <p className="font-semibold">
                       Session: {c.session_id}
                     </p>
@@ -235,7 +247,7 @@ const DoctorDashboard = () => {
                   {c.status === "ACTIVE" && (
                     <Button
                       variant="secondary"
-                      onClick={() => completeConsultation(c.id)}
+                      onClick={() => openCompleteModal(c)}
                     >
                       Complete & Add Prescription
                     </Button>
@@ -269,7 +281,7 @@ const DoctorDashboard = () => {
         )}
 
         {completedConsultations.map((c) => (
-          <Card key={c.id} className="mb-4 border border-border opacity-90">
+          <Card key={c.id} className="mb-4 border opacity-90">
             <CardContent className="p-6 space-y-3">
 
               <div className="flex justify-between items-center">
@@ -304,6 +316,45 @@ const DoctorDashboard = () => {
           </Card>
         ))}
       </div>
+
+      {/* MODAL */}
+      {selectedConsultation && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg space-y-4">
+
+            <h2 className="text-xl font-bold">
+              Add Consultation Notes & Prescription
+            </h2>
+
+            <textarea
+              placeholder="Doctor Notes"
+              className="w-full border p-2 rounded"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+
+            <textarea
+              placeholder="Prescription / Medicines"
+              className="w-full border p-2 rounded"
+              value={prescription}
+              onChange={(e) => setPrescription(e.target.value)}
+            />
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setSelectedConsultation(null)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={finalizeConsultation}>
+                Finalize & Complete
+              </Button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
