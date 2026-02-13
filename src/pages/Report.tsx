@@ -74,7 +74,8 @@ const Report = () => {
   const [creatingConsultation, setCreatingConsultation] = useState(false);
   const [consultationCreated, setConsultationCreated] = useState(false);
   const [profileRole, setProfileRole] = useState<string | null>(null);
-  
+  const [doctorResult, setDoctorResult] = useState<any>(null);
+  const [consultationCompleted, setConsultationCompleted] = useState(false);
   
   useEffect(() => {
     if (!vital && sessionId) {
@@ -113,6 +114,30 @@ const Report = () => {
     fetchRole();
   }, [user]);
 
+/* ===============================
+  CONSULTATION REPORT 
+================================= */
+
+   
+useEffect(() => {
+  if (!session) return;
+
+  const fetchDoctorResult = async () => {
+    const { data } = await supabase
+      .from("consultation_requests")
+      .select("*")
+      .eq("session_id", session.id)
+      .eq("status", "COMPLETED")
+      .maybeSingle();
+
+    if (data) {
+      setDoctorResult(data);
+      setConsultationCompleted(true);
+    }
+  };
+
+  fetchDoctorResult();
+}, [session]);
 /* ===============================
    RLS DEBUG TEST (TEMPORARY)
 ================================= */
@@ -316,7 +341,7 @@ const Report = () => {
           </CardContent>
         </Card>
 
-        {risk.score >= 70 && profileRole === "user" && (
+        {risk.score >= 70 && profileRole === "user" && !consultationCompleted && (
           <Card className="border-2 border-red-500">
             <CardContent className="p-5 text-center space-y-3">
               <p className="font-semibold text-red-600">
@@ -354,6 +379,37 @@ const Report = () => {
           ))}
         </div>
 
+         {doctorResult && profileRole === "user" && (
+           <Card className="border-2 border-green-500">
+             <CardContent className="p-5 space-y-3">
+               <h3 className="font-semibold text-green-600">
+                 Consultation Completed
+               </h3>
+         
+               {doctorResult.doctor_notes && (
+                 <p>
+                   <strong>Doctor Notes:</strong><br />
+                   {doctorResult.doctor_notes}
+                 </p>
+               )}
+         
+               {doctorResult.prescription && (
+                 <p>
+                   <strong>Prescription:</strong><br />
+                   {doctorResult.prescription}
+                 </p>
+               )}
+         
+               {doctorResult.completed_at && (
+                 <p className="text-xs text-muted-foreground">
+                   Completed on:{" "}
+                   {new Date(doctorResult.completed_at).toLocaleString()}
+                 </p>
+               )}
+             </CardContent>
+           </Card>
+         )}
+                  
         <Button onClick={generatePDF} className="w-full gap-2">
           <Download className="h-4 w-4" />
           Download Clinical PDF
