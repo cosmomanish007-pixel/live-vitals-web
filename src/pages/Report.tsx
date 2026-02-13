@@ -355,57 +355,45 @@ if (!vital || !session) {
 
   y += 10;
 
-  /* ================= EMERGENCY BANNER ================= */
-  /* ===============================
+/* ===============================
    CLINICAL ADVISORY PANEL
 ================================= */
 
-if (risk.level === "RED") {
-  const panelHeight = 22;
+if (risk?.level === "RED") {
 
-  // Light soft background (not harsh red)
-  doc.setFillColor(255, 235, 235);
-  doc.roundedRect(14, y, pageWidth - 28, panelHeight, 3, 3, "F");
+  const panelHeight = 26;
+  const panelWidth = pageWidth - 28;
 
-  // Left red accent bar
+  // Soft background box
+  doc.setFillColor(255, 240, 240);
+  doc.rect(14, y, panelWidth, panelHeight, "F");
+
+  // Left accent stripe
   doc.setFillColor(220, 38, 38);
-  doc.rect(14, y, 4, panelHeight, "F");
+  doc.rect(14, y, 5, panelHeight, "F");
 
   // Title
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.setTextColor(220, 38, 38);
-  doc.text("CRITICAL CLINICAL ADVISORY", 22, y + 8);
+  doc.text("CRITICAL CLINICAL ADVISORY", 24, y + 9);
 
   // Message
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.setTextColor(60);
+  doc.setTextColor(80, 80, 80); // Must use RGB
   doc.text(
     "Immediate in-person medical evaluation is strongly recommended based on current physiological readings.",
-    22,
-    y + 16,
-    { maxWidth: pageWidth - 40 }
+    24,
+    y + 17,
+    { maxWidth: panelWidth - 12 }
   );
 
+  // Reset color
+  doc.setTextColor(0, 0, 0);
+
   y += panelHeight + 12;
-}}
-
-  /* ================= AI CONFIDENCE ================= */
-  doc.setFont("helvetica", "bold");
-  doc.text("AI Confidence Index", 14, y);
-  y += 6;
-
-  doc.setFillColor(230);
-  doc.rect(14, y, 100, 6, "F");
-
-  doc.setFillColor(...blue);
-  doc.rect(14, y, 85, 6, "F");
-
-  doc.setFontSize(9);
-  doc.text("85% Data Reliability", 120, y + 5);
-
-  y += 15;
+}
 
   /* ================= TABLE ================= */
   autoTable(doc, {
