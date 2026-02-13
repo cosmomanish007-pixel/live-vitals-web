@@ -338,41 +338,57 @@ const generatePrescriptionPDF = () => {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  /* =====================================
+  const primaryColor = [15, 23, 42];      // Header navy
+  const accentGreen = [22, 163, 74];      // Section titles
+  const lightGray = [230, 230, 230];
+
+  /* ===============================
      OUTER BORDER
-  ====================================== */
+  ================================ */
   doc.setDrawColor(180);
   doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
 
-  /* =====================================
+  /* ===============================
      HEADER
-  ====================================== */
-  doc.setFillColor(15, 23, 42);
-  doc.rect(5, 5, pageWidth - 10, 35, "F");
+  ================================ */
+  doc.setFillColor(...primaryColor);
+  doc.rect(5, 5, pageWidth - 10, 40, "F");
 
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(17);
+  doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text("AURA-STETH AI MEDICAL CENTER", 14, 20);
+  doc.text("AURA-STETH AI MEDICAL CENTER", 14, 22);
 
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text("Official OPD Consultation Prescription", 14, 28);
-
-  let y = 50;
-  doc.setTextColor(0);
-
-  /* =====================================
-     DOCTOR INFORMATION
-  ====================================== */
-  doc.setFontSize(13);
-  doc.setTextColor(22, 163, 74);
-  doc.setFont("helvetica", "bold");
-  doc.text("Doctor Information", 14, y);
-  y += 8;
-
-  doc.setTextColor(0);
   doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text("Official OPD Consultation Prescription", 14, 32);
+
+  // Prescription ID
+  doc.setFontSize(9);
+  doc.text(
+    `Prescription ID: RX-${session.id.slice(0, 8).toUpperCase()}`,
+    pageWidth - 14,
+    32,
+    { align: "right" }
+  );
+
+  /* ===============================
+     WATERMARK
+  ================================ */
+  doc.setFontSize(60);
+  doc.setTextColor(240);
+  doc.setFont("helvetica", "bold");
+  doc.text(
+    "AURA-STETH",
+    pageWidth / 2,
+    pageHeight / 2,
+    { align: "center", angle: 45 }
+  );
+
+  doc.setTextColor(0);
+  doc.setFont("helvetica", "normal");
+
+  let y = 55;
 
   const doctorName = doctorProfile?.full_name
     ? doctorProfile.full_name.startsWith("Dr")
@@ -380,6 +396,17 @@ const generatePrescriptionPDF = () => {
       : `Dr. ${doctorProfile.full_name}`
     : "N/A";
 
+  /* ===============================
+     DOCTOR INFORMATION
+  ================================ */
+  doc.setFontSize(13);
+  doc.setTextColor(...accentGreen);
+  doc.setFont("helvetica", "bold");
+  doc.text("Doctor Information", 14, y);
+  y += 8;
+
+  doc.setTextColor(0);
+  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
   doc.text(doctorName, 14, y);
   doc.setFont("helvetica", "normal");
@@ -400,16 +427,15 @@ const generatePrescriptionPDF = () => {
     y += 10;
   }
 
-  /* Divider Line */
-  doc.setDrawColor(220);
+  doc.setDrawColor(...lightGray);
   doc.line(14, y, pageWidth - 14, y);
   y += 10;
 
-  /* =====================================
+  /* ===============================
      PATIENT INFORMATION
-  ====================================== */
+  ================================ */
   doc.setFontSize(13);
-  doc.setTextColor(22, 163, 74);
+  doc.setTextColor(...accentGreen);
   doc.setFont("helvetica", "bold");
   doc.text("Patient Information", 14, y);
   y += 8;
@@ -430,61 +456,27 @@ const generatePrescriptionPDF = () => {
     120,
     y
   );
-  y += 12;
+  y += 10;
 
-  /* Divider Line */
-  doc.setDrawColor(220);
   doc.line(14, y, pageWidth - 14, y);
   y += 10;
 
-  /* =====================================
+  /* ===============================
      DIAGNOSIS
-  ====================================== */
-  doc.setFontSize(13);
-  doc.setTextColor(22, 163, 74);
+  ================================ */
+  doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.text("Diagnosis", 14, y);
   y += 8;
 
-  doc.setTextColor(0);
-  doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
 
   if (doctorResult.diagnosis) {
     const diagnosisArray = doctorResult.diagnosis.split(",");
     diagnosisArray.forEach((item: string, index: number) => {
-      doc.text(`${index + 1}. ${item.trim()}`, 16, y);
+      doc.text(`${index + 1}. ${item.trim()}`, 14, y);
       y += 6;
     });
-  } else {
-    doc.setFont("helvetica", "italic");
-    doc.text("Not Provided", 16, y);
-    doc.setFont("helvetica", "normal");
-    y += 6;
-  }
-
-  y += 6;
-
-  /* =====================================
-     CLINICAL NOTES
-  ====================================== */
-  doc.setFontSize(13);
-  doc.setTextColor(22, 163, 74);
-  doc.setFont("helvetica", "bold");
-  doc.text("Clinical Notes", 14, y);
-  y += 8;
-
-  doc.setTextColor(0);
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "normal");
-
-  if (doctorResult.doctor_notes) {
-    const splitNotes = doc.splitTextToSize(
-      doctorResult.doctor_notes,
-      pageWidth - 28
-    );
-    doc.text(splitNotes, 14, y);
-    y += splitNotes.length * 6 + 6;
   } else {
     doc.setFont("helvetica", "italic");
     doc.text("Not Provided", 14, y);
@@ -494,53 +486,61 @@ const generatePrescriptionPDF = () => {
 
   y += 8;
 
-  /* =====================================
-     MEDICINES TABLE
-  ====================================== */
-  doc.setFontSize(13);
-  doc.setTextColor(22, 163, 74);
+  /* ===============================
+     CLINICAL NOTES
+  ================================ */
+  if (doctorResult.doctor_notes) {
+    doc.setFont("helvetica", "bold");
+    doc.text("Clinical Notes", 14, y);
+    y += 8;
+
+    doc.setFont("helvetica", "normal");
+    const splitNotes = doc.splitTextToSize(
+      doctorResult.doctor_notes,
+      pageWidth - 28
+    );
+    doc.text(splitNotes, 14, y);
+    y += splitNotes.length * 6 + 8;
+  }
+
+  /* ===============================
+     PRESCRIBED MEDICINES
+  ================================ */
   doc.setFont("helvetica", "bold");
   doc.text("Prescribed Medicines", 14, y);
   y += 6;
 
   autoTable(doc, {
     startY: y,
-    head: [["#", "Medicine", "Dosage", "Frequency", "Duration"]],
+    head: [["#", "Medicine", "Dosage", "Frequency", "Duration", "Total Qty"]],
     body:
       medicineList.length > 0
         ? medicineList.map((med: any, index: number) => [
             index + 1,
-            med.medicine_name,
-            med.dosage,
-            med.frequency,
-            med.duration,
+            med.medicine_name || "-",
+            med.dosage || "-",
+            med.frequency || "-",
+            med.duration || "-",
+            med.total_quantity || "-",   // SAFE HANDLING
           ])
-        : [["-", "No Medicines Prescribed", "-", "-", "-"]],
+        : [["-", "No Medicines Prescribed", "-", "-", "-", "-"]],
     theme: "grid",
     headStyles: {
-      fillColor: [22, 163, 74],
+      fillColor: accentGreen,
       textColor: 255,
-      fontStyle: "bold",
     },
-    styles: {
-      fontSize: 10,
-      cellPadding: 4,
-    },
+    styles: { fontSize: 10 },
   });
 
-  y = (doc as any).lastAutoTable.finalY + 10;
+  y = (doc as any).lastAutoTable.finalY + 12;
 
-  /* =====================================
-     ADVICE
-  ====================================== */
-  doc.setFontSize(13);
-  doc.setTextColor(22, 163, 74);
+  /* ===============================
+     GENERAL ADVICE
+  ================================ */
   doc.setFont("helvetica", "bold");
   doc.text("General Advice", 14, y);
   y += 8;
 
-  doc.setTextColor(0);
-  doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
 
   if (doctorResult.advice) {
@@ -557,29 +557,34 @@ const generatePrescriptionPDF = () => {
     y += 6;
   }
 
-  if (doctorResult.follow_up_date) {
-    y += 4;
-    doc.text(`Follow-up Date: ${doctorResult.follow_up_date}`, 14, y);
-  }
-
-  /* =====================================
-     DIGITAL SIGNATURE BLOCK
-  ====================================== */
-  const signatureY = pageHeight - 40;
+  /* ===============================
+     SIGNATURE BLOCK
+  ================================ */
+  const signatureY = pageHeight - 45;
 
   doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
   doc.text(doctorName, pageWidth - 70, signatureY);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-  doc.text("Authorized Digital Signature", pageWidth - 70, signatureY + 6);
+  doc.text(
+    doctorProfile?.specialization || "",
+    pageWidth - 70,
+    signatureY + 6
+  );
 
-  /* =====================================
+  doc.text(
+    "Digitally Authorized Medical Practitioner",
+    pageWidth - 70,
+    signatureY + 12
+  );
+
+  /* ===============================
      FOOTER
-  ====================================== */
+  ================================ */
   doc.setFontSize(9);
   doc.setTextColor(120);
-
   doc.text(
     "This is a digitally generated prescription. No physical signature required.",
     pageWidth / 2,
