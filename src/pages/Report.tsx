@@ -77,6 +77,9 @@ const Report = () => {
   const [doctorResult, setDoctorResult] = useState<any>(null);
   const [consultationCompleted, setConsultationCompleted] = useState(false);
   const [consultation, setConsultation] = useState<any | null>(null);
+  const [doctorProfile, setDoctorProfile] = useState<any>(null);
+  const [medicineList, setMedicineList] = useState<any[]>([]);
+      
   useEffect(() => {
     if (!vital && sessionId) {
       supabase.from('vitals')
@@ -122,21 +125,41 @@ const Report = () => {
 useEffect(() => {
   if (!session) return;
 
-  const fetchDoctorResult = async () => {
-    const { data } = await supabase
+  const fetchAllPrescriptionData = async () => {
+
+    // 1️⃣ Get Consultation
+    const { data: consultationData } = await supabase
       .from("consultation_requests")
       .select("*")
       .eq("session_id", session.id)
       .eq("status", "COMPLETED")
       .maybeSingle();
 
-    if (data) {
-      setDoctorResult(data);
-      setConsultationCompleted(true);
-    }
+    if (!consultationData) return;
+
+    setDoctorResult(consultationData);
+    setConsultationCompleted(true);
+
+    // 2️⃣ Get Doctor Profile
+    const { data: doctorData } = await supabase
+      .from("profiles")
+      .select("role, license_number, specialization, hospital")
+      .eq("id", consultationData.doctor_id)
+      .maybeSingle();
+
+    setDoctorProfile(doctorData);
+
+    // 3️⃣ Get Medicines
+    const { data: meds } = await supabase
+      .from("consultation_medicines")
+      .select("*")
+      .eq("consultation_id", consultationData.id)
+      .order("created_at", { ascending: true });
+
+    setMedicineList(meds || []);
   };
 
-  fetchDoctorResult();
+  fetchAllPrescriptionData();
 }, [session]);
 /* ===============================
    RLS DEBUG TEST (TEMPORARY)
@@ -309,133 +332,165 @@ useEffect(() => {
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
 
-  const generatePrescriptionPDF = () => {
+ const generatePrescriptionPDF = () => {
   if (!doctorResult || !session) return;
 
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  /* =====================================
-     OUTER BORDER FRAME
-  ====================================== */
+  /* OUTER BORDER */
   doc.setDrawColor(0);
   doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
 
-  /* =====================================
-     HEADER SECTION
-  ====================================== */
-
+  /* HEADER */
   doc.setFillColor(15, 23, 42);
-  doc.rect(5, 5, pageWidth - 10, 30, "F");
+  doc.rect(5, 5, pageWidth - 10, 35, "F");
 
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(18);
+  doc.setFontSize(16);
   doc.text("AURA-STETH AI MEDICAL CENTER", 14, 20);
 
   doc.setFontSize(10);
-  doc.text("Authorized Digital Consultation Prescription", 14, 27);
+  doc.text("Official OPD Consultation Prescription", 14, 28);
 
   doc.setTextColor(0, 0, 0);
+  let y = 50;
+
+  /* DOCTOR DETAILS */
+  doc.setFontSize(12);
+  doc.text("Doctor Information", 14, y);
+  y += 8;
+
   doc.setFontSize(11);
+  doc.text(`Name: Dr. ${doctorProfile?.specialization ? "" : ""}`, 14, y);
+  y += 6;
 
-  let y = 45;
+  if (doctorProfile?.license_number)
+    doc.text(`License No: ${doctorProfile.license_number}`, 14, y), y += 6;
 
-  /* =====================================
-     PATIENT DETAILS SECTION
-  ====================================== */
+  if (doctorProfile?.specialization)
+    doc.text(`Specialization: ${doctorProfile.specialization}`, 14, y), y += 6;
 
-  doc.setFontSize(13);
+  if (doctorProfile?.hospital)
+    doc.text(`Hospital: ${doctorProfile.hospital}`, 14, y), y += 10;
+
+  /* PATIENT INFO */
+  doc.setFontSize(12);
   doc.text("Patient Information", 14, y);
   y += 8;
 
   doc.setFontSize(11);
   doc.text(`Name: ${session.user_name}`, 14, y);
-  doc.text(`Session ID: ${session.id}`, 110, y);
+  doc.text(`Age: ${session.age}`, 110, y);
   y += 6;
 
-  doc.text(`Age: ${session.age}`, 14, y);
+  doc.text(`Session ID: ${session.id}`, 14, y);
   doc.text(
-    `Consultation Date: ${new Date(
-      doctorResult.completed_at
-    ).toLocaleString()}`,
+    `Date: ${new Date(doctorResult.completed_at).toLocaleString()}`,
     110,
     y
   );
   y += 12;
 
-  /* =====================================
-     DOCTOR NOTES / DIAGNOSIS
-  ====================================== */
+  /* CHIEF COMPLAINTS */
+  if (doctorResult.chief_complaints) {
+    doc.setFontSize(12);
+    doc.text("Chief Complaints", 14, y);
+    y += 8;
 
-  doc.setFontSize(13);
-  doc.text("Clinical Notes / Diagnosis", 14, y);
-  y += 8;
+    const complaintsArray = doctorResult.chief_complaints.split(",");
 
-  doc.setFontSize(11);
-  const noteText =
-    doctorResult.doctor_notes || "No clinical notes provided.";
+    complaintsArray.forEach((item: string, index: number) => {
+      doc.text(`${index + 1}. ${item.trim()}`, 14, y);
+      y += 6;
+    });
 
-  const splitNotes = doc.splitTextToSize(noteText, pageWidth - 28);
-  doc.text(splitNotes, 14, y);
-  y += splitNotes.length * 6 + 8;
+    y += 4;
+  }
 
-  /* =====================================
-     MEDICATION TABLE
-  ====================================== */
+  /* DIAGNOSIS */
+  if (doctorResult.diagnosis) {
+    doc.setFontSize(12);
+    doc.text("Diagnosis", 14, y);
+    y += 8;
 
-  doc.setFontSize(13);
-  doc.text("Prescribed Medication", 14, y);
-  y += 6;
+    const diagnosisArray = doctorResult.diagnosis.split(",");
 
-  autoTable(doc, {
-    startY: y,
-    head: [["#", "Medicine", "Dosage", "Frequency", "Duration"]],
-    body:
-      doctorResult.prescription_items?.map(
-        (med: any, index: number) => [
-          index + 1,
-          med.name,
-          med.dosage,
-          med.frequency,
-          med.duration,
-        ]
-      ) || [],
-    theme: "grid",
-    headStyles: {
-      fillColor: [22, 163, 74],
-      textColor: 255,
-      fontStyle: "bold",
-    },
-    styles: {
-      fontSize: 10,
-      cellPadding: 4,
-    },
-  });
+    diagnosisArray.forEach((item: string, index: number) => {
+      doc.text(`${index + 1}. ${item.trim()}`, 14, y);
+      y += 6;
+    });
 
-  const finalY = (doc as any).lastAutoTable.finalY + 20;
+    y += 4;
+  }
 
-  /* =====================================
-     ADVICE SECTION
-  ====================================== */
+  /* DOCTOR NOTES */
+  if (doctorResult.doctor_notes) {
+    doc.setFontSize(12);
+    doc.text("Clinical Notes", 14, y);
+    y += 8;
 
-  doc.setFontSize(13);
-  doc.text("General Advice", 14, finalY);
+    const splitNotes = doc.splitTextToSize(
+      doctorResult.doctor_notes,
+      pageWidth - 28
+    );
+    doc.text(splitNotes, 14, y);
+    y += splitNotes.length * 6 + 6;
+  }
 
-  doc.setFontSize(11);
-  doc.text(
-    "• Take medicines strictly as prescribed.\n• Maintain adequate hydration.\n• Follow up if symptoms persist.",
-    14,
-    finalY + 8
-  );
+  /* MEDICINES TABLE */
+  if (medicineList.length > 0) {
+    doc.setFontSize(12);
+    doc.text("Prescribed Medicines", 14, y);
+    y += 6;
 
-  /* =====================================
-     SIGNATURE BLOCK
-  ====================================== */
+    autoTable(doc, {
+      startY: y,
+      head: [["#", "Medicine", "Dosage", "Frequency", "Duration"]],
+      body: medicineList.map((med: any, index: number) => [
+        index + 1,
+        med.medicine_name,
+        med.dosage,
+        med.frequency,
+        med.duration,
+      ]),
+      theme: "grid",
+      headStyles: {
+        fillColor: [22, 163, 74],
+        textColor: 255,
+      },
+      styles: {
+        fontSize: 10,
+      },
+    });
 
+    y = (doc as any).lastAutoTable.finalY + 10;
+  }
+
+  /* ADVICE */
+  if (doctorResult.advice) {
+    doc.setFontSize(12);
+    doc.text("General Advice", 14, y);
+    y += 8;
+
+    const splitAdvice = doc.splitTextToSize(
+      doctorResult.advice,
+      pageWidth - 28
+    );
+
+    doc.text(splitAdvice, 14, y);
+    y += splitAdvice.length * 6 + 6;
+  }
+
+  /* FOLLOW UP */
+  if (doctorResult.follow_up_date) {
+    doc.text(`Follow-up Date: ${doctorResult.follow_up_date}`, 14, y);
+  }
+
+  /* SIGNATURE */
   const signatureY = pageHeight - 40;
 
-  doc.setFontSize(11);
   doc.text("Doctor Signature:", pageWidth - 80, signatureY);
   doc.line(pageWidth - 80, signatureY + 8, pageWidth - 20, signatureY + 8);
 
@@ -446,9 +501,8 @@ useEffect(() => {
     { align: "center" }
   );
 
-  doc.save(`Official_Prescription_${session.id}.pdf`);
+  doc.save(`Official_OPD_Prescription_${session.id}.pdf`);
 };
-   
   /* ===============================
      UI
   ================================= */
