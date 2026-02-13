@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 const ApplyDoctor = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-
+  const [fullName, setFullName] = useState("");
   const [license, setLicense] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [hospital, setHospital] = useState("");
@@ -20,16 +20,17 @@ const ApplyDoctor = () => {
 
   setLoading(true);
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      role: "doctor",
-      doctor_status: "pending",
-      license_number: license,
-      specialization: specialization,
-      hospital: hospital,
-    })
-    .eq("id", user.id);
+const { error } = await supabase
+  .from("profiles")
+  .update({
+    full_name: fullName,   // 👈 ADD THIS LINE
+    role: "doctor",
+    doctor_status: "pending",
+    license_number: license,
+    specialization: specialization,
+    hospital: hospital,
+  })
+  .eq("id", user.id);
 
   setLoading(false);
 
@@ -49,6 +50,12 @@ const ApplyDoctor = () => {
         <CardContent className="space-y-4 p-6">
           <h2 className="text-xl font-bold">Apply as Doctor</h2>
 
+          <input
+            placeholder="Full Name (as per Medical License)"
+            className="w-full p-3 rounded-lg border border-border bg-background text-foreground"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
           <Input
             placeholder="Medical License Number"
             value={license}
@@ -75,5 +82,6 @@ const ApplyDoctor = () => {
     </div>
   );
 };
+
 
 export default ApplyDoctor;
