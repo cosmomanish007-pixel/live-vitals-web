@@ -14,6 +14,8 @@ interface Consultation {
   risk_level: "GREEN" | "YELLOW" | "RED";
   status: "PENDING" | "ACTIVE" | "COMPLETED";
   doctor_notes: string | null;
+  prescription: string | null;
+  completed_at: string | null;
   created_at: string;
 }
 
@@ -26,7 +28,7 @@ const DoctorDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   /* =================================
-     FETCH DOCTOR PROFILE
+     FETCH PROFILE
   ================================= */
 
   useEffect(() => {
@@ -67,7 +69,7 @@ const DoctorDashboard = () => {
   }, [fetchConsultations]);
 
   /* =================================
-     REALTIME LISTENER
+     REALTIME UPDATES
   ================================= */
 
   useEffect(() => {
@@ -106,39 +108,44 @@ const DoctorDashboard = () => {
   };
 
   /* =================================
-     UPDATE STATUS
+     START CONSULTATION
   ================================= */
 
-  const updateStatus = async (
-    id: string,
-    status: "PENDING" | "ACTIVE" | "COMPLETED"
-  ) => {
+  const startConsultation = async (id: string) => {
     await supabase
       .from("consultation_requests")
-      .update({ status })
+      .update({ status: "ACTIVE" })
       .eq("id", id);
 
     fetchConsultations();
   };
 
   /* =================================
-     ADD NOTES
+     COMPLETE CONSULTATION
   ================================= */
 
-  const addNotes = async (id: string) => {
+  const completeConsultation = async (id: string) => {
     const notes = prompt("Enter consultation notes:");
     if (!notes) return;
 
+    const prescription = prompt("Enter prescription / medicines:");
+    if (!prescription) return;
+
     await supabase
       .from("consultation_requests")
-      .update({ doctor_notes: notes })
+      .update({
+        status: "COMPLETED",
+        doctor_notes: notes,
+        prescription: prescription,
+        completed_at: new Date().toISOString(),
+      })
       .eq("id", id);
 
     fetchConsultations();
   };
 
   /* =================================
-     UI HELPERS
+     BADGES
   ================================= */
 
   const riskBadge = (risk: string) => {
@@ -184,7 +191,7 @@ const DoctorDashboard = () => {
         </CardContent>
       </Card>
 
-      {/* ACTIVE CONSULTATIONS */}
+      {/* ACTIVE */}
       <div>
         <h2 className="text-xl font-semibold mb-4">
           Active / Pending Consultations
@@ -204,8 +211,8 @@ const DoctorDashboard = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Card className="mb-4 hover:shadow-lg transition-all">
-              <CardContent className="p-5 space-y-3">
+            <Card className="mb-4 hover:shadow-xl transition-all border border-border">
+              <CardContent className="p-6 space-y-4">
 
                 <div className="flex justify-between items-center">
                   <div className="space-y-1">
@@ -217,41 +224,30 @@ const DoctorDashboard = () => {
                   {statusBadge(c.status)}
                 </div>
 
-                {c.doctor_notes && (
-                  <p className="text-sm text-muted-foreground">
-                    Notes: {c.doctor_notes}
-                  </p>
-                )}
-
                 <div className="flex gap-2 flex-wrap">
+
                   {c.status === "PENDING" && (
-                    <Button onClick={() => updateStatus(c.id, "ACTIVE")}>
-                      Start
+                    <Button onClick={() => startConsultation(c.id)}>
+                      Start Consultation
                     </Button>
                   )}
 
-                  {c.status !== "COMPLETED" && (
+                  {c.status === "ACTIVE" && (
                     <Button
                       variant="secondary"
-                      onClick={() => updateStatus(c.id, "COMPLETED")}
+                      onClick={() => completeConsultation(c.id)}
                     >
-                      Complete
+                      Complete & Add Prescription
                     </Button>
                   )}
-
-                  <Button
-                    variant="outline"
-                    onClick={() => addNotes(c.id)}
-                  >
-                    Add Notes
-                  </Button>
 
                   <Button
                     variant="ghost"
                     onClick={() => navigate(`/report/${c.session_id}`)}
                   >
-                    View Report
+                    View Patient Report
                   </Button>
+
                 </div>
 
               </CardContent>
@@ -260,7 +256,7 @@ const DoctorDashboard = () => {
         ))}
       </div>
 
-      {/* COMPLETED CONSULTATIONS */}
+      {/* COMPLETED */}
       <div>
         <h2 className="text-xl font-semibold mb-4">
           Completed Consultations
@@ -273,13 +269,37 @@ const DoctorDashboard = () => {
         )}
 
         {completedConsultations.map((c) => (
-          <Card key={c.id} className="mb-3 opacity-80">
-            <CardContent className="p-4 flex justify-between items-center">
-              <div>
-                <p className="font-medium">Session: {c.session_id}</p>
-                {riskBadge(c.risk_level)}
+          <Card key={c.id} className="mb-4 border border-border opacity-90">
+            <CardContent className="p-6 space-y-3">
+
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">
+                    Session: {c.session_id}
+                  </p>
+                  {riskBadge(c.risk_level)}
+                </div>
+                {statusBadge(c.status)}
               </div>
-              {statusBadge(c.status)}
+
+              {c.doctor_notes && (
+                <p className="text-sm">
+                  <strong>Notes:</strong> {c.doctor_notes}
+                </p>
+              )}
+
+              {c.prescription && (
+                <p className="text-sm">
+                  <strong>Prescription:</strong> {c.prescription}
+                </p>
+              )}
+
+              {c.completed_at && (
+                <p className="text-xs text-muted-foreground">
+                  Completed on: {new Date(c.completed_at).toLocaleString()}
+                </p>
+              )}
+
             </CardContent>
           </Card>
         ))}
