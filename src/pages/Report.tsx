@@ -363,18 +363,17 @@ useEffect(() => {
      y += 8;
    
      autoTable(doc, {
-       startY: y,
-       head: [["Medicine / Instructions"]],
-       body: [
-         [
-           doctorResult.prescription
-             ? doctorResult.prescription
-             : "No medication prescribed."
-         ],
-       ],
-       headStyles: { fillColor: [22, 163, 74] },
-       styles: { fontSize: 11 },
-     });
+     startY: y,
+     head: [["Medicine", "Dosage", "Frequency", "Duration"]],
+     body: doctorResult.prescription_items?.map((med: any) => [
+       med.name,
+       med.dosage,
+       med.frequency,
+       med.duration,
+     ]) || [],
+     headStyles: { fillColor: [22, 163, 74] },
+     styles: { fontSize: 11 },
+   });
    
      const finalY = (doc as any).lastAutoTable.finalY + 20;
    
