@@ -449,15 +449,32 @@ useEffect(() => {
         )}
 
         <div className="grid grid-cols-2 gap-3">
-          {vitals.map((v) => (
-            <Card key={v.label}>
-              <CardContent className="flex flex-col items-center p-4 text-center">
-                <v.icon className="h-6 w-6 mb-2" />
-                <p className="text-xs mb-1">{v.label}</p>
-                <p className="text-xl font-bold">{v.value}</p>
-              </CardContent>
-            </Card>
-          ))}
+         {vitals.map((v) => (
+           <Card
+             key={v.label}
+             className={v.abnormal ? "border-2 border-red-500" : ""}
+           >
+             <CardContent className="flex flex-col items-center p-4 text-center">
+               <v.icon
+                 className={`h-6 w-6 mb-2 ${
+                   v.abnormal ? "text-red-500" : "text-muted-foreground"
+                 }`}
+               />
+         
+               <p className="text-xs mb-1 text-muted-foreground">
+                 {v.label}
+               </p>
+         
+               <p
+                 className={`text-xl font-bold ${
+                   v.abnormal ? "text-red-600" : "text-white"
+                 }`}
+               >
+                 {v.value}
+               </p>
+             </CardContent>
+           </Card>
+         ))}
         </div>
 
          
