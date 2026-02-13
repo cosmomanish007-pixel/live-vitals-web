@@ -27,6 +27,9 @@ interface Consultation {
   completed_at: string | null;
   created_at: string;
 }
+  /* ================================
+    COMPONENTS
+  ================================= */
 
 const DoctorDashboard = () => {
   const { user } = useAuth();
@@ -39,13 +42,13 @@ const DoctorDashboard = () => {
   const [selectedConsultation, setSelectedConsultation] =
     useState<Consultation | null>(null);
   const [notes, setNotes] = useState("");
-  const [diagnosis, setDiagnosis] = useState("");
   const [advice, setAdvice] = useState("");
   const [followUpDate, setFollowUpDate] = useState("");
   const [medicines, setMedicines] = useState<MedicineItem[]>([
     { name: "", dosage: "", frequency: "", duration: "" }
   ]);
-
+  const [complaints, setComplaints] = useState<string[]>([""]);
+  const [diagnosisList, setDiagnosisList] = useState<string[]>([""]);
   /* ================================
      FETCH PROFILE
   ================================= */
@@ -143,16 +146,19 @@ const DoctorDashboard = () => {
      OPEN COMPLETE MODAL
   ================================= */
 
-  const openCompleteModal = (consultation: Consultation) => {
-  setSelectedConsultation(consultation);
-  setNotes("");
-  setDiagnosis("");
-  setAdvice("");
-  setFollowUpDate("");
-  setMedicines([
-    { name: "", dosage: "", frequency: "", duration: "" }
-  ]);
+const openCompleteModal = (consultation: Consultation) => {  
+  setSelectedConsultation(consultation);  
+  setNotes("");  
+  setDiagnosis("");  
+  setAdvice("");  
+  setFollowUpDate("");  
+  setMedicines([{ name: "", dosage: "", frequency: "", duration: "" }]);  
+
+  // NEW
+  setComplaints([""]);
+  setDiagnosisList([""]);
 };
+  
   /* ================================
      FINAL COMPLETE
   ================================= */
@@ -164,13 +170,21 @@ const finalizeConsultation = async () => {
     /* 1️⃣ Update consultation header */
     const { error } = await supabase
       .from("consultation_requests")
-      .update({
-        status: "COMPLETED",
+      .update({  
+        status: "COMPLETED",  
         doctor_notes: notes,
-        diagnosis: diagnosis,
+      
+        chief_complaints: complaints
+          .filter(c => c.trim() !== "")
+          .join(", "),
+      
+        diagnosis: diagnosisList
+          .filter(d => d.trim() !== "")
+          .join(", "),
+      
         advice: advice,
         follow_up_date: followUpDate || null,
-        completed_at: new Date().toISOString(),
+        completed_at: new Date().toISOString(),  
       })
       .eq("id", selectedConsultation.id);
 
@@ -373,7 +387,7 @@ const finalizeConsultation = async () => {
       {/* MODAL */}
       {selectedConsultation && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-         <div className="bg-background border border-border p-6 rounded-xl w-full max-w-xl space-y-4">
+         <div className="bg-background border border-border p-6 rounded-xl w-full max-w-xl max-h-[85vh] overflow-y-auto space-y-4">
             <h2 className="text-xl font-bold">
               Add Consultation Notes & Prescription
             </h2>
@@ -384,13 +398,52 @@ const finalizeConsultation = async () => {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
-            <input
-              placeholder="Diagnosis"
-              className="w-full bg-background border border-border p-3 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-              value={diagnosis}
-              onChange={(e) => setDiagnosis(e.target.value)}
-            />
+           <h3 className="font-semibold mt-4">Chief Complaints</h3>
+
+            {complaints.map((item, index) => (
+              <input
+                key={index}
+                className="w-full p-3 rounded-lg bg-background border border-border text-foreground mb-2"
+                placeholder={`Complaint ${index + 1}`}
+                value={item}
+                onChange={(e) => {
+                  const updated = [...complaints];
+                  updated[index] = e.target.value;
+                  setComplaints(updated);
+                }}
+              />
+            ))}
             
+            <Button
+              variant="outline"
+              onClick={() => setComplaints([...complaints, ""])}
+            >
+              + Add Complaint
+            </Button>
+
+            <h3 className="font-semibold mt-4">Diagnosis</h3>
+            
+            {diagnosisList.map((item, index) => (
+              <input
+                key={index}
+                className="w-full p-3 rounded-lg bg-background border border-border text-foreground mb-2"
+                placeholder={`Diagnosis ${index + 1}`}
+                value={item}
+                onChange={(e) => {
+                  const updated = [...diagnosisList];
+                  updated[index] = e.target.value;
+                  setDiagnosisList(updated);
+                }}
+              />
+            ))}
+            
+            <Button
+              variant="outline"
+              onClick={() => setDiagnosisList([...diagnosisList, ""])}
+            >
+              + Add Diagnosis
+            </Button>
+           
             <textarea
               placeholder="Advice"
               className="w-full bg-background border border-border p-3 rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -483,6 +536,7 @@ const finalizeConsultation = async () => {
 };
 
 export default DoctorDashboard;
+
 
 
 
