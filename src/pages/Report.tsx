@@ -178,8 +178,7 @@ useEffect(() => {
     testProfiles();
   }, []);
 
-  if (!vital || !session) return null;
-
+  if (!session) return null;
   /* ===============================
      EVALUATION
   ================================= */
