@@ -79,7 +79,8 @@ const Report = () => {
   const [consultation, setConsultation] = useState<any | null>(null);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
   const [medicineList, setMedicineList] = useState<any[]>([]);
-      
+
+   
   useEffect(() => {
     if (!vital && sessionId) {
       supabase.from('vitals')
@@ -104,7 +105,7 @@ const Report = () => {
   useEffect(() => {
     if (!user) return;
 
-    const fetchRole = async () => {
+    const fetch = async () => {
       const { data } = await supabase
         .from("profiles")
         .select("role")
@@ -143,7 +144,7 @@ useEffect(() => {
     // 2️⃣ Get Doctor Profile
     const { data: doctorData } = await supabase
       .from("profiles")
-      .select("role, license_number, specialization, hospital")
+      .select("full_name, license_number, specialization, hospital")
       .eq("id", consultationData.doctor_id)
       .maybeSingle();
 
@@ -357,23 +358,36 @@ useEffect(() => {
   doc.setTextColor(0, 0, 0);
   let y = 50;
 
-  /* DOCTOR DETAILS */
-  doc.setFontSize(12);
-  doc.text("Doctor Information", 14, y);
-  y += 8;
+/* DOCTOR DETAILS */
+doc.setFontSize(12);
+doc.text("Doctor Information", 14, y);
+y += 8;
 
-  doc.setFontSize(11);
-  doc.text(`Name: Dr. ${doctorProfile?.specialization ? "" : ""}`, 14, y);
+doc.setFontSize(11);
+
+const doctorName = doctorProfile?.full_name
+  ? doctorProfile.full_name.startsWith("Dr")
+    ? doctorProfile.full_name
+    : `Dr. ${doctorProfile.full_name}`
+  : "N/A";
+
+doc.text(`Name: ${doctorName}`, 14, y);
+y += 6;
+
+if (doctorProfile?.license_number) {
+  doc.text(`License No: ${doctorProfile.license_number}`, 14, y);
   y += 6;
+}
 
-  if (doctorProfile?.license_number)
-    doc.text(`License No: ${doctorProfile.license_number}`, 14, y), y += 6;
+if (doctorProfile?.specialization) {
+  doc.text(`Specialization: ${doctorProfile.specialization}`, 14, y);
+  y += 6;
+}
 
-  if (doctorProfile?.specialization)
-    doc.text(`Specialization: ${doctorProfile.specialization}`, 14, y), y += 6;
-
-  if (doctorProfile?.hospital)
-    doc.text(`Hospital: ${doctorProfile.hospital}`, 14, y), y += 10;
+if (doctorProfile?.hospital) {
+  doc.text(`Hospital: ${doctorProfile.hospital}`, 14, y);
+  y += 10;
+}
 
   /* PATIENT INFO */
   doc.setFontSize(12);
