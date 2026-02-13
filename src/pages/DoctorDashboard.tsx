@@ -138,11 +138,13 @@ const DoctorDashboard = () => {
      OPEN COMPLETE MODAL
   ================================= */
 
-  const openCompleteModal = (consultation: Consultation) => {
-    setSelectedConsultation(consultation);
-    setNotes("");
-    setPrescription("");
-  };
+    const openCompleteModal = (consultation: Consultation) => {
+      setSelectedConsultation(consultation);
+      setNotes("");
+      setMedicines([
+        { name: "", dosage: "", frequency: "", duration: "" }
+      ]);
+    };
 
   /* ================================
      FINAL COMPLETE
@@ -340,18 +342,18 @@ const DoctorDashboard = () => {
               Add Consultation Notes & Prescription
             </h2>
 
-            <textarea
-              placeholder="Doctor Notes"
-              className="w-full bg-muted text-white border border-border p-2 rounded"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
+          <textarea
+            placeholder="Doctor Notes"
+            className="w-full bg-background text-foreground border border-border p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
 
 
           {medicines.map((med, index) => (
           <div key={index} className="grid grid-cols-2 gap-2">
             <input
-              className="p-2 rounded bg-gray-100 text-black"
+              className="p-3 rounded-lg bg-background border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Medicine Name"
               value={med.name}
               onChange={(e) => {
@@ -361,7 +363,7 @@ const DoctorDashboard = () => {
               }}
             />
             <input
-              className="p-2 rounded bg-gray-100 text-black"
+              className="p-3 rounded-lg bg-background border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Dosage (e.g. 500mg)"
               value={med.dosage}
               onChange={(e) => {
@@ -371,7 +373,7 @@ const DoctorDashboard = () => {
               }}
             />
             <input
-              className="p-2 rounded bg-gray-100 text-black"
+              className="p-3 rounded-lg bg-background border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Frequency (e.g. 1 Morning)"
               value={med.frequency}
               onChange={(e) => {
@@ -381,7 +383,7 @@ const DoctorDashboard = () => {
               }}
             />
             <input
-              className="p-2 rounded bg-gray-100 text-black"
+              className="p-3 rounded-lg bg-background border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Duration (e.g. 5 Days)"
               value={med.duration}
               onChange={(e) => {
@@ -426,4 +428,5 @@ const DoctorDashboard = () => {
 };
 
 export default DoctorDashboard;
+
 
