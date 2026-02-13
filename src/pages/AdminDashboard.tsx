@@ -6,16 +6,31 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
-import { Users, Activity, ShieldCheck, AlertTriangle } from "lucide-react";
 import {
-  BarChart,
-  Bar,
+  Users,
+  Activity,
+  ShieldCheck,
+  AlertTriangle,
+  TrendingUp,
+  Database,
+} from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
+import { motion } from "framer-motion";
+
+/* ===============================
+   TYPES
+================================= */
 
 interface DoctorProfile {
   id: string;
@@ -29,9 +44,13 @@ interface SessionData {
   id: string;
   user_name: string;
   state: string;
+  risk_level: string | null;
   created_at: string;
-  risk_level?: string;
 }
+
+/* ===============================
+   COMPONENT
+================================= */
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -39,13 +58,9 @@ const AdminDashboard = () => {
 
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
-
   const [doctorRequests, setDoctorRequests] = useState<DoctorProfile[]>([]);
   const [sessions, setSessions] = useState<SessionData[]>([]);
-  const [allDoctors, setAllDoctors] = useState<number>(0);
-
   const [search, setSearch] = useState("");
-  const [activityLog, setActivityLog] = useState<string[]>([]);
 
   /* ===============================
      ROLE CHECK
@@ -71,41 +86,67 @@ const AdminDashboard = () => {
     };
 
     checkAdmin();
-  }, [user]);
+  }, [user, navigate]);
 
   /* ===============================
      FETCH DATA
   ================================ */
 
-  const fetchData = async () => {
-    const { data: pending } = await supabase
+  const fetchDoctorRequests = async () => {
+    const { data } = await supabase
       .from("profiles")
       .select("id, license_number, specialization, hospital, doctor_status")
       .eq("role", "doctor")
       .eq("doctor_status", "pending");
 
-    const { data: sessionData } = await supabase
+    if (data) setDoctorRequests(data);
+  };
+
+  const fetchSessions = async () => {
+    const { data } = await supabase
       .from("sessions")
-      .select("id, user_name, state, created_at")
-      .order("created_at", { ascending: false });
+      .select("id, user_name, state, risk_level, created_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
 
-    const { count } = await supabase
-      .from("profiles")
-      .select("*", { count: "exact", head: true })
-      .eq("role", "doctor");
-
-    if (pending) setDoctorRequests(pending);
-    if (sessionData) setSessions(sessionData);
-    if (count) setAllDoctors(count);
+    if (data) setSessions(data);
   };
 
   useEffect(() => {
     if (!authorized) return;
-    fetchData();
+    fetchDoctorRequests();
+    fetchSessions();
   }, [authorized]);
 
   /* ===============================
-     APPROVE / REJECT
+     STATS
+  ================================ */
+
+  const totalSessions = sessions.length;
+  const highRisk = sessions.filter((s) => s.risk_level === "RED").length;
+  const yellowRisk = sessions.filter((s) => s.risk_level === "YELLOW").length;
+  const greenRisk = sessions.filter((s) => s.risk_level === "GREEN").length;
+
+  const pieData = [
+    { name: "RED", value: highRisk },
+    { name: "YELLOW", value: yellowRisk },
+    { name: "GREEN", value: greenRisk },
+  ];
+
+  const COLORS = ["#ef4444", "#facc15", "#22c55e"];
+
+  /* ===============================
+     FILTERED SESSIONS
+  ================================ */
+
+  const filteredSessions = useMemo(() => {
+    return sessions.filter((s) =>
+      s.user_name.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [sessions, search]);
+
+  /* ===============================
+     APPROVE DOCTOR
   ================================ */
 
   const approveDoctor = async (id: string) => {
@@ -114,200 +155,123 @@ const AdminDashboard = () => {
       .update({ doctor_status: "approved" })
       .eq("id", id);
 
-    setActivityLog((prev) => [
-      `Doctor ${id} approved`,
-      ...prev,
-    ]);
-
-    fetchData();
-  };
-
-  const rejectDoctor = async (id: string) => {
-    await supabase
-      .from("profiles")
-      .update({ doctor_status: "rejected" })
-      .eq("id", id);
-
-    setActivityLog((prev) => [
-      `Doctor ${id} rejected`,
-      ...prev,
-    ]);
-
-    fetchData();
+    fetchDoctorRequests();
   };
 
   /* ===============================
-     SEARCH FILTER
+     LOADING
   ================================ */
 
-  const filteredDoctors = useMemo(() => {
-    return doctorRequests.filter((doc) =>
-      doc.license_number?.toLowerCase().includes(search.toLowerCase())
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
     );
-  }, [search, doctorRequests]);
+  }
 
-  /* ===============================
-     RISK SUMMARY MOCK (for UI)
-  ================================ */
-
-  const riskData = [
-    { name: "RED", value: sessions.filter((s) => s.state === "RED").length },
-    { name: "YELLOW", value: sessions.filter((s) => s.state === "YELLOW").length },
-    { name: "GREEN", value: sessions.filter((s) => s.state === "GREEN").length },
-  ];
-
-  /* ===============================
-     EXPORT CSV
-  ================================ */
-
-  const exportCSV = () => {
-    const headers = ["Session ID", "User", "State", "Created"];
-    const rows = sessions.map((s) =>
-      [s.id, s.user_name, s.state, s.created_at].join(",")
-    );
-
-    const blob = new Blob([headers.join(",") + "\n" + rows.join("\n")], {
-      type: "text/csv",
-    });
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "sessions.csv";
-    a.click();
-  };
-
-  if (loading) return null;
   if (!authorized) return null;
 
+  /* ===============================
+     UI
+  ================================ */
+
   return (
-    <div className="min-h-screen bg-background p-8 space-y-10">
+    <div className="min-h-screen bg-background text-foreground p-8 space-y-10">
 
-      <h1 className="text-3xl font-bold">Admin Control Center</h1>
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Admin Control Center</h1>
+        <Badge className="bg-green-600 text-white px-3 py-1">
+          System Operational
+        </Badge>
+      </div>
 
-      {/* ===============================
-          STATS CARDS
-      ================================ */}
+      {/* KPI CARDS */}
+      <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-6">
 
-      <div className="grid md:grid-cols-4 gap-6">
+        <KPI icon={<Activity />} label="Total Sessions" value={totalSessions} />
+        <KPI icon={<AlertTriangle />} label="High Risk" value={highRisk} color="text-red-500" />
+        <KPI icon={<TrendingUp />} label="Moderate Risk" value={yellowRisk} color="text-yellow-500" />
+        <KPI icon={<ShieldCheck />} label="Stable Sessions" value={greenRisk} color="text-green-500" />
+        <KPI icon={<Users />} label="Pending Approvals" value={doctorRequests.length} />
+        <KPI icon={<Database />} label="Database" value="Online" />
 
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-muted-foreground">Total Doctors</p>
-              <h2 className="text-2xl font-bold">{allDoctors}</h2>
-            </div>
-            <Users />
-          </CardContent>
-        </Card>
+      </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground">Pending Approvals</p>
-            <h2 className="text-2xl font-bold text-yellow-500">
-              {doctorRequests.length}
-            </h2>
-          </CardContent>
-        </Card>
+      {/* CHARTS */}
+      <div className="grid lg:grid-cols-2 gap-8">
 
         <Card>
           <CardContent className="p-6">
-            <p className="text-muted-foreground">Total Sessions</p>
-            <h2 className="text-2xl font-bold">{sessions.length}</h2>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground">System Status</p>
-            <h2 className="text-green-500 font-bold">Operational</h2>
+            <h2 className="font-semibold mb-4">Risk Distribution</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie data={pieData} dataKey="value" outerRadius={90}>
+                  {pieData.map((entry, index) => (
+                    <Cell key={index} fill={COLORS[index]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
       </div>
 
-      {/* ===============================
-          DOCTOR APPROVAL SECTION
-      ================================ */}
-
+      {/* DOCTOR APPROVALS */}
       <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Doctor Approvals</h2>
-          <Input
-            placeholder="Search by license..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-64"
-          />
-        </div>
+        <h2 className="text-xl font-semibold mb-4">Doctor Approvals</h2>
 
-        {filteredDoctors.map((doc) => (
+        {doctorRequests.length === 0 && (
+          <p className="text-muted-foreground">No pending approvals.</p>
+        )}
+
+        {doctorRequests.map((doc) => (
           <Card key={doc.id} className="mb-4">
             <CardContent className="p-5 flex justify-between items-center">
-
               <div>
-                <Badge variant="outline" className="mb-2">
-                  Pending
-                </Badge>
-                <p><strong>License:</strong> {doc.license_number}</p>
-                <p><strong>Specialization:</strong> {doc.specialization}</p>
-                <p><strong>Hospital:</strong> {doc.hospital}</p>
+                <p><strong>Doctor ID:</strong> {doc.id}</p>
+                <p>License: {doc.license_number || "—"}</p>
+                <p>Specialization: {doc.specialization || "—"}</p>
               </div>
-
-              <div className="flex gap-2">
-                <Button
-                  className="bg-green-600 hover:bg-green-700"
-                  onClick={() => approveDoctor(doc.id)}
-                >
-                  Approve
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => rejectDoctor(doc.id)}
-                >
-                  Reject
-                </Button>
-              </div>
-
+              <Button onClick={() => approveDoctor(doc.id)}>
+                Approve
+              </Button>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* ===============================
-          RISK ANALYTICS
-      ================================ */}
-
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Risk Distribution</h2>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={riskData}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#2563eb" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* ===============================
-          RECENT SESSIONS
-      ================================ */}
-
+      {/* SESSION MONITORING */}
       <div>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Recent Sessions</h2>
-          <Button onClick={exportCSV}>Export CSV</Button>
+        <div className="flex justify-between mb-4">
+          <h2 className="text-xl font-semibold">Session Monitoring</h2>
+          <Input
+            placeholder="Search patient..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-sm"
+          />
         </div>
 
-        {sessions.slice(0, 10).map((session) => (
+        {filteredSessions.map((session) => (
           <Card key={session.id} className="mb-3">
             <CardContent className="p-4 flex justify-between items-center">
               <div>
                 <p className="font-semibold">{session.user_name}</p>
-                <Badge variant="outline">{session.state}</Badge>
+                <Badge
+                  className={
+                    session.risk_level === "RED"
+                      ? "bg-red-600 text-white"
+                      : session.risk_level === "YELLOW"
+                      ? "bg-yellow-500 text-black"
+                      : "bg-green-600 text-white"
+                  }
+                >
+                  {session.risk_level}
+                </Badge>
               </div>
 
               <Button
@@ -321,26 +285,32 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      {/* ===============================
-          ACTIVITY LOG
-      ================================ */}
-
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Live Activity Feed</h2>
-          {activityLog.length === 0 && (
-            <p className="text-muted-foreground">No recent activity</p>
-          )}
-          {activityLog.map((log, index) => (
-            <p key={index} className="text-sm mb-2">
-              • {log}
-            </p>
-          ))}
-        </CardContent>
-      </Card>
-
     </div>
   );
 };
+
+/* ===============================
+   KPI COMPONENT
+================================= */
+
+const KPI = ({
+  icon,
+  label,
+  value,
+  color = "text-primary",
+}: any) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+  >
+    <Card className="hover:shadow-lg transition-all">
+      <CardContent className="p-6 space-y-2">
+        <div className={`h-6 w-6 ${color}`}>{icon}</div>
+        <p className="text-muted-foreground text-sm">{label}</p>
+        <p className={`text-2xl font-bold ${color}`}>{value}</p>
+      </CardContent>
+    </Card>
+  </motion.div>
+);
 
 export default AdminDashboard;
