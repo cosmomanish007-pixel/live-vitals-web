@@ -102,22 +102,21 @@ const Report = () => {
 
   }, [sessionId, vital, session]);
 
-  useEffect(() => {
-    if (!user) return;
+useEffect(() => {
+  if (!user) return;
 
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle();
+  const fetchRole = async () => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
 
-      if (data) setProfileRole(data.role);
-    };
+    if (data) setProfileRole(data.role);
+  };
 
-    fetchRole();
-  }, [user]);
-
+  fetchRole();
+}, [user]);
 /* ===============================
   CONSULTATION REPORT 
 ================================= */
