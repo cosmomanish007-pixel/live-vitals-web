@@ -76,7 +76,7 @@ const Report = () => {
   const [profileRole, setProfileRole] = useState<string | null>(null);
   const [doctorResult, setDoctorResult] = useState<any>(null);
   const [consultationCompleted, setConsultationCompleted] = useState(false);
-  
+  const [consultation, setConsultation] = useState<any | null>(null);
   useEffect(() => {
     if (!vital && sessionId) {
       supabase.from('vitals')
@@ -378,38 +378,35 @@ useEffect(() => {
             </Card>
           ))}
         </div>
-
-         {doctorResult && profileRole === "user" && (
-           <Card className="border-2 border-green-500">
-             <CardContent className="p-5 space-y-3">
-               <h3 className="font-semibold text-green-600">
-                 Consultation Completed
-               </h3>
-         
-               {doctorResult.doctor_notes && (
-                 <p>
-                   <strong>Doctor Notes:</strong><br />
-                   {doctorResult.doctor_notes}
-                 </p>
-               )}
-         
-               {doctorResult.prescription && (
-                 <p>
-                   <strong>Prescription:</strong><br />
-                   {doctorResult.prescription}
-                 </p>
-               )}
-         
-               {doctorResult.completed_at && (
-                 <p className="text-xs text-muted-foreground">
-                   Completed on:{" "}
-                   {new Date(doctorResult.completed_at).toLocaleString()}
-                 </p>
-               )}
-             </CardContent>
-           </Card>
-         )}
-                  
+      {doctorResult && profileRole === "user" && (
+        <Card className="border-2 border-green-500 bg-green-50 dark:bg-green-950">
+          <CardContent className="p-6 text-center space-y-4">
+            <h3 className="font-semibold text-green-700 text-lg">
+              Consultation Completed Successfully
+            </h3>
+      
+            <p className="text-sm text-muted-foreground">
+              Your doctor has completed the consultation.
+              Download the official prescription below.
+            </p>
+      
+            <Button
+              onClick={generatePrescriptionPDF}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download Doctor Prescription
+            </Button>
+      
+            {doctorResult.completed_at && (
+              <p className="text-xs text-muted-foreground">
+                Completed on:{" "}
+                {new Date(doctorResult.completed_at).toLocaleString()}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
         <Button onClick={generatePDF} className="w-full gap-2">
           <Download className="h-4 w-4" />
           Download Clinical PDF
