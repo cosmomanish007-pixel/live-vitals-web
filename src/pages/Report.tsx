@@ -309,85 +309,145 @@ useEffect(() => {
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
 
-   const generatePrescriptionPDF = () => {
-     if (!doctorResult) return;
-   
-     const doc = new jsPDF();
-     const pageWidth = doc.internal.pageSize.getWidth();
-   
-     /* HEADER */
-     doc.setFillColor(22, 163, 74);
-     doc.rect(0, 0, pageWidth, 28, "F");
-   
-     doc.setTextColor(255, 255, 255);
-     doc.setFontSize(16);
-     doc.text("Official Medical Prescription", 14, 18);
-   
-     doc.setTextColor(0, 0, 0);
-     doc.setFontSize(11);
-   
-     let y = 40;
-   
-     /* PATIENT INFO */
-     doc.text(`Patient Name: ${session?.user_name}`, 14, y); y += 6;
-     doc.text(`Age: ${session?.age}`, 14, y); y += 6;
-     doc.text(`Session ID: ${session?.id}`, 14, y); y += 6;
-     doc.text(
-       `Consultation Date: ${new Date(doctorResult.completed_at).toLocaleString()}`,
-       14,
-       y
-     );
-   
-     y += 12;
-   
-     /* DOCTOR NOTES */
-     doc.setFontSize(13);
-     doc.text("Doctor Notes", 14, y);
-     y += 8;
-   
-     doc.setFontSize(11);
-     doc.text(
-       doc.splitTextToSize(
-         doctorResult.doctor_notes || "No notes provided.",
-         pageWidth - 28
-       ),
-       14,
-       y
-     );
-   
-     y += 20;
-   
-     /* PRESCRIPTION TABLE */
-     doc.setFontSize(13);
-     doc.text("Prescribed Medication", 14, y);
-     y += 8;
-   
-     autoTable(doc, {
-     startY: y,
-     head: [["Medicine", "Dosage", "Frequency", "Duration"]],
-     body: doctorResult.prescription_items?.map((med: any) => [
-       med.name,
-       med.dosage,
-       med.frequency,
-       med.duration,
-     ]) || [],
-     headStyles: { fillColor: [22, 163, 74] },
-     styles: { fontSize: 11 },
-   });
-   
-     const finalY = (doc as any).lastAutoTable.finalY + 20;
-   
-     /* SIGNATURE BLOCK */
-     doc.setFontSize(11);
-     doc.text("Doctor Signature:", 14, finalY);
-     doc.line(14, finalY + 8, 80, finalY + 8);
-   
-     doc.text("Authorized Digital Medical Record", pageWidth / 2, 285, {
-       align: "center",
-     });
-   
-     doc.save(`Prescription_${session?.id}.pdf`);
-   };
+  const generatePrescriptionPDF = () => {
+  if (!doctorResult || !session) return;
+
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  /* =====================================
+     OUTER BORDER FRAME
+  ====================================== */
+  doc.setDrawColor(0);
+  doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
+
+  /* =====================================
+     HEADER SECTION
+  ====================================== */
+
+  doc.setFillColor(15, 23, 42);
+  doc.rect(5, 5, pageWidth - 10, 30, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.text("AURA-STETH AI MEDICAL CENTER", 14, 20);
+
+  doc.setFontSize(10);
+  doc.text("Authorized Digital Consultation Prescription", 14, 27);
+
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(11);
+
+  let y = 45;
+
+  /* =====================================
+     PATIENT DETAILS SECTION
+  ====================================== */
+
+  doc.setFontSize(13);
+  doc.text("Patient Information", 14, y);
+  y += 8;
+
+  doc.setFontSize(11);
+  doc.text(`Name: ${session.user_name}`, 14, y);
+  doc.text(`Session ID: ${session.id}`, 110, y);
+  y += 6;
+
+  doc.text(`Age: ${session.age}`, 14, y);
+  doc.text(
+    `Consultation Date: ${new Date(
+      doctorResult.completed_at
+    ).toLocaleString()}`,
+    110,
+    y
+  );
+  y += 12;
+
+  /* =====================================
+     DOCTOR NOTES / DIAGNOSIS
+  ====================================== */
+
+  doc.setFontSize(13);
+  doc.text("Clinical Notes / Diagnosis", 14, y);
+  y += 8;
+
+  doc.setFontSize(11);
+  const noteText =
+    doctorResult.doctor_notes || "No clinical notes provided.";
+
+  const splitNotes = doc.splitTextToSize(noteText, pageWidth - 28);
+  doc.text(splitNotes, 14, y);
+  y += splitNotes.length * 6 + 8;
+
+  /* =====================================
+     MEDICATION TABLE
+  ====================================== */
+
+  doc.setFontSize(13);
+  doc.text("Prescribed Medication", 14, y);
+  y += 6;
+
+  autoTable(doc, {
+    startY: y,
+    head: [["#", "Medicine", "Dosage", "Frequency", "Duration"]],
+    body:
+      doctorResult.prescription_items?.map(
+        (med: any, index: number) => [
+          index + 1,
+          med.name,
+          med.dosage,
+          med.frequency,
+          med.duration,
+        ]
+      ) || [],
+    theme: "grid",
+    headStyles: {
+      fillColor: [22, 163, 74],
+      textColor: 255,
+      fontStyle: "bold",
+    },
+    styles: {
+      fontSize: 10,
+      cellPadding: 4,
+    },
+  });
+
+  const finalY = (doc as any).lastAutoTable.finalY + 20;
+
+  /* =====================================
+     ADVICE SECTION
+  ====================================== */
+
+  doc.setFontSize(13);
+  doc.text("General Advice", 14, finalY);
+
+  doc.setFontSize(11);
+  doc.text(
+    "• Take medicines strictly as prescribed.\n• Maintain adequate hydration.\n• Follow up if symptoms persist.",
+    14,
+    finalY + 8
+  );
+
+  /* =====================================
+     SIGNATURE BLOCK
+  ====================================== */
+
+  const signatureY = pageHeight - 40;
+
+  doc.setFontSize(11);
+  doc.text("Doctor Signature:", pageWidth - 80, signatureY);
+  doc.line(pageWidth - 80, signatureY + 8, pageWidth - 20, signatureY + 8);
+
+  doc.text(
+    "Digitally Verified Medical Record",
+    pageWidth / 2,
+    pageHeight - 15,
+    { align: "center" }
+  );
+
+  doc.save(`Official_Prescription_${session.id}.pdf`);
+};
    
   /* ===============================
      UI
@@ -489,7 +549,10 @@ useEffect(() => {
               Download the official prescription below.
             </p>
       
-            <Button
+         
+             
+             
+             <Button
               onClick={generatePrescriptionPDF}
               className="w-full bg-green-600 hover:bg-green-700 text-white"
             >
@@ -506,6 +569,9 @@ useEffect(() => {
           </CardContent>
         </Card>
       )}
+
+
+         
         <Button onClick={generatePDF} className="w-full gap-2">
           <Download className="h-4 w-4" />
           Download Clinical PDF
