@@ -266,13 +266,16 @@ const finalizeConsultation = async () => {
   return (
     <div className="min-h-screen bg-background p-6 space-y-10">
 
-      <h1 className="text-3xl font-bold">
-  {doctorProfile?.full_name
-    ? doctorProfile.full_name.startsWith("Dr")
-      ? `Welcome ${doctorProfile.full_name}`
-      : `Welcome Dr. ${doctorProfile.full_name}`
-    : "Doctor Dashboard"}
-</h1>
+      <div>
+  <p className="text-sm text-muted-foreground">Doctor Panel</p>
+  <h1 className="text-3xl font-bold">
+    {doctorProfile?.full_name
+      ? doctorProfile.full_name.startsWith("Dr")
+        ? `Welcome ${doctorProfile.full_name}`
+        : `Welcome Dr. ${doctorProfile.full_name}`
+      : "Doctor Dashboard"}
+  </h1>
+</div>
 
       {/* Availability */}
       <Card>
@@ -546,6 +549,7 @@ const finalizeConsultation = async () => {
 };
 
 export default DoctorDashboard;
+
 
 
 
