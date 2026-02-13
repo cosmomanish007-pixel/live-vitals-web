@@ -287,118 +287,158 @@ if (!vital || !session) {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  const primaryColor = [15, 23, 42];
-  const accentBlue = [37, 99, 235];
-  const lightGray = [230, 230, 230];
+  const primary = [15, 23, 42];
+  const blue = [37, 99, 235];
+  const green = [22, 163, 74];
+  const red = [220, 38, 38];
+  const yellow = [234, 179, 8];
+  const gray = [240, 240, 240];
 
   const reportId = `CR-${session.id.slice(0, 8).toUpperCase()}`;
 
   /* ===============================
      HEADER
   ================================ */
-  doc.setFillColor(...primaryColor);
-  doc.rect(0, 0, pageWidth, 35, "F");
+  doc.setFillColor(...primary);
+  doc.rect(0, 0, pageWidth, 40, "F");
 
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text("AURA-STETH AI", 14, 20);
+  doc.text("AURA-STETH AI", 14, 22);
 
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
-  doc.text("Advanced Clinical Monitoring Report", 14, 28);
+  doc.text("Advanced Clinical Monitoring Report", 14, 30);
 
   doc.setFontSize(9);
-  doc.text(`Report ID: ${reportId}`, pageWidth - 14, 28, { align: "right" });
+  doc.text(`Report ID: ${reportId}`, pageWidth - 14, 30, { align: "right" });
+
+  let y = 50;
+
+  /* ===============================
+     PATIENT INFO CARD
+  ================================ */
+  doc.setFillColor(...gray);
+  doc.roundedRect(14, y, pageWidth - 28, 40, 4, 4, "F");
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(...blue);
+  doc.text("Patient Information", 18, y + 10);
 
   doc.setTextColor(0);
-  let y = 45;
-
-  /* ===============================
-     PATIENT INFO PANEL
-  ================================ */
-  doc.setDrawColor(...lightGray);
-  doc.rect(14, y, pageWidth - 28, 28);
-
   doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text("Patient Information", 18, y + 8);
-
   doc.setFont("helvetica", "normal");
-  doc.text(`Name: ${session.user_name}`, 18, y + 15);
-  doc.text(`Age: ${session.age}`, 110, y + 15);
-  doc.text(`Gender: ${session.gender}`, 18, y + 22);
-  doc.text(`Session ID: ${session.id}`, 110, y + 22);
 
-  y += 40;
+  doc.text(`Name: ${session.user_name}`, 18, y + 20);
+  doc.text(`Age: ${session.age}`, 110, y + 20);
+  doc.text(`Gender: ${session.gender}`, 18, y + 28);
+
+  const wrappedSessionId = doc.splitTextToSize(
+    `Session ID: ${session.id}`,
+    70
+  );
+  doc.text(wrappedSessionId, 110, y + 28);
+
+  y += 55;
 
   /* ===============================
-     RISK SUMMARY
+     RISK SUMMARY + VISUAL BAR
   ================================ */
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
   doc.text("Risk Assessment Summary", 14, y);
-  y += 8;
-
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "normal");
+  y += 10;
 
   const riskColor =
     risk.level === "RED"
-      ? [220, 38, 38]
+      ? red
       : risk.level === "YELLOW"
-      ? [234, 179, 8]
-      : [22, 163, 74];
+      ? yellow
+      : green;
 
+  doc.setFillColor(220);
+  doc.rect(14, y, pageWidth - 28, 8, "F");
+
+  doc.setFillColor(...riskColor);
+  doc.rect(14, y, ((pageWidth - 28) * risk.score) / 100, 8, "F");
+
+  y += 14;
+
+  doc.setFont("helvetica", "bold");
   doc.setTextColor(...riskColor);
-  doc.text(`${riskLabel} RISK (${risk.score}/100)`, 14, y);
+  doc.text(`${risk.level} RISK (${risk.score}/100)`, 14, y);
 
   doc.setTextColor(0);
-  y += 10;
+  doc.setFont("helvetica", "normal");
+  y += 12;
 
   /* ===============================
-     VITAL PARAMETERS TABLE
+     VITAL TABLE
   ================================ */
   autoTable(doc, {
     startY: y,
-    head: [["Parameter", "Measured Value", "Normal Range", "Status"]],
+    head: [["Parameter", "Measured", "Range", "Status"]],
     body: [
       [
         "Temperature",
-        vital.temp != null ? `${vital.temp} °C` : "—",
-        `${CLINICAL_RANGES.temp.min} – ${CLINICAL_RANGES.temp.max} °C`,
+        vital.temp ?? "—",
+        `${CLINICAL_RANGES.temp.min} – ${CLINICAL_RANGES.temp.max}`,
         tempEval.label,
       ],
       [
         "Heart Rate",
-        vital.hr != null ? `${vital.hr} bpm` : "—",
-        `${CLINICAL_RANGES.hr.min} – ${CLINICAL_RANGES.hr.max} bpm`,
+        vital.hr ?? "—",
+        `${CLINICAL_RANGES.hr.min} – ${CLINICAL_RANGES.hr.max}`,
         hrEval.label,
       ],
       [
         "SpO₂",
-        vital.spo2 != null ? `${vital.spo2}%` : "—",
-        `${CLINICAL_RANGES.spo2.min} – ${CLINICAL_RANGES.spo2.max}%`,
+        vital.spo2 ?? "—",
+        `${CLINICAL_RANGES.spo2.min} – ${CLINICAL_RANGES.spo2.max}`,
         spo2Eval.label,
       ],
       ["Audio Peak", vital.audio ?? "—", "N/A", "Info"],
     ],
-    theme: "grid",
     headStyles: {
-      fillColor: accentBlue,
+      fillColor: blue,
       textColor: 255,
-      fontStyle: "bold",
     },
     styles: { fontSize: 10 },
     didParseCell: function (data) {
       if (data.column.index === 3 && data.cell.raw === "Abnormal") {
-        data.cell.styles.textColor = [220, 38, 38];
+        data.cell.styles.textColor = red;
         data.cell.styles.fontStyle = "bold";
       }
     },
   });
 
-  y = (doc as any).lastAutoTable.finalY + 12;
+  y = (doc as any).lastAutoTable.finalY + 15;
+
+  /* ===============================
+     MINI VITAL VISUAL BARS
+  ================================ */
+  const drawMiniBar = (label: string, value: number | null, max: number) => {
+    if (value == null) return;
+
+    doc.setFontSize(10);
+    doc.text(label, 14, y);
+
+    doc.setFillColor(230);
+    doc.rect(60, y - 4, 100, 6, "F");
+
+    doc.setFillColor(...blue);
+    doc.rect(60, y - 4, (value / max) * 100, 6, "F");
+
+    y += 10;
+  };
+
+  drawMiniBar("Temp", vital.temp, 50);
+  drawMiniBar("HR", vital.hr, 150);
+  drawMiniBar("SpO₂", vital.spo2, 100);
+
+  y += 8;
 
   /* ===============================
      INTERPRETATION
@@ -412,38 +452,41 @@ if (!vital || !session) {
 
   const interpretation =
     risk.level === "RED"
-      ? "Critical physiological deviations detected. Immediate medical evaluation is strongly recommended."
+      ? "Critical physiological deviations detected. Immediate medical evaluation recommended."
       : risk.level === "YELLOW"
-      ? "Certain parameters are outside normal physiological limits. Continued monitoring advised."
-      : "All monitored vitals fall within clinically acceptable ranges.";
+      ? "Some vitals outside safe limits. Continued monitoring advised."
+      : "All vitals within acceptable physiological range.";
 
-  const splitText = doc.splitTextToSize(
+  const wrapped = doc.splitTextToSize(
     interpretation,
     pageWidth - 28
   );
 
-  doc.text(splitText, 14, y);
+  doc.text(wrapped, 14, y);
 
   /* ===============================
      FOOTER
   ================================ */
   const pageCount = doc.getNumberOfPages();
+
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
+
     doc.setFontSize(9);
     doc.setTextColor(120);
-    doc.text(
-      `Page ${i} of ${pageCount}`,
-      pageWidth - 14,
-      pageHeight - 10,
-      { align: "right" }
-    );
 
     doc.text(
       "This report is digitally generated by AURA-STETH AI Clinical System.",
       pageWidth / 2,
-      pageHeight - 10,
+      pageHeight - 12,
       { align: "center" }
+    );
+
+    doc.text(
+      `Page ${i} of ${pageCount}`,
+      pageWidth - 14,
+      pageHeight - 12,
+      { align: "right" }
     );
   }
 
