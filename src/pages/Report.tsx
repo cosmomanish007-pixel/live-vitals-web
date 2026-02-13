@@ -331,6 +331,7 @@ useEffect(() => {
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
 
+
 const generatePrescriptionPDF = () => {
   if (!doctorResult || !session) return;
 
@@ -338,81 +339,57 @@ const generatePrescriptionPDF = () => {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  const prescriptionId = `RX-${session.id.slice(0, 8).toUpperCase()}`;
-
-  const primaryBlue = [15, 23, 42];
-  const accentGreen = [22, 163, 74];
-
-  /* ===============================
-     HEADER FUNCTION (REUSABLE)
-  ================================= */
-  const drawHeader = () => {
-    doc.setFillColor(...primaryBlue);
-    doc.rect(0, 0, pageWidth, 30, "F");
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(15);
-    doc.setFont("helvetica", "bold");
-    doc.text("AURA-STETH AI MEDICAL CENTER", 14, 18);
-
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.text("Official OPD Consultation Prescription", 14, 24);
-
-    doc.text(`Prescription ID: ${prescriptionId}`, pageWidth - 14, 18, {
-      align: "right",
-    });
-
-    doc.setTextColor(0, 0, 0);
-  };
+  const primaryColor = [15, 23, 42];      // Header navy
+  const accentGreen = [22, 163, 74];      // Section titles
+  const lightGray = [230, 230, 230];
 
   /* ===============================
-     FOOTER FUNCTION (REUSABLE)
-  ================================= */
-  const drawFooter = (pageNumber: number, totalPages: number) => {
-    doc.setFontSize(8);
-    doc.setTextColor(120);
-
-    doc.text(
-      `This is a digitally generated prescription. No physical signature required.`,
-      pageWidth / 2,
-      pageHeight - 12,
-      { align: "center" }
-    );
-
-    doc.text(
-      `AURA-STETH AI Medical System`,
-      pageWidth / 2,
-      pageHeight - 7,
-      { align: "center" }
-    );
-
-    doc.text(
-      `Page ${pageNumber} of ${totalPages}`,
-      pageWidth - 14,
-      pageHeight - 7,
-      { align: "right" }
-    );
-
-    doc.setTextColor(0);
-  };
+     OUTER BORDER
+  ================================ */
+  doc.setDrawColor(180);
+  doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
 
   /* ===============================
-     START DOCUMENT
-  ================================= */
+     HEADER
+  ================================ */
+  doc.setFillColor(...primaryColor);
+  doc.rect(5, 5, pageWidth - 10, 40, "F");
 
-  drawHeader();
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("AURA-STETH AI MEDICAL CENTER", 14, 22);
 
-  let y = 40;
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text("Official OPD Consultation Prescription", 14, 32);
 
-  /* DOCTOR INFORMATION */
-  doc.setFontSize(13);
-  doc.setTextColor(...accentGreen);
-  doc.text("Doctor Information", 14, y);
-  y += 8;
+  // Prescription ID
+  doc.setFontSize(9);
+  doc.text(
+    `Prescription ID: RX-${session.id.slice(0, 8).toUpperCase()}`,
+    pageWidth - 14,
+    32,
+    { align: "right" }
+  );
+
+  /* ===============================
+     WATERMARK
+  ================================ */
+  doc.setFontSize(60);
+  doc.setTextColor(240);
+  doc.setFont("helvetica", "bold");
+  doc.text(
+    "AURA-STETH",
+    pageWidth / 2,
+    pageHeight / 2,
+    { align: "center", angle: 45 }
+  );
 
   doc.setTextColor(0);
-  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+
+  let y = 55;
 
   const doctorName = doctorProfile?.full_name
     ? doctorProfile.full_name.startsWith("Dr")
@@ -420,6 +397,17 @@ const generatePrescriptionPDF = () => {
       : `Dr. ${doctorProfile.full_name}`
     : "N/A";
 
+  /* ===============================
+     DOCTOR INFORMATION
+  ================================ */
+  doc.setFontSize(13);
+  doc.setTextColor(...accentGreen);
+  doc.setFont("helvetica", "bold");
+  doc.text("Doctor Information", 14, y);
+  y += 8;
+
+  doc.setTextColor(0);
+  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
   doc.text(doctorName, 14, y);
   doc.setFont("helvetica", "normal");
@@ -440,14 +428,22 @@ const generatePrescriptionPDF = () => {
     y += 10;
   }
 
-  /* PATIENT INFORMATION */
+  doc.setDrawColor(...lightGray);
+  doc.line(14, y, pageWidth - 14, y);
+  y += 10;
+
+  /* ===============================
+     PATIENT INFORMATION
+  ================================ */
   doc.setFontSize(13);
   doc.setTextColor(...accentGreen);
+  doc.setFont("helvetica", "bold");
   doc.text("Patient Information", 14, y);
   y += 8;
 
   doc.setTextColor(0);
   doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
 
   doc.text(`Patient Name: ${session.user_name}`, 14, y);
   doc.text(`Age: ${session.age}`, 120, y);
@@ -461,12 +457,20 @@ const generatePrescriptionPDF = () => {
     120,
     y
   );
-  y += 12;
+  y += 10;
 
-  /* DIAGNOSIS */
+  doc.line(14, y, pageWidth - 14, y);
+  y += 10;
+
+  /* ===============================
+     DIAGNOSIS
+  ================================ */
   doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
   doc.text("Diagnosis", 14, y);
   y += 8;
+
+  doc.setFont("helvetica", "normal");
 
   if (doctorResult.diagnosis) {
     const diagnosisArray = doctorResult.diagnosis.split(",");
@@ -475,28 +479,35 @@ const generatePrescriptionPDF = () => {
       y += 6;
     });
   } else {
+    doc.setFont("helvetica", "italic");
     doc.text("Not Provided", 14, y);
+    doc.setFont("helvetica", "normal");
     y += 6;
   }
 
-  y += 4;
+  y += 8;
 
-  /* CLINICAL NOTES */
+  /* ===============================
+     CLINICAL NOTES
+  ================================ */
   if (doctorResult.doctor_notes) {
-    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
     doc.text("Clinical Notes", 14, y);
     y += 8;
 
+    doc.setFont("helvetica", "normal");
     const splitNotes = doc.splitTextToSize(
       doctorResult.doctor_notes,
       pageWidth - 28
     );
     doc.text(splitNotes, 14, y);
-    y += splitNotes.length * 6 + 6;
+    y += splitNotes.length * 6 + 8;
   }
 
-  /* MEDICINES TABLE */
-  doc.setFontSize(12);
+  /* ===============================
+     PRESCRIBED MEDICINES
+  ================================ */
+  doc.setFont("helvetica", "bold");
   doc.text("Prescribed Medicines", 14, y);
   y += 6;
 
@@ -511,7 +522,7 @@ const generatePrescriptionPDF = () => {
             med.dosage || "-",
             med.frequency || "-",
             med.duration || "-",
-            med.total_quantity || "-",
+            med.total_quantity || "-",   // SAFE HANDLING
           ])
         : [["-", "No Medicines Prescribed", "-", "-", "-", "-"]],
     theme: "grid",
@@ -520,18 +531,18 @@ const generatePrescriptionPDF = () => {
       textColor: 255,
     },
     styles: { fontSize: 10 },
-    margin: { top: 35 },
-    didDrawPage: () => {
-      drawHeader();
-    },
   });
 
   y = (doc as any).lastAutoTable.finalY + 12;
 
-  /* GENERAL ADVICE */
-  doc.setFontSize(12);
+  /* ===============================
+     GENERAL ADVICE
+  ================================ */
+  doc.setFont("helvetica", "bold");
   doc.text("General Advice", 14, y);
   y += 8;
+
+  doc.setFont("helvetica", "normal");
 
   if (doctorResult.advice) {
     const splitAdvice = doc.splitTextToSize(
@@ -541,33 +552,53 @@ const generatePrescriptionPDF = () => {
     doc.text(splitAdvice, 14, y);
     y += splitAdvice.length * 6 + 6;
   } else {
+    doc.setFont("helvetica", "italic");
     doc.text("No Specific Advice Provided", 14, y);
+    doc.setFont("helvetica", "normal");
     y += 6;
   }
 
-  /* SIGNATURE — ALWAYS ON LAST PAGE */
-  const totalPages = doc.getNumberOfPages();
-  doc.setPage(totalPages);
+  /* ===============================
+     SIGNATURE BLOCK
+  ================================ */
+  const signatureY = pageHeight - 45;
 
-  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text(doctorName, pageWidth - 14, pageHeight - 35, {
-    align: "right",
-  });
+  doc.setFontSize(12);
+  doc.text(doctorName, pageWidth - 70, signatureY);
 
   doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
   doc.text(
-    doctorProfile?.specialization || "Authorized Medical Practitioner",
-    pageWidth - 14,
-    pageHeight - 29,
-    { align: "right" }
+    doctorProfile?.specialization || "",
+    pageWidth - 70,
+    signatureY + 6
   );
 
-  /* FOOTERS + PAGE NUMBERS */
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    drawFooter(i, totalPages);
-  }
+  doc.text(
+    "Digitally Authorized Medical Practitioner",
+    pageWidth - 70,
+    signatureY + 12
+  );
+
+  /* ===============================
+     FOOTER
+  ================================ */
+  doc.setFontSize(9);
+  doc.setTextColor(120);
+  doc.text(
+    "This is a digitally generated prescription. No physical signature required.",
+    pageWidth / 2,
+    pageHeight - 18,
+    { align: "center" }
+  );
+
+  doc.text(
+    "AURA-STETH AI Medical System",
+    pageWidth / 2,
+    pageHeight - 12,
+    { align: "center" }
+  );
 
   doc.save(`Official_OPD_Prescription_${session.id}.pdf`);
 };
