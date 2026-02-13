@@ -356,20 +356,40 @@ if (!vital || !session) {
   y += 10;
 
   /* ================= EMERGENCY BANNER ================= */
-  if (risk.level === "RED") {
-    doc.setFillColor(255, 235, 235);
-    doc.rect(14, y, pageWidth - 28, 14, "F");
+  /* ===============================
+   CLINICAL ADVISORY PANEL
+================================= */
 
-    doc.setTextColor(...red);
-    doc.setFont("helvetica", "bold");
-    doc.text(
-      "⚠ Immediate medical evaluation strongly recommended.",
-      18,
-      y + 9
-    );
-    doc.setTextColor(0);
-    y += 20;
-  }
+if (risk.level === "RED") {
+  const panelHeight = 22;
+
+  // Light soft background (not harsh red)
+  doc.setFillColor(255, 235, 235);
+  doc.roundedRect(14, y, pageWidth - 28, panelHeight, 3, 3, "F");
+
+  // Left red accent bar
+  doc.setFillColor(220, 38, 38);
+  doc.rect(14, y, 4, panelHeight, "F");
+
+  // Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(220, 38, 38);
+  doc.text("CRITICAL CLINICAL ADVISORY", 22, y + 8);
+
+  // Message
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(60);
+  doc.text(
+    "Immediate in-person medical evaluation is strongly recommended based on current physiological readings.",
+    22,
+    y + 16,
+    { maxWidth: pageWidth - 40 }
+  );
+
+  y += panelHeight + 12;
+}}
 
   /* ================= AI CONFIDENCE ================= */
   doc.setFont("helvetica", "bold");
