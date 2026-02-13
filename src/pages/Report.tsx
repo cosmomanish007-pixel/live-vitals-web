@@ -331,182 +331,266 @@ useEffect(() => {
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
 
- const generatePrescriptionPDF = () => {
+const generatePrescriptionPDF = () => {
   if (!doctorResult || !session) return;
 
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  /* OUTER BORDER */
-  doc.setDrawColor(0);
+  /* =====================================
+     OUTER BORDER
+  ====================================== */
+  doc.setDrawColor(180);
   doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
 
-  /* HEADER */
+  /* =====================================
+     HEADER
+  ====================================== */
   doc.setFillColor(15, 23, 42);
   doc.rect(5, 5, pageWidth - 10, 35, "F");
 
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16);
+  doc.setFontSize(17);
+  doc.setFont("helvetica", "bold");
   doc.text("AURA-STETH AI MEDICAL CENTER", 14, 20);
 
   doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
   doc.text("Official OPD Consultation Prescription", 14, 28);
 
-  doc.setTextColor(0, 0, 0);
   let y = 50;
+  doc.setTextColor(0);
 
-/* DOCTOR DETAILS */
-doc.setFontSize(13);
-doc.setTextColor(22, 163, 74);
-doc.text("Doctor Information", 14, y);
-y += 8;
+  /* =====================================
+     DOCTOR INFORMATION
+  ====================================== */
+  doc.setFontSize(13);
+  doc.setTextColor(22, 163, 74);
+  doc.setFont("helvetica", "bold");
+  doc.text("Doctor Information", 14, y);
+  y += 8;
 
-doc.setTextColor(0, 0, 0);
-doc.setFontSize(11);
+  doc.setTextColor(0);
+  doc.setFontSize(11);
 
-const doctorName = doctorProfile?.full_name
-  ? doctorProfile.full_name.startsWith("Dr")
-    ? doctorProfile.full_name
-    : `Dr. ${doctorProfile.full_name}`
-  : "N/A";
+  const doctorName = doctorProfile?.full_name
+    ? doctorProfile.full_name.startsWith("Dr")
+      ? doctorProfile.full_name
+      : `Dr. ${doctorProfile.full_name}`
+    : "N/A";
 
-doc.setFont("helvetica", "bold");
-doc.text(doctorName, 14, y);
-doc.setFont("helvetica", "normal");
-y += 6;
-
-if (doctorProfile?.specialization) {
-  doc.text(`Specialization: ${doctorProfile.specialization}`, 14, y);
+  doc.setFont("helvetica", "bold");
+  doc.text(doctorName, 14, y);
+  doc.setFont("helvetica", "normal");
   y += 6;
-}
 
-if (doctorProfile?.license_number) {
-  doc.text(`License No: ${doctorProfile.license_number}`, 14, y);
-  y += 6;
-}
-
-if (doctorProfile?.hospital) {
-  doc.text(`Hospital: ${doctorProfile.hospital}`, 14, y);
-  y += 10;
-}
-
-    
-   /* PATIENT INFO */
-doc.setFontSize(13);
-doc.setTextColor(22, 163, 74);
-doc.text("Patient Information", 14, y);
-y += 8;
-
-doc.setTextColor(0, 0, 0);
-doc.setFontSize(11);
-
-doc.text(`Patient Name: ${session.user_name}`, 14, y);
-doc.text(`Age: ${session.age}`, 120, y);
-y += 6;
-
-doc.text(`Session ID: ${session.id}`, 14, y);
-doc.text(
-  `Consultation Date: ${new Date(
-    doctorResult.completed_at
-  ).toLocaleString()}`,
-  120,
-  y
-);
-y += 12;
-
-  /* DIAGNOSIS */
-doc.setFontSize(12);
-doc.text("Diagnosis", 14, y);
-y += 8;
-
-if (doctorResult.diagnosis) {
-  const diagnosisArray = doctorResult.diagnosis.split(",");
-  diagnosisArray.forEach((item: string, index: number) => {
-    doc.text(`${index + 1}. ${item.trim()}`, 14, y);
+  if (doctorProfile?.specialization) {
+    doc.text(`Specialization: ${doctorProfile.specialization}`, 14, y);
     y += 6;
-  });
-} else {
-  doc.text("Not Provided", 14, y);
+  }
+
+  if (doctorProfile?.license_number) {
+    doc.text(`License No: ${doctorProfile.license_number}`, 14, y);
+    y += 6;
+  }
+
+  if (doctorProfile?.hospital) {
+    doc.text(`Hospital: ${doctorProfile.hospital}`, 14, y);
+    y += 10;
+  }
+
+  /* Divider Line */
+  doc.setDrawColor(220);
+  doc.line(14, y, pageWidth - 14, y);
+  y += 10;
+
+  /* =====================================
+     PATIENT INFORMATION
+  ====================================== */
+  doc.setFontSize(13);
+  doc.setTextColor(22, 163, 74);
+  doc.setFont("helvetica", "bold");
+  doc.text("Patient Information", 14, y);
+  y += 8;
+
+  doc.setTextColor(0);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+
+  doc.text(`Patient Name: ${session.user_name}`, 14, y);
+  doc.text(`Age: ${session.age}`, 120, y);
   y += 6;
-}
 
-y += 4;
-    
-  /* DOCTOR NOTES */
+  doc.text(`Session ID: ${session.id}`, 14, y);
+  doc.text(
+    `Consultation Date: ${new Date(
+      doctorResult.completed_at
+    ).toLocaleString()}`,
+    120,
+    y
+  );
+  y += 12;
+
+  /* Divider Line */
+  doc.setDrawColor(220);
+  doc.line(14, y, pageWidth - 14, y);
+  y += 10;
+
+  /* =====================================
+     DIAGNOSIS
+  ====================================== */
+  doc.setFontSize(13);
+  doc.setTextColor(22, 163, 74);
+  doc.setFont("helvetica", "bold");
+  doc.text("Diagnosis", 14, y);
+  y += 8;
+
+  doc.setTextColor(0);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+
+  if (doctorResult.diagnosis) {
+    const diagnosisArray = doctorResult.diagnosis.split(",");
+    diagnosisArray.forEach((item: string, index: number) => {
+      doc.text(`${index + 1}. ${item.trim()}`, 16, y);
+      y += 6;
+    });
+  } else {
+    doc.setFont("helvetica", "italic");
+    doc.text("Not Provided", 16, y);
+    doc.setFont("helvetica", "normal");
+    y += 6;
+  }
+
+  y += 6;
+
+  /* =====================================
+     CLINICAL NOTES
+  ====================================== */
+  doc.setFontSize(13);
+  doc.setTextColor(22, 163, 74);
+  doc.setFont("helvetica", "bold");
+  doc.text("Clinical Notes", 14, y);
+  y += 8;
+
+  doc.setTextColor(0);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+
   if (doctorResult.doctor_notes) {
-    doc.setFontSize(12);
-    doc.text("Clinical Notes", 14, y);
-    y += 8;
-
     const splitNotes = doc.splitTextToSize(
       doctorResult.doctor_notes,
       pageWidth - 28
     );
     doc.text(splitNotes, 14, y);
     y += splitNotes.length * 6 + 6;
+  } else {
+    doc.setFont("helvetica", "italic");
+    doc.text("Not Provided", 14, y);
+    doc.setFont("helvetica", "normal");
+    y += 6;
   }
 
-  /* MEDICINES TABLE */
-  doc.setFontSize(12);
-doc.text("Prescribed Medicines", 14, y);
-y += 6;
+  y += 8;
 
-autoTable(doc, {
-  startY: y,
-  head: [["#", "Medicine", "Dosage", "Frequency", "Duration"]],
-  body:
-    medicineList.length > 0
-      ? medicineList.map((med: any, index: number) => [
-          index + 1,
-          med.medicine_name,
-          med.dosage,
-          med.frequency,
-          med.duration,
-        ])
-      : [["-", "No Medicines Prescribed", "-", "-", "-"]],
-  theme: "grid",
-  headStyles: {
-    fillColor: [22, 163, 74],
-    textColor: 255,
-  },
-  styles: { fontSize: 10 },
-});
-
-y = (doc as any).lastAutoTable.finalY + 10;
-
-  /* ADVICE */
-  doc.setFontSize(12);
-doc.text("General Advice", 14, y);
-y += 8;
-
-if (doctorResult.advice) {
-  const splitAdvice = doc.splitTextToSize(
-    doctorResult.advice,
-    pageWidth - 28
-  );
-  doc.text(splitAdvice, 14, y);
-  y += splitAdvice.length * 6 + 6;
-} else {
-  doc.text("No Specific Advice Provided", 14, y);
+  /* =====================================
+     MEDICINES TABLE
+  ====================================== */
+  doc.setFontSize(13);
+  doc.setTextColor(22, 163, 74);
+  doc.setFont("helvetica", "bold");
+  doc.text("Prescribed Medicines", 14, y);
   y += 6;
-}
 
-  /* FOLLOW UP */
+  autoTable(doc, {
+    startY: y,
+    head: [["#", "Medicine", "Dosage", "Frequency", "Duration"]],
+    body:
+      medicineList.length > 0
+        ? medicineList.map((med: any, index: number) => [
+            index + 1,
+            med.medicine_name,
+            med.dosage,
+            med.frequency,
+            med.duration,
+          ])
+        : [["-", "No Medicines Prescribed", "-", "-", "-"]],
+    theme: "grid",
+    headStyles: {
+      fillColor: [22, 163, 74],
+      textColor: 255,
+      fontStyle: "bold",
+    },
+    styles: {
+      fontSize: 10,
+      cellPadding: 4,
+    },
+  });
+
+  y = (doc as any).lastAutoTable.finalY + 10;
+
+  /* =====================================
+     ADVICE
+  ====================================== */
+  doc.setFontSize(13);
+  doc.setTextColor(22, 163, 74);
+  doc.setFont("helvetica", "bold");
+  doc.text("General Advice", 14, y);
+  y += 8;
+
+  doc.setTextColor(0);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+
+  if (doctorResult.advice) {
+    const splitAdvice = doc.splitTextToSize(
+      doctorResult.advice,
+      pageWidth - 28
+    );
+    doc.text(splitAdvice, 14, y);
+    y += splitAdvice.length * 6 + 6;
+  } else {
+    doc.setFont("helvetica", "italic");
+    doc.text("No Specific Advice Provided", 14, y);
+    doc.setFont("helvetica", "normal");
+    y += 6;
+  }
+
   if (doctorResult.follow_up_date) {
+    y += 4;
     doc.text(`Follow-up Date: ${doctorResult.follow_up_date}`, 14, y);
   }
 
-  /* SIGNATURE */
+  /* =====================================
+     DIGITAL SIGNATURE BLOCK
+  ====================================== */
   const signatureY = pageHeight - 40;
 
-  doc.text("Doctor Signature:", pageWidth - 80, signatureY);
-  doc.line(pageWidth - 80, signatureY + 8, pageWidth - 20, signatureY + 8);
+  doc.setFont("helvetica", "bold");
+  doc.text(doctorName, pageWidth - 70, signatureY);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text("Authorized Digital Signature", pageWidth - 70, signatureY + 6);
+
+  /* =====================================
+     FOOTER
+  ====================================== */
+  doc.setFontSize(9);
+  doc.setTextColor(120);
 
   doc.text(
-    "Digitally Verified Medical Record",
+    "This is a digitally generated prescription. No physical signature required.",
     pageWidth / 2,
-    pageHeight - 15,
+    pageHeight - 18,
+    { align: "center" }
+  );
+
+  doc.text(
+    "AURA-STETH AI Medical System",
+    pageWidth / 2,
+    pageHeight - 12,
     { align: "center" }
   );
 
