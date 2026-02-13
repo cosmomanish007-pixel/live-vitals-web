@@ -235,7 +235,7 @@ useEffect(() => {
      PDF GENERATION (UNCHANGED)
   ================================= */
 
-  const generatePDF = () => {
+    const generatePDF = () => {
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -309,6 +309,87 @@ useEffect(() => {
     doc.save(`AURA_Report_${session.id}.pdf`);
   };
 
+   const generatePrescriptionPDF = () => {
+     if (!doctorResult) return;
+   
+     const doc = new jsPDF();
+     const pageWidth = doc.internal.pageSize.getWidth();
+   
+     /* HEADER */
+     doc.setFillColor(22, 163, 74);
+     doc.rect(0, 0, pageWidth, 28, "F");
+   
+     doc.setTextColor(255, 255, 255);
+     doc.setFontSize(16);
+     doc.text("Official Medical Prescription", 14, 18);
+   
+     doc.setTextColor(0, 0, 0);
+     doc.setFontSize(11);
+   
+     let y = 40;
+   
+     /* PATIENT INFO */
+     doc.text(`Patient Name: ${session?.user_name}`, 14, y); y += 6;
+     doc.text(`Age: ${session?.age}`, 14, y); y += 6;
+     doc.text(`Session ID: ${session?.id}`, 14, y); y += 6;
+     doc.text(
+       `Consultation Date: ${new Date(doctorResult.completed_at).toLocaleString()}`,
+       14,
+       y
+     );
+   
+     y += 12;
+   
+     /* DOCTOR NOTES */
+     doc.setFontSize(13);
+     doc.text("Doctor Notes", 14, y);
+     y += 8;
+   
+     doc.setFontSize(11);
+     doc.text(
+       doc.splitTextToSize(
+         doctorResult.doctor_notes || "No notes provided.",
+         pageWidth - 28
+       ),
+       14,
+       y
+     );
+   
+     y += 20;
+   
+     /* PRESCRIPTION TABLE */
+     doc.setFontSize(13);
+     doc.text("Prescribed Medication", 14, y);
+     y += 8;
+   
+     autoTable(doc, {
+       startY: y,
+       head: [["Medicine / Instructions"]],
+       body: [
+         [
+           doctorResult.prescription
+             ? doctorResult.prescription
+             : "No medication prescribed."
+         ],
+       ],
+       headStyles: { fillColor: [22, 163, 74] },
+       styles: { fontSize: 11 },
+     });
+   
+     const finalY = (doc as any).lastAutoTable.finalY + 20;
+   
+     /* SIGNATURE BLOCK */
+     doc.setFontSize(11);
+     doc.text("Doctor Signature:", 14, finalY);
+     doc.line(14, finalY + 8, 80, finalY + 8);
+   
+     doc.text("Authorized Digital Medical Record", pageWidth / 2, 285, {
+       align: "center",
+     });
+   
+     doc.save(`Prescription_${session?.id}.pdf`);
+   };
+   
   /* ===============================
      UI
   ================================= */
@@ -378,6 +459,8 @@ useEffect(() => {
             </Card>
           ))}
         </div>
+
+         
       {doctorResult && profileRole === "user" && (
         <Card className="border-2 border-green-500 bg-green-50 dark:bg-green-950">
           <CardContent className="p-6 text-center space-y-4">
