@@ -8,13 +8,20 @@ import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
+interface MedicineItem {
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+}
+
 interface Consultation {
   id: string;
   session_id: string;
   risk_level: "GREEN" | "YELLOW" | "RED";
   status: "PENDING" | "ACTIVE" | "COMPLETED";
   doctor_notes: string | null;
-  prescription: string | null;
+  prescription_items: MedicineItem[] | null;
   completed_at: string | null;
   created_at: string;
 }
@@ -30,7 +37,9 @@ const DoctorDashboard = () => {
   const [selectedConsultation, setSelectedConsultation] =
     useState<Consultation | null>(null);
   const [notes, setNotes] = useState("");
-  const [prescription, setPrescription] = useState("");
+  const [medicines, setMedicines] = useState<MedicineItem[]>([
+    { name: "", dosage: "", frequency: "", duration: "" }
+  ]);
 
   /* ================================
      FETCH PROFILE
@@ -145,10 +154,10 @@ const DoctorDashboard = () => {
     await supabase
       .from("consultation_requests")
       .update({
-        status: "COMPLETED",
-        doctor_notes: notes,
-        prescription: prescription,
-        completed_at: new Date().toISOString(),
+      status: "COMPLETED",
+      doctor_notes: notes,
+      prescription_items: medicines,
+      completed_at: new Date().toISOString(),
       })
       .eq("id", selectedConsultation.id);
 
@@ -300,12 +309,18 @@ const DoctorDashboard = () => {
                 </p>
               )}
 
-              {c.prescription && (
-                <p className="text-sm">
-                  <strong>Prescription:</strong> {c.prescription}
-                </p>
+              
+              {c.prescription_items && (
+                <div className="text-sm space-y-1">
+                  <strong>Prescription:</strong>
+                  {c.prescription_items.map((med: any, idx: number) => (
+                    <div key={idx} className="text-muted-foreground">
+                      {med.name} — {med.dosage} — {med.frequency} — {med.duration}
+                    </div>
+                  ))}
+                </div>
               )}
-
+              
               {c.completed_at && (
                 <p className="text-xs text-muted-foreground">
                   Completed on: {new Date(c.completed_at).toLocaleString()}
@@ -320,26 +335,76 @@ const DoctorDashboard = () => {
       {/* MODAL */}
       {selectedConsultation && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg space-y-4">
-
+         <div className="bg-background border border-border p-6 rounded-xl w-full max-w-xl space-y-4">
             <h2 className="text-xl font-bold">
               Add Consultation Notes & Prescription
             </h2>
 
             <textarea
               placeholder="Doctor Notes"
-              className="w-full border p-2 rounded"
+              className="w-full bg-muted text-white border border-border p-2 rounded"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
 
-            <textarea
-              placeholder="Prescription / Medicines"
-              className="w-full border p-2 rounded"
-              value={prescription}
-              onChange={(e) => setPrescription(e.target.value)}
-            />
 
+          {medicines.map((med, index) => (
+          <div key={index} className="grid grid-cols-2 gap-2">
+            <input
+              className="p-2 rounded bg-gray-100 text-black"
+              placeholder="Medicine Name"
+              value={med.name}
+              onChange={(e) => {
+                const updated = [...medicines];
+                updated[index].name = e.target.value;
+                setMedicines(updated);
+              }}
+            />
+            <input
+              className="p-2 rounded bg-gray-100 text-black"
+              placeholder="Dosage (e.g. 500mg)"
+              value={med.dosage}
+              onChange={(e) => {
+                const updated = [...medicines];
+                updated[index].dosage = e.target.value;
+                setMedicines(updated);
+              }}
+            />
+            <input
+              className="p-2 rounded bg-gray-100 text-black"
+              placeholder="Frequency (e.g. 1 Morning)"
+              value={med.frequency}
+              onChange={(e) => {
+                const updated = [...medicines];
+                updated[index].frequency = e.target.value;
+                setMedicines(updated);
+              }}
+            />
+            <input
+              className="p-2 rounded bg-gray-100 text-black"
+              placeholder="Duration (e.g. 5 Days)"
+              value={med.duration}
+              onChange={(e) => {
+                const updated = [...medicines];
+                updated[index].duration = e.target.value;
+                setMedicines(updated);
+              }}
+            />
+          </div>
+        ))}
+        
+        <Button
+          variant="outline"
+          onClick={() =>
+            setMedicines([
+              ...medicines,
+              { name: "", dosage: "", frequency: "", duration: "" },
+            ])
+          }
+        >
+          + Add Another Medicine
+        </Button>
+            
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -361,3 +426,4 @@ const DoctorDashboard = () => {
 };
 
 export default DoctorDashboard;
+
