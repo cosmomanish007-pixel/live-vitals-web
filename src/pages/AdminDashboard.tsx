@@ -65,12 +65,15 @@ const AdminDashboard = () => {
 
   const [doctors, setDoctors] = useState<DoctorProfile[]>([]);
   const [sessions, setSessions] = useState<SessionData[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
 
   const [searchDoctor, setSearchDoctor] = useState("");
   const [searchSession, setSearchSession] = useState("");
-
   const [selectedDoctor, setSelectedDoctor] =
     useState<DoctorProfile | null>(null);
+  
+  const [showAddDoctor, setShowAddDoctor] = useState(false);
+  const [showAddUser, setShowAddUser] = useState(false);
 
   /* ===============================
      ROLE CHECK
@@ -114,18 +117,52 @@ const AdminDashboard = () => {
   };
 
   const fetchSessions = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("sessions")
-      .select("id, user_name, state, risk_level, created_at")
+      .select(`
+        id,
+        user_name,
+        state,
+        created_at,
+        consultation_requests (
+          risk_level
+        )
+      `)
       .order("created_at", { ascending: false });
 
-    if (data) setSessions(data);
+    if (error) {
+      console.error("Session fetch error:", error);
+      return;
+    }
+
+    if (data) {
+      const formatted = data.map((s: any) => ({
+        ...s,
+        risk_level:
+          s.consultation_requests &&
+          s.consultation_requests.length > 0
+            ? s.consultation_requests[0].risk_level
+            : "GREEN",
+      }));
+
+      setSessions(formatted);
+    }
+  };
+
+  const fetchUsers = async () => {
+    const { count } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("role", "user");
+
+    setTotalUsers(count || 0);
   };
 
   useEffect(() => {
     if (!authorized) return;
     fetchDoctors();
     fetchSessions();
+    fetchUsers();
   }, [authorized]);
 
   /* ===============================
@@ -144,9 +181,9 @@ const AdminDashboard = () => {
   ).length;
 
   const totalSessions = sessions.length;
-  const redRisk = sessions.filter((s) => s.risk_level === "RED").length;
-  const yellowRisk = sessions.filter((s) => s.risk_level === "YELLOW").length;
-  const greenRisk = sessions.filter((s) => s.risk_level === "GREEN").length;
+  const redRisk = sessions.filter((s) => s.risk_level === "RED").length || 0;
+  const yellowRisk = sessions.filter((s) => s.risk_level === "YELLOW").length || 0;
+  const greenRisk = sessions.filter((s) => s.risk_level === "GREEN").length || 0;
 
   /* ===============================
      FILTERING
@@ -217,6 +254,12 @@ const AdminDashboard = () => {
     link.click();
   };
 
+  const refreshAll = () => {
+    fetchDoctors();
+    fetchSessions();
+    fetchUsers();
+  };
+
   /* ===============================
      CHART DATA
   ================================ */
@@ -252,26 +295,33 @@ const AdminDashboard = () => {
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Admin Control Center</h1>
-        <Button onClick={() => {
-          fetchDoctors();
-          fetchSessions();
-        }}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex gap-3">
+          <Button onClick={() => setShowAddDoctor(true)}>
+            Add Doctor
+          </Button>
+          <Button variant="secondary" onClick={() => setShowAddUser(true)}>
+            Add User
+          </Button>
+          <Button onClick={refreshAll}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* KPI GRID */}
       <div className="grid lg:grid-cols-4 gap-6">
 
-        <KPI label="Total Doctors" value={totalDoctors} icon={<Users />} />
+        <KPI label="Total Users" value={totalUsers} icon={<Users />} />
+        <KPI label="Total Doctors" value={totalDoctors} icon={<Stethoscope />} />
         <KPI label="Approved" value={approvedDoctors} icon={<UserCheck />} color="text-green-500" />
         <KPI label="Pending" value={pendingDoctors} icon={<AlertTriangle />} color="text-yellow-500" />
+        
         <KPI label="Suspended" value={suspendedDoctors} icon={<UserX />} color="text-red-500" />
-
         <KPI label="Total Sessions" value={totalSessions} icon={<Activity />} />
         <KPI label="High Risk" value={redRisk} icon={<AlertTriangle />} color="text-red-500" />
         <KPI label="Moderate Risk" value={yellowRisk} icon={<TrendingUp />} color="text-yellow-500" />
+        
         <KPI label="Stable" value={greenRisk} icon={<ShieldCheck />} color="text-green-500" />
 
       </div>
@@ -346,10 +396,14 @@ const AdminDashboard = () => {
                 )}
 
                 <Button
-                  variant="secondary"
+                  className={
+                    doc.is_available
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-gray-600 hover:bg-gray-700 text-white"
+                  }
                   onClick={() => toggleAvailability(doc.id, doc.is_available)}
                 >
-                  {doc.is_available ? "Set Offline" : "Set Online"}
+                  {doc.is_available ? "Online" : "Offline"}
                 </Button>
 
                 <Button
@@ -429,6 +483,30 @@ const AdminDashboard = () => {
         </DialogContent>
       </Dialog>
 
+      {/* ADD DOCTOR MODAL */}
+      <Dialog open={showAddDoctor} onOpenChange={setShowAddDoctor}>
+        <DialogContent>
+          <AddDoctorForm
+            onSuccess={() => {
+              fetchDoctors();
+              setShowAddDoctor(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* ADD USER MODAL */}
+      <Dialog open={showAddUser} onOpenChange={setShowAddUser}>
+        <DialogContent>
+          <AddUserForm
+            onSuccess={() => {
+              fetchUsers();
+              setShowAddUser(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 };
@@ -453,5 +531,98 @@ const KPI = ({
     </Card>
   </motion.div>
 );
+
+/* ===============================
+   ADD DOCTOR FORM
+================================= */
+
+const AddDoctorForm = ({ onSuccess }: any) => {
+  const [name, setName] = useState("");
+  const [license, setLicense] = useState("");
+  const [specialization, setSpecialization] = useState("");
+  const [hospital, setHospital] = useState("");
+
+  const createDoctor = async () => {
+    await supabase.from("profiles").insert({
+      full_name: name,
+      license_number: license,
+      specialization: specialization,
+      hospital: hospital,
+      role: "doctor",
+      doctor_status: "approved",
+      is_available: true,
+    });
+
+    onSuccess();
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Add New Doctor</h2>
+      <Input
+        placeholder="Doctor Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <Input
+        placeholder="License Number"
+        value={license}
+        onChange={(e) => setLicense(e.target.value)}
+      />
+      <Input
+        placeholder="Specialization"
+        value={specialization}
+        onChange={(e) => setSpecialization(e.target.value)}
+      />
+      <Input
+        placeholder="Hospital"
+        value={hospital}
+        onChange={(e) => setHospital(e.target.value)}
+      />
+      <Button onClick={createDoctor} className="w-full">
+        Create Doctor
+      </Button>
+    </div>
+  );
+};
+
+/* ===============================
+   ADD USER FORM
+================================= */
+
+const AddUserForm = ({ onSuccess }: any) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  const createUser = async () => {
+    await supabase.from("profiles").insert({
+      full_name: name,
+      email: email,
+      role: "user",
+    });
+
+    onSuccess();
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Add New User</h2>
+      <Input
+        placeholder="User Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <Input
+        placeholder="Email"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <Button onClick={createUser} className="w-full">
+        Create User
+      </Button>
+    </div>
+  );
+};
 
 export default AdminDashboard;
