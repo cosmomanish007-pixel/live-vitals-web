@@ -149,7 +149,6 @@ const DoctorDashboard = () => {
 const openCompleteModal = (consultation: Consultation) => {  
   setSelectedConsultation(consultation);  
   setNotes("");  
-  setDiagnosis("");  
   setAdvice("");  
   setFollowUpDate("");  
   setMedicines([{ name: "", dosage: "", frequency: "", duration: "" }]);  
@@ -536,6 +535,7 @@ const finalizeConsultation = async () => {
 };
 
 export default DoctorDashboard;
+
 
 
 
