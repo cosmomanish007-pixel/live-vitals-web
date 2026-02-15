@@ -117,7 +117,7 @@ useEffect(() => {
   const fetchRole = async () => {
     const { data } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, doctor_status")
       .eq("id", user.id)
       .maybeSingle();
 
