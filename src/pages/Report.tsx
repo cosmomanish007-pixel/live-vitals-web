@@ -287,11 +287,11 @@ if (!vital || !session) {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  const primary = [15, 23, 42];
-  const blue = [37, 99, 235];
-  const green = [22, 163, 74];
-  const red = [220, 38, 38];
-  const yellow = [234, 179, 8];
+  const primary: [number, number, number] = [15, 23, 42];
+  const blue: [number, number, number] = [37, 99, 235];
+  const green: [number, number, number] = [22, 163, 74];
+  const red: [number, number, number] = [220, 38, 38];
+  const yellow: [number, number, number] = [234, 179, 8];
 
   const reportId = `CR-${session.id.slice(0, 8).toUpperCase()}`;
 
@@ -315,7 +315,7 @@ if (!vital || !session) {
   let y = 45;
 
   /* ================= PATIENT CARD ================= */
-  doc.setFillColor(245);
+  doc.setFillColor(245, 245, 245);
   doc.roundedRect(14, y, pageWidth - 28, 25, 4, 4, "F");
 
   doc.setFontSize(11);
@@ -337,7 +337,7 @@ if (!vital || !session) {
   y += 10;
 
   // Background bar
-  doc.setFillColor(230);
+  doc.setFillColor(230, 230, 230);
   doc.rect(14, y, pageWidth - 28, 8, "F");
 
   // Risk color
@@ -528,9 +528,9 @@ const generatePrescriptionPDF = () => {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  const primaryColor = [15, 23, 42];      // Header navy
-  const accentGreen = [22, 163, 74];      // Section titles
-  const lightGray = [230, 230, 230];
+  const primaryColor: [number, number, number] = [15, 23, 42];
+  const accentGreen: [number, number, number] = [22, 163, 74];
+  const lightGray: [number, number, number] = [230, 230, 230];
 
   /* ===============================
      OUTER BORDER
