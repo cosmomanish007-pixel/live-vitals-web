@@ -302,7 +302,7 @@ const AdminDashboard = () => {
   const fetchUserCount = async () => {
     try {
       const { count } = await supabase
-        .from("users")
+        .from("profiles")
         .select("*", { count: "exact", head: true });
 
       setTotalUsers(count || 0);
