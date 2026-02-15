@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-
+import { supabase } from "../supabaseClient";
 import {
   Users,
   Activity,
@@ -97,7 +96,7 @@ const AdminDashboard = () => {
     }
 
     const { data: profile } = await supabase
-      .from("users")
+      .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
@@ -274,7 +273,7 @@ const AdminDashboard = () => {
   const fetchDoctors = async () => {
     try {
       const { data } = await supabase
-        .from("users")
+        .from("profiles")
         .select("*")
         .eq("role", "DOCTOR")
         .eq("approved", true);
@@ -288,7 +287,7 @@ const AdminDashboard = () => {
   const fetchPendingDoctors = async () => {
     try {
       const { data } = await supabase
-        .from("users")
+        .from("profiles")
         .select("*")
         .eq("role", "DOCTOR")
         .eq("approved", false);
@@ -302,7 +301,7 @@ const AdminDashboard = () => {
   const fetchUserCount = async () => {
     try {
       const { count } = await supabase
-        .from("users")
+        .from("profiles")
         .select("*", { count: "exact", head: true });
 
       setTotalUsers(count || 0);
@@ -471,7 +470,7 @@ const AdminDashboard = () => {
   const approveDoctor = async (doctorId, doctorName) => {
     try {
       const { error } = await supabase
-        .from("users")
+        .from("profiles")
         .update({ approved: true })
         .eq("id", doctorId);
 
@@ -503,7 +502,7 @@ const AdminDashboard = () => {
 
     try {
       const { error } = await supabase
-        .from("users")
+        .from("profiles")
         .delete()
         .eq("id", doctorId);
 
@@ -1211,5 +1210,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-
 
