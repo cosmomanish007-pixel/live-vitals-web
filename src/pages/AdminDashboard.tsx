@@ -37,87 +37,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-/*
-═══════════════════════════════════════════════════════════════════════════════
-🏥 ENTERPRISE ADMIN DASHBOARD V4 - COMPLETE & PRODUCTION-READY
-═══════════════════════════════════════════════════════════════════════════════
 
-📋 STEP 1: RUN SQL IN SUPABASE
-Go to: Supabase Dashboard → SQL Editor → New Query
-
--- Create admin_logs table
-CREATE TABLE IF NOT EXISTS admin_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  action TEXT NOT NULL,
-  admin_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
-CREATE INDEX IF NOT EXISTS idx_admin_logs_admin_id ON admin_logs(admin_id);
-CREATE INDEX IF NOT EXISTS idx_admin_logs_created_at ON admin_logs(created_at DESC);
-
-ALTER TABLE admin_logs ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Admins can view all logs"
-ON admin_logs FOR SELECT TO authenticated
-USING (
-  EXISTS (
-    SELECT 1 FROM users
-    WHERE users.id = auth.uid()
-    AND users.role = 'ADMIN'
-  )
-);
-
-CREATE POLICY "Admins can insert logs"
-ON admin_logs FOR INSERT TO authenticated
-WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM users
-    WHERE users.id = auth.uid()
-    AND users.role = 'ADMIN'
-  )
-);
-
-GRANT ALL ON admin_logs TO authenticated;
-
--- Add columns to sessions if not exists
-ALTER TABLE sessions ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active';
-ALTER TABLE sessions ADD COLUMN IF NOT EXISTS confidence_score INTEGER DEFAULT 0;
-
--- Sessions RLS for admins
-DROP POLICY IF EXISTS "Admins can view all sessions" ON sessions;
-DROP POLICY IF EXISTS "Admins can delete sessions" ON sessions;
-
-CREATE POLICY "Admins can view all sessions"
-ON sessions FOR SELECT TO authenticated
-USING (
-  EXISTS (
-    SELECT 1 FROM users
-    WHERE users.id = auth.uid()
-    AND users.role = 'ADMIN'
-  )
-);
-
-CREATE POLICY "Admins can delete sessions"
-ON sessions FOR DELETE TO authenticated
-USING (
-  EXISTS (
-    SELECT 1 FROM users
-    WHERE users.id = auth.uid()
-    AND users.role = 'ADMIN'
-  )
-);
-
-📋 STEP 2: INSTALL DEPENDENCIES
-npm install recharts lucide-react
-
-📋 STEP 3: REPLACE AdminDashboard.tsx with this file
-
-📋 STEP 4: TEST
-npm run dev → Login as admin → /admin
-
-═══════════════════════════════════════════════════════════════════════════════
-*/
 
 const AdminDashboard = () => {
   // ==================== STATE MANAGEMENT ====================
@@ -1290,3 +1210,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
