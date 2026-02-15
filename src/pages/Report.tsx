@@ -80,8 +80,8 @@ const [loading, setLoading] = useState(true);
   const [consultation, setConsultation] = useState<any | null>(null);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
   const [medicineList, setMedicineList] = useState<any[]>([]);
-const [doctorStatus, setDoctorStatus] = useState<string | null>(null);
-   
+  const [doctorStatus, setDoctorStatus] = useState<string | null>(null);
+
 useEffect(() => {
   const fetchData = async () => {
     if (!sessionId) return;
