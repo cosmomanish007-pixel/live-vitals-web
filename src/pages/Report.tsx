@@ -88,7 +88,7 @@ useEffect(() => {
 
     setLoading(true);
 
-    const { : vital } = await supabase
+    const { data: vitalData } = await supabase
       .from("vitals")
       .select("*")
       .eq("session_id", sessionId)
