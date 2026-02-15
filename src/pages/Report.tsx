@@ -155,7 +155,7 @@ useEffect(() => {
     // 2️⃣ Get Doctor Profile
     const { data: doctorData } = await supabase
       .from("profiles")
-      .select("full_name, license_number, specialization, hospital")
+      .select("full_name, license_number, specialization, hospital, doctor_status")
       .eq("id", consultationData.doctor_id)
       .maybeSingle();
 
@@ -852,7 +852,7 @@ const generatePrescriptionPDF = () => {
         </div>
 
          
-      {doctorResult && profileRole === "user" && (
+      {doctorResult &&  profileRole === "user" &&  doctorProfile?.doctor_status === "approved" && (
         <Card className="border-2 border-green-500 bg-green-50 dark:bg-green-950">
           <CardContent className="p-6 text-center space-y-4">
             <h3 className="font-semibold text-green-700 text-lg">
