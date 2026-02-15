@@ -288,7 +288,7 @@ const AdminDashboard = () => {
   const fetchPendingDoctors = async () => {
     try {
       const { data } = await supabase
-        .from("users")
+        .from("profiles")
         .select("*")
         .eq("role", "DOCTOR")
         .eq("approved", false);
