@@ -1,9 +1,18 @@
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedRoles?: string[];
+}
 
+export function ProtectedRoute({
+  children,
+  allowedRoles = []
+}: ProtectedRouteProps) {
+  const { user, role, loading } = useAuth();
+
+  // Loading spinner
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -12,7 +21,15 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) return <Navigate to="/auth" replace />;
+  // Not logged in
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // Role-based restriction
+  if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+    return <Navigate to="/" replace />;
+  }
 
   return <>{children}</>;
 }
