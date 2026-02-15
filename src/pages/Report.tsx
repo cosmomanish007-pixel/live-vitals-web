@@ -80,7 +80,7 @@ const [loading, setLoading] = useState(true);
   const [consultation, setConsultation] = useState<any | null>(null);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
   const [medicineList, setMedicineList] = useState<any[]>([]);
-
+const [doctorStatus, setDoctorStatus] = useState<string | null>(null);
    
 useEffect(() => {
   const fetchData = async () => {
@@ -88,7 +88,7 @@ useEffect(() => {
 
     setLoading(true);
 
-    const { data: vitalData } = await supabase
+    const { : vital } = await supabase
       .from("vitals")
       .select("*")
       .eq("session_id", sessionId)
@@ -121,7 +121,10 @@ useEffect(() => {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (data) setProfileRole(data.role);
+    if (data) {
+  setProfileRole(data.role);
+  setDoctorStatus(data.doctor_status);
+}
   };
 
   fetchRole();
@@ -170,22 +173,6 @@ useEffect(() => {
 
   fetchAllPrescriptionData();
 }, [session]);
-/* ===============================
-   RLS DEBUG TEST (TEMPORARY)
-================================= */
-
-  useEffect(() => {
-    const testProfiles = async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*");
-
-      console.log("Profiles visible to current user:", data);
-      console.log("Error:", error);
-    };
-
-    testProfiles();
-  }, []);
 
   if (loading) {
   return (
@@ -236,7 +223,7 @@ if (!vital || !session) {
         .from("consultation_requests")
         .select("id")
         .eq("session_id", session.id)
-        .maybeSingle();
+        .limit(1)
 
       if (existing) {
         setConsultationCreated(true);
