@@ -17,6 +17,9 @@ import {
   Zap,
   RefreshCw,
   AlertCircle,
+  LogOut,
+  Eye,
+  Edit,
 } from "lucide-react";
 import {
   LineChart,
@@ -33,6 +36,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+
 
 
 const AdminDashboard = () => {
@@ -191,6 +195,7 @@ const AdminDashboard = () => {
       }
 
       console.log(`✅ Fetched ${data?.length || 0} sessions`);
+      console.log("📋 First session (debug):", data?.[0]);
       setSessions(data || []);
     } catch (err) {
       console.error("Session fetch failed:", err);
@@ -450,6 +455,16 @@ const AdminDashboard = () => {
     };
   };
 
+  // ==================== LOGOUT HANDLER ====================
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      window.location.href = "/login";
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+
   // ==================== ADMIN ACTIONS ====================
 
   const approveDoctor = async (doctorId, doctorName) => {
@@ -626,6 +641,14 @@ const AdminDashboard = () => {
                   </span>
                 </div>
               </div>
+
+              <button
+                onClick={handleLogout}
+                className="bg-red-600/20 hover:bg-red-600/30 px-4 py-2 rounded-lg border border-red-500/50 transition-colors flex items-center gap-2"
+              >
+                <LogOut size={16} />
+                <span className="text-sm">Logout</span>
+              </button>
             </div>
           </div>
         </div>
@@ -869,6 +892,19 @@ const AdminDashboard = () => {
         {/* SESSIONS TAB */}
         {activeTab === "sessions" && (
           <div className="space-y-6">
+            {/* Header with count */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold flex items-center gap-3">
+                Session Monitoring
+                <span className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-sm font-semibold">
+                  {sessions.length} Total
+                </span>
+              </h2>
+              <p className="text-sm text-gray-400">
+                Last synced: {lastSync.toLocaleString()}
+              </p>
+            </div>
+
             <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-4">
               <div className="flex items-center gap-3">
                 <Search className="text-gray-400" size={20} />
@@ -912,14 +948,32 @@ const AdminDashboard = () => {
                       <tr>
                         <td
                           colSpan={6}
-                          className="px-6 py-12 text-center text-gray-500"
+                          className="px-6 py-16 text-center"
                         >
-                          No sessions found
+                          <div className="flex flex-col items-center justify-center">
+                            <Activity
+                              size={48}
+                              className="text-gray-600 mb-4"
+                            />
+                            <p className="text-gray-500 text-lg font-medium mb-2">
+                              {searchQuery
+                                ? "No sessions match your search"
+                                : "No sessions found"}
+                            </p>
+                            <p className="text-gray-600 text-sm">
+                              {searchQuery
+                                ? "Try adjusting your search terms"
+                                : "Sessions will appear here once patients start consultations"}
+                            </p>
+                          </div>
                         </td>
                       </tr>
                     ) : (
                       filteredSessions.map((session) => (
-                        <tr key={session.id} className="hover:bg-gray-700/30">
+                        <tr
+                          key={session.id}
+                          className="hover:bg-gray-700/30 hover:shadow-lg transition-all cursor-pointer"
+                        >
                           <td className="px-6 py-4">
                             <p className="font-medium">
                               {session.user_name || "Unknown"}
@@ -951,14 +1005,35 @@ const AdminDashboard = () => {
                             {new Date(session.created_at).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4">
-                            <button
-                              onClick={() =>
-                                deleteSession(session.id, session.user_name)
-                              }
-                              className="text-red-400 hover:text-red-300"
-                            >
-                              <XCircle size={18} />
-                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() =>
+                                  (window.location.href = `/report/${session.id}`)
+                                }
+                                className="text-blue-400 hover:text-blue-300 transition-colors p-2 hover:bg-blue-500/10 rounded"
+                                title="View session"
+                              >
+                                <Eye size={18} />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  (window.location.href = `/session/${session.id}`)
+                                }
+                                className="text-yellow-400 hover:text-yellow-300 transition-colors p-2 hover:bg-yellow-500/10 rounded"
+                                title="Edit session"
+                              >
+                                <Edit size={18} />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  deleteSession(session.id, session.user_name)
+                                }
+                                className="text-red-400 hover:text-red-300 transition-colors p-2 hover:bg-red-500/10 rounded"
+                                title="Delete session"
+                              >
+                                <XCircle size={18} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
