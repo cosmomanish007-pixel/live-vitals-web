@@ -892,7 +892,7 @@ const generatePrescriptionPDF = () => {
           Download Clinical PDF
         </Button>
 
-        {profileRole !== "doctor" && (
+  {profileRole !== "doctor" && (
   <Button onClick={() => navigate('/new-session')} className="w-full gap-2">
     <RefreshCw className="h-4 w-4" />
     Start New Session
