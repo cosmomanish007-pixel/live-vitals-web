@@ -142,6 +142,33 @@ useEffect(() => {
     };
   }, [user, fetchConsultations]);
 
+
+
+/* ================================
+     AUTO DETECT ACTIVE CALL (REFRESH SAFE)
+  ================================= */
+
+useEffect(() => {
+  if (!consultations.length) return;
+
+  const activeCall = consultations.find(
+    (c) =>
+      c.status === "ACTIVE" &&
+      c.call_started_at &&
+      !c.call_ended_at
+  );
+
+  if (activeCall) {
+    console.log(
+      "Doctor rejoined active call:",
+      activeCall.video_channel
+    );
+  }
+
+}, [consultations]);
+
+
+
   /* ================================
      TOGGLE AVAILABILITY
   ================================= */
@@ -161,6 +188,11 @@ useEffect(() => {
   ================================= */
 
 const startConsultation = async (id: string) => {
+  const existing = consultations.find(c => c.id === id);
+
+  // 🛑 Prevent double start
+  if (!existing || existing.status !== "PENDING") return;
+
   const room = `aura-${id}`;
 
   const { error } = await supabase
@@ -179,16 +211,14 @@ const startConsultation = async (id: string) => {
 
   // 🔥 Open Jitsi in new window
   const callWindow = window.open(
-    `https://meet.jit.si/${room}`,
-    "_blank"
-  );
+    `https://meet.jit.si/${room}`, "_blank");
 
-  // 🔥 Detect when call window closes
-  const timer = setInterval(async () => {
+  // 🔥 Detect when call window closes (SAFE VERSION)
+  const timer = setInterval(() => {
     if (callWindow?.closed) {
       clearInterval(timer);
 
-      await supabase
+      supabase
         .from("consultation_requests")
         .update({
           call_ended_at: new Date().toISOString(),
@@ -306,6 +336,7 @@ const finalizeConsultation = async () => {
     }
 
     setSelectedConsultation(null);
+    alert("Consultation successfully completed.");
     fetchConsultations();
   } catch (err) {
     console.error(err);
@@ -408,20 +439,26 @@ return (
 
                 <div className="flex gap-2 flex-wrap">
 
+                  {c.status === "ACTIVE" && !c.call_ended_at && (
+                    <Badge className="bg-blue-500 text-white">
+                      Call In Progress
+                    </Badge>
+                  )}
+
                   {c.status === "PENDING" && (
                     <Button onClick={() => startConsultation(c.id)}>
                       Start Consultation
                     </Button>
                   )}
 
-                 {c.status === "ACTIVE" && c.call_ended_at && (
-                      <Button
-                        variant="secondary"
-                        onClick={() => openCompleteModal(c)}
-                      >
-                        Add Prescription
-                      </Button>
-                    )}
+                  {c.status === "ACTIVE" && c.call_ended_at && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => openCompleteModal(c)}
+                    >
+                      Add Prescription
+                    </Button>
+                  )}
 
                   <Button
                     variant="ghost"
