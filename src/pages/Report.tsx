@@ -178,7 +178,7 @@ useEffect(() => {
   fetchAllPrescriptionData();
 }, [session]);
 
-A/* ===============================
+/* ===============================
    REALTIME VIDEO LISTENER
 ================================= */
 
