@@ -20,7 +20,7 @@ interface Consultation {
   id: string;
   session_id: string;
   risk_level: "GREEN" | "YELLOW" | "RED";
-  status: "PENDING" | "IN_CALL" | "COMPLETED";
+  status: "PENDING" | "ACTIVE" | "COMPLETED";
   doctor_notes: string | null;
   diagnosis?: string | null;
   advice?: string | null;
@@ -146,7 +146,7 @@ const startConsultation = async (id: string) => {
   const { data, error } = await supabase
     .from("consultation_requests")
     .update({
-      status: "IN_CALL",
+      status: "ACTIVE",
       video_channel: room,
       call_started_at: new Date(), // remove toISOString
     })
@@ -289,7 +289,7 @@ const finalizeConsultation = async () => {
   if (status === "PENDING")
     return <Badge variant="secondary">Pending</Badge>;
 
-  if (status === "IN_CALL")
+  if (status === "ACTIVE")
     return <Badge className="bg-blue-500 text-white">In Call</Badge>;
 
   return <Badge className="bg-gray-500 text-white">Completed</Badge>;
@@ -384,7 +384,7 @@ return (
                     </Button>
                   )}
 
-                  {c.status === "IN_CALL" && (
+                  {c.status === "ACTIVE" && (
                     <Button
                       variant="secondary"
                       onClick={() => openCompleteModal(c)}
