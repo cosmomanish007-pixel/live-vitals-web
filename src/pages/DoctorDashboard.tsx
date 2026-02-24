@@ -26,6 +26,9 @@ interface Consultation {
   advice?: string | null;
   follow_up_date?: string | null;
   completed_at: string | null;
+   call_started_at?: string | null;   // ADD THIS
+  call_ended_at?: string | null;     // ADD THIS
+  video_channel?: string | null;     // ADD THIS
   created_at: string;
 }
   /* ================================
@@ -51,8 +54,7 @@ const DoctorDashboard = () => {
   const [complaints, setComplaints] = useState<string[]>([""]);
   const [diagnosisList, setDiagnosisList] = useState<string[]>([""]);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
- const [videoRoom, setVideoRoom] = useState<string | null>(null);
-const [activeConsultationId, setActiveConsultationId] = useState<string | null>(null);
+
   
   /* ================================
      FETCH PROFILE
@@ -96,6 +98,24 @@ useEffect(() => {
   useEffect(() => {
     fetchConsultations();
   }, [fetchConsultations]);
+
+  /* ================================
+     AUTO OPEN MODAL 
+  ================================= */
+useEffect(() => {
+  if (!consultations.length || selectedConsultation) return;
+
+  const endedCall = consultations.find(
+    (c) =>
+      c.status === "ACTIVE" &&
+      c.call_ended_at &&
+      !c.completed_at
+  );
+
+  if (endedCall) {
+    openCompleteModal(endedCall);
+  }
+}, [consultations, selectedConsultation]);
 
   /* ================================
      REALTIME LISTENER
@@ -143,26 +163,39 @@ useEffect(() => {
 const startConsultation = async (id: string) => {
   const room = `aura-${id}`;
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("consultation_requests")
     .update({
       status: "ACTIVE",
       video_channel: room,
-      call_started_at: new Date(), // remove toISOString
+      call_started_at: new Date().toISOString(),
     })
-    .eq("id", id)
-    .select();
+    .eq("id", id);
 
   if (error) {
-    console.error("START CONSULTATION ERROR:", error);
     alert(error.message);
     return;
   }
 
-  console.log("START SUCCESS:", data);
+  // 🔥 Open Jitsi in new window
+  const callWindow = window.open(
+    `https://meet.jit.si/${room}`,
+    "_blank"
+  );
 
-  setActiveConsultationId(id);
-  setVideoRoom(room);
+  // 🔥 Detect when call window closes
+  const timer = setInterval(async () => {
+    if (callWindow?.closed) {
+      clearInterval(timer);
+
+      await supabase
+        .from("consultation_requests")
+        .update({
+          call_ended_at: new Date().toISOString(),
+        })
+        .eq("id", id);
+    }
+  }, 1000);
 
   fetchConsultations();
 };
@@ -315,15 +348,6 @@ const finalizeConsultation = async () => {
 
 return (
   <>
-    {/* ================= VIDEO CALL OVERLAY ================= */}
-    {videoRoom && (
-      <VideoCall
-        roomName={videoRoom}
-        displayName={doctorProfile?.full_name || "Doctor"}
-        onEnd={endConsultation}
-      />
-    )}
-
     {/* ================= DASHBOARD CONTENT ================= */}
     <div className="min-h-screen bg-background p-6 space-y-10">
 
