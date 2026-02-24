@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import VideoCall from "@/components/VideoCall";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -19,7 +20,7 @@ interface Consultation {
   id: string;
   session_id: string;
   risk_level: "GREEN" | "YELLOW" | "RED";
-  status: "PENDING" | "ACTIVE" | "COMPLETED";
+  status: "PENDING" | "IN_CALL" | "COMPLETED";
   doctor_notes: string | null;
   diagnosis?: string | null;
   advice?: string | null;
@@ -50,7 +51,8 @@ const DoctorDashboard = () => {
   const [complaints, setComplaints] = useState<string[]>([""]);
   const [diagnosisList, setDiagnosisList] = useState<string[]>([""]);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
- 
+ const [videoRoom, setVideoRoom] = useState<string | null>(null);
+const [activeConsultationId, setActiveConsultationId] = useState<string | null>(null);
   
   /* ================================
      FETCH PROFILE
@@ -138,14 +140,45 @@ useEffect(() => {
      START CONSULTATION
   ================================= */
 
-  const startConsultation = async (id: string) => {
-    await supabase
-      .from("consultation_requests")
-      .update({ status: "ACTIVE" })
-      .eq("id", id);
+const startConsultation = async (id: string) => {
+  const room = `aura-${id}`;
 
-    fetchConsultations();
-  };
+  await supabase
+    .from("consultation_requests")
+    .update({
+      status: "IN_CALL",
+      video_channel: room,
+      call_started_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  setActiveConsultationId(id);
+  setVideoRoom(room);
+
+  fetchConsultations();
+};
+ 
+/* ================================
+     END CONSULTATION
+  ================================= */
+const endConsultation = async () => {
+  if (!activeConsultationId) return;
+
+  await supabase
+    .from("consultation_requests")
+    .update({
+      status: "COMPLETED",
+      call_ended_at: new Date().toISOString(),
+    })
+    .eq("id", activeConsultationId);
+
+  setVideoRoom(null);
+  setActiveConsultationId(null);
+
+  fetchConsultations();
+
+  // open prescription modal here if you already have it
+};
 
   /* ================================
      OPEN COMPLETE MODAL
@@ -243,13 +276,15 @@ const finalizeConsultation = async () => {
     return <Badge className="bg-green-500 text-white">LOW</Badge>;
   };
 
-  const statusBadge = (status: string) => {
-    if (status === "PENDING")
-      return <Badge variant="secondary">Pending</Badge>;
-    if (status === "ACTIVE")
-      return <Badge className="bg-blue-500 text-white">Active</Badge>;
-    return <Badge className="bg-gray-500 text-white">Completed</Badge>;
-  };
+ const statusBadge = (status: string) => {
+  if (status === "PENDING")
+    return <Badge variant="secondary">Pending</Badge>;
+
+  if (status === "IN_CALL")
+    return <Badge className="bg-blue-500 text-white">In Call</Badge>;
+
+  return <Badge className="bg-gray-500 text-white">Completed</Badge>;
+};
 
   const activeConsultations = consultations.filter(
     (c) => c.status !== "COMPLETED"
@@ -259,23 +294,35 @@ const finalizeConsultation = async () => {
     (c) => c.status === "COMPLETED"
   );
 
-  /* ================================
-     UI
-  ================================= */
+/* ================================
+   UI
+================================= */
 
-  return (
+return (
+  <>
+    {/* ================= VIDEO CALL OVERLAY ================= */}
+    {videoRoom && (
+      <VideoCall
+        roomName={videoRoom}
+        displayName={doctorProfile?.full_name || "Doctor"}
+        onEnd={endConsultation}
+      />
+    )}
+
+    {/* ================= DASHBOARD CONTENT ================= */}
     <div className="min-h-screen bg-background p-6 space-y-10">
 
+      {/* HEADER */}
       <div>
-  <p className="text-sm text-muted-foreground">Doctor Panel</p>
-  <h1 className="text-3xl font-bold">
-    {doctorProfile?.full_name
-      ? doctorProfile.full_name.startsWith("Dr")
-        ? `Welcome ${doctorProfile.full_name}`
-        : `Welcome Dr. ${doctorProfile.full_name}`
-      : "Doctor Dashboard"}
-  </h1>
-</div>
+        <p className="text-sm text-muted-foreground">Doctor Panel</p>
+        <h1 className="text-3xl font-bold">
+          {doctorProfile?.full_name
+            ? doctorProfile.full_name.startsWith("Dr")
+              ? `Welcome ${doctorProfile.full_name}`
+              : `Welcome Dr. ${doctorProfile.full_name}`
+            : "Doctor Dashboard"}
+        </h1>
+      </div>
 
       {/* Availability */}
       <Card>
@@ -328,7 +375,7 @@ const finalizeConsultation = async () => {
                     </Button>
                   )}
 
-                  {c.status === "ACTIVE" && (
+                  {c.status === "IN_CALL" && (
                     <Button
                       variant="secondary"
                       onClick={() => openCompleteModal(c)}
@@ -545,6 +592,7 @@ const finalizeConsultation = async () => {
       )}
 
     </div>
+    </>
   );
 };
 
