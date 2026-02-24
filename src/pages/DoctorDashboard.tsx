@@ -204,30 +204,7 @@ const startConsultation = async (id: string) => {
 /* ================================  
      END CONSULTATION  
   ================================= */  
-const endConsultation = async () => {  
-  if (!activeConsultationId) return;  
-  
-  await supabase  
-    .from("consultation_requests")  
-    .update({  
-      call_ended_at: new Date().toISOString(),  
-    })  
-    .eq("id", activeConsultationId);  
-  
-  setVideoRoom(null);  
-  
-  const consultation = consultations.find(  
-    (c) => c.id === activeConsultationId  
-  );  
-  
-  if (consultation) {  
-    openCompleteModal(consultation);  
-  }  
-  
-  setActiveConsultationId(null);  
-  
-  fetchConsultations();  
-};  
+// endConsultation is handled via the Jitsi window-close detection in startConsultation
   
   /* ================================  
      OPEN COMPLETE MODAL  
