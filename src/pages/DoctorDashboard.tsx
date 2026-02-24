@@ -1,5 +1,4 @@
-Doone MATLAB 😂 best hota hai maine kar liya abb next hai pehele ye code dekho  
-  
+
 import { useEffect, useState, useCallback } from "react";  
 import { supabase } from "@/integrations/supabase/client";  
 import { useAuth } from "@/hooks/useAuth";  
