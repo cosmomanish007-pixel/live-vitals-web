@@ -173,7 +173,6 @@ const startConsultation = async (id: string) => {
 const endConsultation = async () => {
   if (!activeConsultationId) return;
 
-  // 1️⃣ Only mark call ended
   await supabase
     .from("consultation_requests")
     .update({
@@ -181,24 +180,19 @@ const endConsultation = async () => {
     })
     .eq("id", activeConsultationId);
 
-  // 2️⃣ Close video
   setVideoRoom(null);
 
-  // 3️⃣ Find consultation from list
   const consultation = consultations.find(
     (c) => c.id === activeConsultationId
   );
 
   if (consultation) {
-    openCompleteModal(consultation);  // 🔥 THIS IS IMPORTANT
+    openCompleteModal(consultation);
   }
 
   setActiveConsultationId(null);
 
   fetchConsultations();
-};
-
-  // open prescription modal here if you already have it
 };
 
   /* ================================
