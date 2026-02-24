@@ -143,14 +143,23 @@ useEffect(() => {
 const startConsultation = async (id: string) => {
   const room = `aura-${id}`;
 
-  await supabase
+  const { data, error } = await supabase
     .from("consultation_requests")
     .update({
       status: "IN_CALL",
       video_channel: room,
-      call_started_at: new Date().toISOString(),
+      call_started_at: new Date(), // remove toISOString
     })
-    .eq("id", id);
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    console.error("START CONSULTATION ERROR:", error);
+    alert(error.message);
+    return;
+  }
+
+  console.log("START SUCCESS:", data);
 
   setActiveConsultationId(id);
   setVideoRoom(room);
