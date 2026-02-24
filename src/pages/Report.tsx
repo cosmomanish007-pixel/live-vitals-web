@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import VideoCall from "@/components/VideoCall";
 import type { Vital, Session, HealthStatus } from '@/types/database';
 import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -69,8 +70,9 @@ const Report = () => {
   const { user } = useAuth();
   const [vital, setVital] = useState<Vital | null>((location.state as any)?.vital ?? null);
   const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
-const [loading, setLoading] = useState(true);
-   
+  const [loading, setLoading] = useState(true);
+  const [videoRoom, setVideoRoom] = useState<string | null>(null);
+
   /* NEW SAFE STATES */
   const [creatingConsultation, setCreatingConsultation] = useState(false);
   const [consultationCreated, setConsultationCreated] = useState(false);
@@ -81,8 +83,10 @@ const [loading, setLoading] = useState(true);
   const [doctorProfile, setDoctorProfile] = useState<any>(null);
   const [medicineList, setMedicineList] = useState<any[]>([]);
   const [doctorStatus, setDoctorStatus] = useState<string | null>(null);
+ 
 
-useEffect(() => {
+
+  useEffect(() => {
   const fetchData = async () => {
     if (!sessionId) return;
 
@@ -172,6 +176,43 @@ useEffect(() => {
   };
 
   fetchAllPrescriptionData();
+}, [session]);
+
+A/* ===============================
+   REALTIME VIDEO LISTENER
+================================= */
+
+useEffect(() => {
+  if (!session) return;
+
+  const channel = supabase
+    .channel("consultation-video-listener")
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "consultation_requests",
+        filter: `session_id=eq.${session.id}`,
+      },
+      (payload) => {
+
+        if (payload.new.status === "IN_CALL") {
+          setVideoRoom(payload.new.video_channel);
+        }
+
+        if (payload.new.status === "COMPLETED") {
+          setVideoRoom(null);
+        }
+
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+
 }, [session]);
 
   if (loading) {
@@ -775,7 +816,16 @@ const generatePrescriptionPDF = () => {
     { icon: Volume2, label: 'Audio', value: vital.audio != null ? `${vital.audio}` : '—', abnormal: false },
   ];
 
-  return (
+return (
+  <>
+    {videoRoom && (
+      <VideoCall
+        roomName={videoRoom}
+        displayName={session.user_name}
+        onEnd={() => setVideoRoom(null)}
+      />
+    )}
+
     <div className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-md space-y-6">
 
@@ -901,6 +951,7 @@ const generatePrescriptionPDF = () => {
 
       </div>
     </div>
+    </>
   );
 };
 
