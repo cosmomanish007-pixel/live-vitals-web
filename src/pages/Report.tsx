@@ -133,6 +133,8 @@ useEffect(() => {
 
   fetchRole();
 }, [user]);
+
+
 /* ===============================
   CONSULTATION REPORT 
 ================================= */
@@ -179,14 +181,44 @@ useEffect(() => {
 }, [session]);
 
 /* ===============================
-   REALTIME VIDEO LISTENER
+   REALTIME CONSULTATION LISTENER
 ================================= */
 
 useEffect(() => {
   if (!session) return;
 
+  const fetchConsultation = async () => {
+    const { data } = await supabase
+      .from("consultation_requests")
+      .select("*")
+      .eq("session_id", session.id)
+      .maybeSingle();
+
+    if (!data) return;
+
+    setConsultation(data);
+
+    if (
+      data.status === "ACTIVE" &&
+      data.call_started_at &&
+      !data.call_ended_at
+    ) {
+      setVideoRoom(data.video_channel);
+    }
+
+    if (data.call_ended_at) {
+      setVideoRoom(null);
+    }
+
+    if (data.status === "COMPLETED") {
+      setConsultationCompleted(true);
+    }
+  };
+
+  fetchConsultation();
+
   const channel = supabase
-    .channel("consultation-video-listener")
+    .channel("user-consultation-updates")
     .on(
       "postgres_changes",
       {
@@ -195,24 +227,13 @@ useEffect(() => {
         table: "consultation_requests",
         filter: `session_id=eq.${session.id}`,
       },
-      (payload) => {
-
-        if (payload.new.status === "IN_CALL") {
-          setVideoRoom(payload.new.video_channel);
-        }
-
-        if (payload.new.status === "COMPLETED") {
-          setVideoRoom(null);
-        }
-
-      }
+      fetchConsultation
     )
     .subscribe();
 
   return () => {
     supabase.removeChannel(channel);
   };
-
 }, [session]);
 
   if (loading) {
@@ -818,14 +839,6 @@ const generatePrescriptionPDF = () => {
 
 return (
   <>
-    {videoRoom && (
-      <VideoCall
-        roomName={videoRoom}
-        displayName={session.user_name}
-        onEnd={() => setVideoRoom(null)}
-      />
-    )}
-
     <div className="min-h-screen bg-background px-4 py-6">
       <div className="mx-auto max-w-md space-y-6">
 
@@ -901,7 +914,50 @@ return (
          ))}
         </div>
 
-         
+          
+
+          {consultation &&
+            consultation.status === "ACTIVE" &&
+            consultation.call_started_at &&
+            !consultation.call_ended_at &&
+            profileRole === "user" && (
+              <Card className="border-2 border-blue-500">
+                <CardContent className="p-5 text-center space-y-3">
+                  <p className="font-semibold text-blue-600">
+                    Doctor has started the consultation
+                  </p>
+
+                  <Button
+                    onClick={() =>
+                      window.open(
+                        `https://meet.jit.si/${consultation.video_channel}`,
+                        "_blank"
+                      )
+                    }
+                    className="w-full"
+                  >
+                    Join Video Consultation
+                  </Button>
+                </CardContent>
+              </Card>
+          )}
+
+
+          {consultation &&
+            consultation.status === "ACTIVE" &&
+            consultation.call_ended_at &&
+            !consultation.completed_at &&
+            profileRole === "user" && (
+              <Card className="border-2 border-yellow-500">
+                <CardContent className="p-5 text-center">
+                  <p className="font-semibold text-yellow-600">
+                    Consultation ended. Doctor is preparing your prescription...
+                  </p>
+                </CardContent>
+              </Card>
+          )}
+
+
       {doctorResult &&  profileRole === "user" &&  doctorProfile?.doctor_status === "approved" && (
         <Card className="border-2 border-green-500 bg-green-50 dark:bg-green-950">
           <CardContent className="p-6 text-center space-y-4">
