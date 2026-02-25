@@ -232,8 +232,10 @@ useEffect(() => {
     .subscribe();
 
   return () => {
-    supabase.removeChannel(channel);
-  };
+  if (channel) {
+    channel.unsubscribe();
+  }
+};
 }, [session]);
 
   if (loading) {

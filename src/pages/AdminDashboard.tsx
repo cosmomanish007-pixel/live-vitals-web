@@ -91,11 +91,15 @@ const AdminDashboard = () => {
   };
 
   // ==================== INIT ====================
-  useEffect(() => {
-    initializeDashboard();
-    const cleanup = setupRealtime();
-    return () => { cleanup(); };
-  }, []);
+useEffect(() => {
+  initializeDashboard();
+
+  const cleanup = setupRealtime();
+
+  return () => {
+    if (cleanup) cleanup();
+  };
+}, []);
 
   const initializeDashboard = async () => {
     setLoading(true);
@@ -166,21 +170,36 @@ const AdminDashboard = () => {
   };
 
   // ==================== REALTIME ====================
-  const setupRealtime = () => {
-    const channel = supabase
-      .channel("admin_live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "sessions" }, () => {
+const setupRealtime = () => {
+  const channel = supabase
+    .channel("admin_live")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "sessions" },
+      () => {
         fetchSessions();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "vitals" }, () => {
+      }
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "vitals" },
+      () => {
         fetchVitals();
-      })
-      .subscribe((status) => {
-        setRealtimeConnected(status === "SUBSCRIBED");
-      });
+      }
+    )
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") {
+        setRealtimeConnected(true);
+      } else {
+        setRealtimeConnected(false);
+      }
+    });
 
-    return () => { supabase.removeChannel(channel); };
+  // 🔥 IMPORTANT CLEANUP
+  return () => {
+    channel.unsubscribe();
   };
+};
 
   // ==================== COMPUTED ====================
   const healthStats = (() => {

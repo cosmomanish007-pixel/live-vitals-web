@@ -138,9 +138,11 @@ useEffect(() => {
       )  
       .subscribe();  
   
-    return () => {  
-      supabase.removeChannel(channel);  
-    };  
+  return () => {
+  if (channel) {
+    channel.unsubscribe();
+  }
+};
   }, [user, fetchConsultations]);  
   
   /* ================================  

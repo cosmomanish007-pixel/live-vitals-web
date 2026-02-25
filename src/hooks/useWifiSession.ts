@@ -27,10 +27,11 @@ export function useWifiSession() {
   /* =========================
      REALTIME
   ========================= */
-  const subscribeToSession = useCallback((sessionId: string) => {
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-    }
+  const subscribeToSession = useCallback(async(sessionId: string) => {
+      if (channelRef.current) {
+        await channelRef.current.unsubscribe();
+        channelRef.current = null;
+      }
 
     const channel = supabase
       .channel(`session-${sessionId}`)
@@ -164,11 +165,11 @@ export function useWifiSession() {
     setSessionState('STARTED');
   }, [session]);
 
-  const resetSession = useCallback(() => {
+  const resetSession = useCallback(async() => {
     if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-      channelRef.current = null;
-    }
+  await channelRef.current.unsubscribe();
+  channelRef.current = null;
+}
     setSession(null);
     setSessionState(null);
     setStatusMessage('');
@@ -177,11 +178,14 @@ export function useWifiSession() {
     setError(null);
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (channelRef.current) supabase.removeChannel(channelRef.current);
-    };
-  }, []);
+useEffect(() => {
+  return () => {
+    if (channelRef.current) {
+      channelRef.current.unsubscribe();
+      channelRef.current = null;
+    }
+  };
+}, []);
 
   return {
     session,
