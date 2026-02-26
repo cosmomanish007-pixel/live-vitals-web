@@ -139,9 +139,10 @@ export function useWifiSession() {
           state: 'CREATED',
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) throw new Error('Failed to create session');
 
       setSession(data);
       setSessionState(data.state);
@@ -150,6 +151,7 @@ export function useWifiSession() {
       return data;
     } catch (err: any) {
       setError(err.message);
+      console.error('Session creation error:', err);
       return null;
     }
   }, [user, subscribeToSession]);
