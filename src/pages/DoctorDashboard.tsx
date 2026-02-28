@@ -83,22 +83,23 @@ useEffect(() => {
      FETCH CONSULTATIONS  
   ================================= */  
   
-  const fetchConsultations = useCallback(async () => {  
-    if (!user) return;  
-  
-    const { data } = await supabase  
-      .from("consultation_requests")  
-      .select("*")  
-      .eq("doctor_id", user.id)  
-      .order("created_at", { ascending: false });  
-  
-    if (data) setConsultations(data as Consultation[]);  
-    setLoading(false);  
-  }, [user]);  
-  
-  useEffect(() => {  
-    fetchConsultations();  
-  }, [fetchConsultations]);  
+const fetchConsultations = useCallback(async () => {
+  if (!user) return;
+
+  const { data, error } = await supabase
+    .from("consultation_requests")
+    .select("*")
+    .eq("doctor_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  setConsultations(data as Consultation[]);
+  setLoading(false);
+}, [user]);
   
   /* ================================  
      AUTO OPEN MODAL   
@@ -127,15 +128,16 @@ useEffect(() => {
   
     const channel = supabase  
       .channel("doctor_consultation_updates")  
-      .on(  
-        "postgres_changes",  
-        {  
-          event: "*",  
-          schema: "public",  
-          table: "consultation_requests",  
-        },  
-        fetchConsultations  
-      )  
+          .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "consultation_requests",
+        filter: `doctor_id=eq.${user.id}`,
+      },
+      fetchConsultations
+    )  
       .subscribe();  
   
   return () => {
