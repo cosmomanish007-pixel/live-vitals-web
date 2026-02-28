@@ -192,6 +192,8 @@ useEffect(() => {
       .from("consultation_requests")
       .select("*")
       .eq("session_id", session.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     if (!data) return;
@@ -279,53 +281,60 @@ if (!vital || !session) {
      MANUAL CONSULTATION (SAFE)
   ================================= */
 
-  const handleConsultationRequest = async () => {
-    try {
-      setCreatingConsultation(true);
+ const handleConsultationRequest = async () => {
+  try {
+    setCreatingConsultation(true);
 
-      const { data: existing } = await supabase
-        .from("consultation_requests")
-        .select("id")
-        .eq("session_id", session.id)
-        .limit(1)
+    const { data: existing } = await supabase
+      .from("consultation_requests")
+      .select("id")
+      .eq("session_id", session.id)
+      .eq("status", "PENDING")
+      .maybeSingle();
 
-      if (existing) {
-        setConsultationCreated(true);
-        setCreatingConsultation(false);
-        return;
-      }
+    if (existing) {
+      setConsultationCreated(true);
+      return;
+    }
 
-      const { data: doctor } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("role", "doctor")
-        .eq("doctor_status", "approved")
-        .eq("is_available", true)
-        .limit(1)
-        .maybeSingle();
+    const { data: doctor } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("role", "doctor")
+      .eq("doctor_status", "approved")
+      .eq("is_available", true)
+      .limit(1)
+      .maybeSingle();
 
-      if (!doctor) {
-        alert("No doctors available right now.");
-        setCreatingConsultation(false);
-        return;
-      }
+    if (!doctor) {
+      alert("No doctors available right now.");
+      return;
+    }
 
-      await supabase.from("consultation_requests").insert({
+    const { error } = await supabase
+      .from("consultation_requests")
+      .insert({
         session_id: session.id,
         doctor_id: doctor.id,
         risk_level: risk.level,
         status: "PENDING",
       });
 
-      setConsultationCreated(true);
-      alert("Consultation request sent.");
-
-    } catch (error) {
+    if (error) {
       console.error(error);
-    } finally {
-      setCreatingConsultation(false);
+      alert("Failed to create consultation request.");
+      return;
     }
-  };
+
+    setConsultationCreated(true);
+    alert("Consultation request sent.");
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setCreatingConsultation(false);
+  }
+};
 
   /* ===============================
      PDF GENERATION (UNCHANGED)
