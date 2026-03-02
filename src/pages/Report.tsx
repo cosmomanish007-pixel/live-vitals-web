@@ -187,18 +187,39 @@ useEffect(() => {
 useEffect(() => {
   if (!session) return;
 
-  const fetchConsultation = async () => {
-    const { data } = await supabase
-      .from("consultation_requests")
-      .select("*")
-      .eq("session_id", session.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+const fetchConsultation = async () => {
+  const { data } = await supabase
+    .from("consultation_requests")
+    .select("*")
+    .eq("session_id", session.id)
+    .order("created_at", { ascending: false })
+    .limit(1);
 
-    if (!data) return;
+  const consultationData = data?.[0];
 
-    setConsultation(data);
+  if (!consultationData) return;
+
+  console.log("USER CONSULTATION:", consultationData);
+
+  setConsultation(consultationData);
+
+  if (
+    consultationData.status === "ACTIVE" &&
+    consultationData.video_channel &&
+    consultationData.call_started_at &&
+    !consultationData.call_ended_at
+  ) {
+    setVideoRoom(consultationData.video_channel);
+  }
+
+  if (consultationData.call_ended_at) {
+    setVideoRoom(null);
+  }
+
+  if (consultationData.status === "COMPLETED") {
+    setConsultationCompleted(true);
+  }
+};
 
     if (
       data.status === "ACTIVE" &&
@@ -927,11 +948,12 @@ return (
 
           
 
-          {consultation &&
-            consultation.status === "ACTIVE" &&
-            consultation.call_started_at &&
-            !consultation.call_ended_at &&
-            profileRole === "user" && (
+{consultation &&
+  consultation.status === "ACTIVE" &&
+  consultation.video_channel &&
+  consultation.call_started_at &&
+  !consultation.call_ended_at &&
+  profileRole === "user" && (
               <Card className="border-2 border-blue-500">
                 <CardContent className="p-5 text-center space-y-3">
                   <p className="font-semibold text-blue-600">
