@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import VideoCall from "@/components/VideoCall";
 import type { Vital, Session, HealthStatus } from '@/types/database';
-import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw, Download } from 'lucide-react';
+import { Thermometer, HeartPulse, Droplets, Volume2, RefreshCw, Download, Wind } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -947,7 +947,149 @@ return (
            </Card>
          ))}
         </div>
+// ADD THIS EXACT CODE BELOW THAT CLOSING </div>:
 
+        {/* ── AI ANALYSIS SECTION ── */}
+        {vital.ai_heart_label && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              AI Auscultation Analysis
+            </h2>
+
+            {/* Heart Card */}
+            <Card className={vital.ai_heart_label === 'Abnormal'
+              ? 'border-2 border-red-500'
+              : 'border-2 border-green-500'}>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <HeartPulse className={`h-5 w-5 ${
+                      vital.ai_heart_label === 'Abnormal'
+                        ? 'text-red-500' : 'text-green-500'}`}
+                    />
+                    <span className="font-semibold">Heart Sound AI</span>
+                  </div>
+                  <span className={`text-sm font-bold px-2 py-0.5 rounded-full ${
+                    vital.ai_heart_label === 'Abnormal'
+                      ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                      : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'}`}>
+                    {vital.ai_heart_label}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <p className="text-xs text-muted-foreground">Abnormal Prob</p>
+                    <p className="font-bold text-lg">{vital.ai_heart_prob ?? '—'}%</p>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <p className="text-xs text-muted-foreground">AI BPM</p>
+                    <p className="font-bold text-lg">{vital.ai_bpm ?? '—'}</p>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <p className="text-xs text-muted-foreground">Systole</p>
+                    <p className="font-bold">{vital.ai_systole_ms ?? '—'} ms</p>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <p className="text-xs text-muted-foreground">Diastole</p>
+                    <p className="font-bold">{vital.ai_diastole_ms ?? '—'} ms</p>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <p className="text-xs text-muted-foreground">SQI</p>
+                    <p className="font-bold">{vital.ai_sqi ?? '—'}</p>
+                  </div>
+                  <div className="bg-muted rounded-lg p-2 text-center">
+                    <p className="text-xs text-muted-foreground">Valve Risk</p>
+                    <p className="font-bold text-xs">{vital.ai_valve_risk ?? 'None'}</p>
+                  </div>
+                </div>
+
+                {/* Murmur badges */}
+                <div className="flex gap-2">
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    vital.ai_sys_murmur
+                      ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                      : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'}`}>
+                    Sys Murmur: {vital.ai_sys_murmur ? 'YES' : 'NO'}
+                  </span>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    vital.ai_dia_murmur
+                      ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                      : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'}`}>
+                    Dia Murmur: {vital.ai_dia_murmur ? 'YES' : 'NO'}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Lung Card */}
+            <Card className={vital.ai_lung_label !== 'Normal'
+              ? 'border-2 border-yellow-500'
+              : 'border-2 border-green-500'}>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Wind className={`h-5 w-5 ${
+                      vital.ai_lung_label !== 'Normal'
+                        ? 'text-yellow-500' : 'text-green-500'}`}
+                    />
+                    <span className="font-semibold">Lung Sound AI</span>
+                  </div>
+                  <span className={`text-sm font-bold px-2 py-0.5 rounded-full ${
+                    vital.ai_lung_label !== 'Normal'
+                      ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+                      : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'}`}>
+                    {vital.ai_lung_label}
+                  </span>
+                </div>
+
+                {/* Lung probability bars */}
+                <div className="space-y-2">
+                  {[
+                    { label: 'Normal', value: vital.ai_normal_pct, color: 'bg-green-500' },
+                    { label: 'Crackle', value: vital.ai_crackle_pct, color: 'bg-yellow-500' },
+                    { label: 'Wheeze', value: vital.ai_wheeze_pct, color: 'bg-red-500' },
+                  ].map(item => (
+                    <div key={item.label}>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span>{item.label}</span>
+                        <span className="font-bold">{item.value ?? 0}%</span>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div
+                          className={`${item.color} h-2 rounded-full transition-all`}
+                          style={{ width: `${item.value ?? 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  Confidence: {vital.ai_lung_conf ?? '—'}%
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* AI Alert Banner */}
+            {vital.ai_alert && (
+              <Card className="border-2 border-red-500 bg-red-50 dark:bg-red-950/30">
+                <CardContent className="p-4 text-center">
+                  <p className="font-bold text-red-600 dark:text-red-400">
+                    🚨 AI Alert: Abnormality Detected
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    AI detected abnormal heart or lung patterns. Medical consultation recommended.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </motion.div>
+        )}
           
 
 {consultation &&
