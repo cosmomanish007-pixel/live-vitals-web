@@ -1008,8 +1008,6 @@ return (
          ))}
         </div>
 
-         
-// ADD THIS EXACT CODE BELOW THAT CLOSING </div>:
 
         {/* ── AI ANALYSIS SECTION ── */}
         {vital.ai_heart_label && (
