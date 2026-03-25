@@ -221,23 +221,6 @@ const fetchConsultation = async () => {
   }
 };
 
-    if (
-      data.status === "ACTIVE" &&
-      data.call_started_at &&
-      !data.call_ended_at
-    ) {
-      setVideoRoom(data.video_channel);
-    }
-
-    if (data.call_ended_at) {
-      setVideoRoom(null);
-    }
-
-    if (data.status === "COMPLETED") {
-      setConsultationCompleted(true);
-    }
-  };
-
   fetchConsultation();
 
   const channel = supabase
