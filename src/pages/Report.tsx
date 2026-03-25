@@ -569,7 +569,37 @@ if (risk?.level === "RED") {
       : "All vital parameters within acceptable physiological limits.";
 
   doc.text(doc.splitTextToSize(interpretation, pageWidth - 28), 14, y);
+  /* ================= AI RESULTS ================= */
+  if (vital.ai_heart_label) {
+    y += 12;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("AI Auscultation Results", 14, y);
+    y += 8;
 
+    autoTable(doc, {
+      startY: y,
+      head: [["Parameter", "Result", "Details"]],
+      body: [
+        ["Heart Sound", vital.ai_heart_label ?? "—", `${vital.ai_heart_prob ?? "—"}% abnormal`],
+        ["AI BPM", `${vital.ai_bpm ?? "—"} bpm`, `SQI: ${vital.ai_sqi ?? "—"}`],
+        ["Systole", `${vital.ai_systole_ms ?? "—"} ms`, "S1-S2 interval"],
+        ["Diastole", `${vital.ai_diastole_ms ?? "—"} ms`, "S2-S1 interval"],
+        ["Systolic Murmur", vital.ai_sys_murmur ? "YES" : "NO", "Detected in systole"],
+        ["Diastolic Murmur", vital.ai_dia_murmur ? "YES" : "NO", "Detected in diastole"],
+        ["Valve Risk", vital.ai_valve_risk ?? "None", "AI assessment"],
+        ["Lung Sound", vital.ai_lung_label ?? "—", `${vital.ai_lung_conf ?? "—"}% confidence`],
+        ["Normal", `${vital.ai_normal_pct ?? "—"}%`, "Lung sound distribution"],
+        ["Crackle", `${vital.ai_crackle_pct ?? "—"}%`, "Lung sound distribution"],
+        ["Wheeze", `${vital.ai_wheeze_pct ?? "—"}%`, "Lung sound distribution"],
+      ],
+      theme: "grid",
+      headStyles: { fillColor: blue, textColor: 255 },
+      styles: { fontSize: 9 },
+    });
+
+    y = (doc as any).lastAutoTable.finalY + 10;
+  }
   /* ================= FOOTER ================= */
   const pageCount = doc.getNumberOfPages();
 
@@ -744,7 +774,37 @@ const generatePrescriptionPDF = () => {
   }
 
   y += 8;
+ /* ===============================
+     AI FINDINGS (for doctor reference)
+  ================================ */
+  if (vital?.ai_heart_label) {
+    y += 8;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("AI Analysis Reference", 14, y);
+    y += 8;
 
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Heart Sound AI: ${vital.ai_heart_label} (${vital.ai_heart_prob}% abnormal)`, 14, y);
+    y += 6;
+    doc.text(`Lung Sound AI: ${vital.ai_lung_label} (${vital.ai_lung_conf}% confidence)`, 14, y);
+    y += 6;
+    
+    if (vital.ai_sys_murmur || vital.ai_dia_murmur) {
+      doc.text(`Murmur detected: Systolic=${vital.ai_sys_murmur ? "YES" : "NO"}, Diastolic=${vital.ai_dia_murmur ? "YES" : "NO"}`, 14, y);
+      y += 6;
+    }
+    
+    if (vital.ai_valve_risk && vital.ai_valve_risk !== "None") {
+      doc.text(`Valve Risk Assessment: ${vital.ai_valve_risk}`, 14, y);
+      y += 6;
+    }
+    
+    y += 4;
+    doc.line(14, y, pageWidth - 14, y);
+    y += 8;
+  }
   /* ===============================
      CLINICAL NOTES
   ================================ */
@@ -947,6 +1007,8 @@ return (
            </Card>
          ))}
         </div>
+
+         
 // ADD THIS EXACT CODE BELOW THAT CLOSING </div>:
 
         {/* ── AI ANALYSIS SECTION ── */}
