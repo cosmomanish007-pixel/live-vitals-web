@@ -5,6 +5,7 @@ import { jsPDF } from 'jspdf';
 
 import { useWifiSession } from '@/hooks/useWifiSession';
 import { Badge } from '@/components/ui/badge';
+import { HeartPulse, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
