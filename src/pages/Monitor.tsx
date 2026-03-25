@@ -21,6 +21,7 @@ const MONITORING_STEPS = [
   'System Initialised',
   'Measuring Skin Temperature',
   'Auscultation Started',
+  'AI Analysis Running',        // ✅ NEW
   'Measuring HR & SpO₂',
   'Final Analysis',
 ];
