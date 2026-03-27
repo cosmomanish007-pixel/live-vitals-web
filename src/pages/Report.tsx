@@ -280,7 +280,7 @@ if (!vital || !session) {
     vital.temp != null && vital.hr != null && vital.spo2 != null
       ? "GOOD"
       : "PARTIAL";
-
+   const isArtifact = vital.ai_heart_label === "Artifact";
   /* ===============================
      MANUAL CONSULTATION (SAFE)
   ================================= */
@@ -939,9 +939,26 @@ return (
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               AI Auscultation Analysis
             </h2>
+             
+            {/* Artifact Card */}
+            {isArtifact && (
+              <Card className="border-2 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/30 shadow-md">
+                <CardContent className="p-4 text-center">
+                  <div className="flex items-center justify-center gap-2 font-bold text-yellow-600 dark:text-yellow-400 animate-pulse">
+                    <span>⚠️</span>
+                    <span>Artifact Detected</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Motion/Tapping detected — keep device steady and re-record.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Heart Card */}
-            <Card className={vital.ai_heart_label === 'Abnormal'
+             
+               {/* Heart Card */}
+               {!isArtifact && (
+               <Card className={vital.ai_heart_label === 'Abnormal'
               ? 'border-2 border-red-500'
               : 'border-2 border-green-500'}>
               <CardContent className="p-4 space-y-3">
@@ -1005,8 +1022,10 @@ return (
                 </div>
               </CardContent>
             </Card>
-
+            )}
+             
             {/* Lung Card */}
+            {!isArtifact && (
             <Card className={vital.ai_lung_label !== 'Normal'
               ? 'border-2 border-yellow-500'
               : 'border-2 border-green-500'}>
@@ -1054,9 +1073,11 @@ return (
                 </p>
               </CardContent>
             </Card>
+            )}
+             
 
             {/* AI Alert Banner */}
-            {vital.ai_alert && (
+            {!isArtifact && vital.ai_alert && (
               <Card className="border-2 border-red-500 bg-red-50 dark:bg-red-950/30">
                 <CardContent className="p-4 text-center">
                   <p className="font-bold text-red-600 dark:text-red-400">
