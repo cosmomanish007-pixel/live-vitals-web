@@ -280,7 +280,7 @@ if (!vital || !session) {
     vital.temp != null && vital.hr != null && vital.spo2 != null
       ? "GOOD"
       : "PARTIAL";
-   const isArtifact = vital.ai_heart_label === "Artifact";
+   const isArtifact = vital.ai_artifact === true;
   /* ===============================
      MANUAL CONSULTATION (SAFE)
   ================================= */
@@ -949,7 +949,7 @@ return (
                     <span>Artifact Detected</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Motion/Tapping detected — keep device steady and re-record.
+                    {vital.warning || "Motion/Tapping detected — keep device steady"}
                   </p>
                 </CardContent>
               </Card>
