@@ -986,7 +986,7 @@ return (
         </div>
 
                   {/* ── AI ANALYSIS SECTION ── */}
-        {(vital.ai_heart_label || vital.ai_artifact) && (
+        {(vital.ai_artifact === true || vital.ai_heart_label !== null) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
