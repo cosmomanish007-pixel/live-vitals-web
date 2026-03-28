@@ -30,6 +30,28 @@ export interface Vital {
   audio: number | null;
   status: HealthStatus | null;
   created_at: string;
+
+  // ✅ ADD ALL AI FIELDS
+  ai_artifact?: boolean;
+  warning?: string;
+
+  ai_heart_label?: string;
+  ai_heart_prob?: number;
+  ai_bpm?: number;
+  ai_sqi?: number;
+  ai_systole_ms?: number;
+  ai_diastole_ms?: number;
+  ai_sys_murmur?: boolean;
+  ai_dia_murmur?: boolean;
+  ai_valve_risk?: string;
+
+  ai_lung_label?: string;
+  ai_lung_conf?: number;
+  ai_normal_pct?: number;
+  ai_crackle_pct?: number;
+  ai_wheeze_pct?: number;
+
+  ai_alert?: boolean;
 }
 
 export interface Profile {
