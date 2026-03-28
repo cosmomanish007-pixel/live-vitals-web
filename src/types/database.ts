@@ -33,7 +33,7 @@ export interface Vital {
 
   // ✅ ADD ALL AI FIELDS
   ai_artifact?: boolean;
-  warning?: string;
+  warning?: string | null;
 
   ai_heart_label?: string;
   ai_heart_prob?: number;
