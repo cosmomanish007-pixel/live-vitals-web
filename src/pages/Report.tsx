@@ -306,6 +306,8 @@ const fetchConsultation = async () => {
 }
 console.log("🔥 VITAL DATA:", vital);
    console.log("🔥 FULL OBJECT:", JSON.stringify(vital, null, 2));
+   console.log("AI ARTIFACT:", vital.ai_artifact);
+console.log("isArtifact:", isArtifact);
 if (!vital || !session) {
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -984,7 +986,7 @@ return (
         </div>
 
                   {/* ── AI ANALYSIS SECTION ── */}
-        {vital.ai_heart_label && (
+        {(vital.ai_heart_label || vital.ai_artifact) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1008,6 +1010,7 @@ return (
                 </CardContent>
               </Card>
             )}
+}
 
              
                {/* Heart Card */}
