@@ -98,7 +98,7 @@ const Report = () => {
       .eq("session_id", sessionId)
       .order("created_at", { ascending: false })
       .limit(1)
-      .maybeSingle();
+      .single();
 
     const { data: sessionData } = await supabase
       .from("sessions")
