@@ -92,14 +92,21 @@ const fetchConsultations = useCallback(async () => {
     .eq("doctor_id", user.id)
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+if (error) {
+  console.error(error);
+  setLoading(false); // 🔥 important
+  return;
+}
 
   setConsultations(data as Consultation[]);
   setLoading(false);
 }, [user]);
+
+useEffect(() => {
+  if (user) {
+    fetchConsultations();
+  }
+}, [user, fetchConsultations]);
   
   /* ================================  
      AUTO OPEN MODAL   
