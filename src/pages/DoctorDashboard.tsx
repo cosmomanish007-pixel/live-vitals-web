@@ -153,6 +153,13 @@ useEffect(() => {
   }
 };
   }, [user, fetchConsultations]);  
+
+  
+    useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+    }
+  }, [user, navigate]);
   
   /* ================================  
      TOGGLE AVAILABILITY  
@@ -167,6 +174,17 @@ useEffect(() => {
       .update({ is_available: newValue })  
       .eq("id", user?.id);  
   };  
+
+  const handleLogout = async () => {
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    console.error("Logout error:", error.message);
+    return;
+  }
+
+  navigate("/auth");
+};
   
   /* ================================  
      START CONSULTATION  
@@ -341,16 +359,22 @@ return (
     <div className="min-h-screen bg-background p-6 space-y-10">  
   
       {/* HEADER */}  
-      <div>  
-        <p className="text-sm text-muted-foreground">Doctor Panel</p>  
-        <h1 className="text-3xl font-bold">  
-          {doctorProfile?.full_name  
-            ? doctorProfile.full_name.startsWith("Dr")  
-              ? `Welcome ${doctorProfile.full_name}`  
-              : `Welcome Dr. ${doctorProfile.full_name}`  
-            : "Doctor Dashboard"}  
-        </h1>  
-      </div>  
+      <div className="flex justify-between items-center">
+  <div>
+    <p className="text-sm text-muted-foreground">Doctor Panel</p>
+    <h1 className="text-3xl font-bold">
+      {doctorProfile?.full_name
+        ? doctorProfile.full_name.startsWith("Dr")
+          ? `Welcome ${doctorProfile.full_name}`
+          : `Welcome Dr. ${doctorProfile.full_name}`
+        : "Doctor Dashboard"}
+    </h1>
+  </div>
+
+  <Button variant="destructive" onClick={handleLogout}>
+    Logout
+  </Button>
+</div> 
   
       {/* Availability */}  
       <Card>  
