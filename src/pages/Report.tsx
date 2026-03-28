@@ -336,7 +336,7 @@ if (!vital || !session) {
     vital.temp != null && vital.hr != null && vital.spo2 != null
       ? "GOOD"
       : "PARTIAL";
-   const isArtifact = vital.ai_artifact === true;
+  const isArtifact = vital?.ai_artifact === true || vital?.ai_artifact === 1;
   /* ===============================
      MANUAL CONSULTATION (SAFE)
   ================================= */
@@ -986,7 +986,7 @@ return (
         </div>
 
                   {/* ── AI ANALYSIS SECTION ── */}
-        {(vital.ai_artifact === true || vital.ai_heart_label !== null) && (
+          {(vital?.ai_artifact || vital?.ai_heart_label) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1010,8 +1010,6 @@ return (
                 </CardContent>
               </Card>
             )}
-}
-
              
                {/* Heart Card */}
                {!isArtifact && (
