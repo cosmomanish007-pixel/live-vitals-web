@@ -395,9 +395,9 @@ return (
         {loading && <p>Loading...</p>}  
   
         {activeConsultations.length === 0 && (  
-          <p className="text-muted-foreground">  
-            No active consultations.  
-          </p>  
+      <p className="text-muted-foreground text-center py-10">
+        🚑 No active consultations right now
+      </p>  
         )}  
   
         {activeConsultations.map((c) => (  
