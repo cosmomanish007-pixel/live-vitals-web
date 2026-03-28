@@ -305,6 +305,7 @@ const fetchConsultation = async () => {
   );
 }
 console.log("🔥 VITAL DATA:", vital);
+   console.log("🔥 FULL OBJECT:", JSON.stringify(vital, null, 2));
 if (!vital || !session) {
   return (
     <div className="min-h-screen flex items-center justify-center">
