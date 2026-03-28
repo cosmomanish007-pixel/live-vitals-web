@@ -68,7 +68,7 @@ const Report = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [vital, setVital] = useState<Vital | null>((location.state as any)?.vital ?? null);
+  const [vital, setVital] = useState<Vital | null>(null);
   const [session, setSession] = useState<Session | null>((location.state as any)?.session ?? null);
   const [loading, setLoading] = useState(true);
   const [videoRoom, setVideoRoom] = useState<string | null>(null);
@@ -115,6 +115,59 @@ const Report = () => {
   fetchData();
 }, [sessionId]);
 
+// 🔹 EXISTING FETCH
+useEffect(() => {
+  const fetchData = async () => {
+    if (!sessionId) return;
+
+    setLoading(true);
+
+    const { data: vitalData } = await supabase
+      .from("vitals")
+      .select("*")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const { data: sessionData } = await supabase
+      .from("sessions")
+      .select("*")
+      .eq("id", sessionId)
+      .maybeSingle();
+
+    if (vitalData) setVital(vitalData as Vital);
+    if (sessionData) setSession(sessionData as Session);
+
+    setLoading(false);
+  };
+
+  fetchData();
+}, [sessionId]);
+
+
+// ✅ ADD THIS RIGHT BELOW 👇
+useEffect(() => {
+  const interval = setInterval(async () => {
+    if (!sessionId) return;
+
+    const { data } = await supabase
+      .from("vitals")
+      .select("*")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (data) {
+      console.log("🔁 REFRESHED:", data);
+      setVital(data);
+    }
+  }, 2000);
+
+  return () => clearInterval(interval);
+}, [sessionId]);
+   
 useEffect(() => {
   if (!user) return;
 
@@ -251,7 +304,7 @@ const fetchConsultation = async () => {
     </div>
   );
 }
-
+console.log("🔥 VITAL DATA:", vital);
 if (!vital || !session) {
   return (
     <div className="min-h-screen flex items-center justify-center">
