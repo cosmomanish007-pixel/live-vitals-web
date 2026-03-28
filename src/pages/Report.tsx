@@ -106,37 +106,7 @@ const Report = () => {
       .eq("id", sessionId)
       .maybeSingle();
 
-    if (vitalData) setVital(vitalData as Vital);
-    if (sessionData) setSession(sessionData as Session);
-
-    setLoading(false);
-  };
-
-  fetchData();
-}, [sessionId]);
-
-// 🔹 EXISTING FETCH
-useEffect(() => {
-  const fetchData = async () => {
-    if (!sessionId) return;
-
-    setLoading(true);
-
-    const { data: vitalData } = await supabase
-      .from("vitals")
-      .select("*")
-      .eq("session_id", sessionId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const { data: sessionData } = await supabase
-      .from("sessions")
-      .select("*")
-      .eq("id", sessionId)
-      .maybeSingle();
-
-    if (vitalData) setVital(vitalData as Vital);
+    if (vitalData) setVital(vitalData as unknown as Vital);
     if (sessionData) setSession(sessionData as Session);
 
     setLoading(false);
@@ -161,7 +131,7 @@ useEffect(() => {
 
     if (data) {
       console.log("🔁 REFRESHED:", data);
-      setVital(data);
+      setVital(data as unknown as Vital);  // ← yeh bhi
     }
   }, 2000);
 
