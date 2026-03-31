@@ -566,7 +566,9 @@ if (risk?.level === "RED") {
 /* ── AI AUSCULTATION RESULTS ── */
 if (vital?.ai_artifact || vital?.ai_heart_label) {
   y += 10;
-
+  // 🔥 ALWAYS START ON NEW PAGE
+  doc.addPage();
+  y = 20;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
   doc.setTextColor(0, 0, 0);
