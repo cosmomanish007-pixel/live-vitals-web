@@ -629,26 +629,61 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
     else
       lines.push("Lung sounds appear clear with no crackle or wheeze detected.");
 
-    // Render clinical summary box
-    const boxH = 14 + lines.length * 8;
-    doc.setFillColor(240, 249, 255);
-    doc.roundedRect(14, y, pageWidth - 28, boxH, 3, 3, "F");
-    doc.setDrawColor(37, 99, 235);
-    doc.roundedRect(14, y, pageWidth - 28, boxH, 3, 3, "S");
+    // ── Clinical Intelligence Box (UPGRADED) ──
+const boxH = 18 + lines.length * 9;
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.setTextColor(30, 64, 175);
-    doc.text("What This Means For You", 20, y + 8);
+// Gradient-like background with stronger border
+doc.setFillColor(235, 245, 255);
+doc.roundedRect(14, y, pageWidth - 28, boxH, 4, 4, "F");
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(50, 50, 50);
-    lines.forEach((line, idx) => {
-      doc.text(`• ${line}`, 20, y + 16 + idx * 8, { maxWidth: pageWidth - 40 });
-    });
-    doc.setTextColor(0, 0, 0);
-    y += boxH + 10;
+// Left accent bar (bold blue stripe)
+doc.setFillColor(37, 99, 235);
+doc.rect(14, y, 5, boxH, "F");
+
+// Top accent line
+doc.setFillColor(37, 99, 235);
+doc.rect(14, y, pageWidth - 28, 2, "F");
+
+// Title
+doc.setFont("helvetica", "bold");
+doc.setFontSize(11);
+doc.setTextColor(30, 58, 138);
+doc.text("What This Means For You", 24, y + 10);
+
+// Subtitle
+doc.setFont("helvetica", "italic");
+doc.setFontSize(8);
+doc.setTextColor(71, 85, 105);
+doc.text("AI-generated clinical summary — for reference only, consult your doctor", 24, y + 17);
+
+// Lines with icons
+doc.setFont("helvetica", "normal");
+doc.setFontSize(9.5);
+
+lines.forEach((line, idx) => {
+  const lineY = y + 24 + idx * 9;
+
+  // Color code by severity
+  if (line.includes("abnormal") || line.includes("murmur") || 
+      line.includes("Tachycardia") || line.includes("Bradycardia") ||
+      line.includes("Crackling") || line.includes("Wheezing") ||
+      line.includes("Valve")) {
+    doc.setTextColor(153, 27, 27);  // dark red for warnings
+    doc.text("!", 20, lineY);
+  } else if (line.includes("quality was low") || line.includes("moderate")) {
+    doc.setTextColor(120, 80, 0);   // amber for warnings
+    doc.text("~", 20, lineY);
+  } else {
+    doc.setTextColor(21, 128, 61);  // green for normal
+    doc.text("✓", 20, lineY);
+  }
+
+  doc.setTextColor(40, 40, 40);
+  doc.text(line, 26, lineY, { maxWidth: pageWidth - 46 });
+});
+
+doc.setTextColor(0, 0, 0);
+y += boxH + 12;
 
     // ── Heart Sound Table (dynamic colors) ──
     const heartAbnormal = heartLabel === "Abnormal";
@@ -664,6 +699,7 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
 
     autoTable(doc, {
       startY: y,
+      pageBreak: "avoid",  // ← ADD THIS
       head: [["Parameter", "Value"]],
       body: [
         ["Classification",       heartLabel],
@@ -713,6 +749,7 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
 
     autoTable(doc, {
       startY: y,
+      pageBreak: "avoid",  // ← ADD THIS
       head: [["Parameter", "Value"]],
       body: [
         ["Classification", lungLabel],
