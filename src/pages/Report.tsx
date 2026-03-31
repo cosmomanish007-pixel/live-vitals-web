@@ -800,11 +800,6 @@ doc.setFontSize(11);
 doc.setTextColor(0, 0, 0);
 doc.text("Lung Sound AI", 14, y);
 y += 4;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.setTextColor(0, 0, 0);
-    doc.text("Lung Sound AI", 14, y);
-    y += 4;
 
     autoTable(doc, {
       startY: y,
