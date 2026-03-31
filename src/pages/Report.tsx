@@ -629,61 +629,67 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
     else
       lines.push("Lung sounds appear clear with no crackle or wheeze detected.");
 
-// ── Clinical Intelligence Box (UPGRADED) ──
-const boxH = 18 + lines.length * 9;
+// ── Professional Medical Insight Card ──
+const boxPadding = 8;
+const lineHeight = 7;
+const boxH = 25 + (lines.length * lineHeight);
+const cardWidth = pageWidth - 28;
 
-// Gradient-like background with stronger border
-doc.setFillColor(235, 245, 255);
-doc.roundedRect(14, y, pageWidth - 28, boxH, 4, 4, "F");
+// 1. Draw Shadow/Background (Subtle)
+doc.setDrawColor(226, 232, 240); // Slate-200
+doc.setLineWidth(0.5);
+doc.setFillColor(252, 254, 255); // Near-white blue tint
+doc.roundedRect(14, y, cardWidth, boxH, 2, 2, "FD");
 
-// Left accent bar (bold blue stripe)
-doc.setFillColor(37, 99, 235);
-doc.rect(14, y, 5, boxH, "F");
-
-// Top accent line
-doc.setFillColor(37, 99, 235);
-doc.rect(14, y, pageWidth - 28, 2, "F");
-
-// Title
+// 2. Header Section
 doc.setFont("helvetica", "bold");
-doc.setFontSize(11);
-doc.setTextColor(30, 58, 138);
-doc.text("What This Means For You", 24, y + 10);
+doc.setFontSize(10);
+doc.setTextColor(15, 23, 42); // Slate-900 (Deep professional blue-black)
+doc.text("CLINICAL ANALYSIS SUMMARY", 22, y + 10);
 
-// Subtitle
+// Divider Line
+doc.setDrawColor(241, 245, 249); // Slate-100
+doc.line(14, y + 14, 14 + cardWidth, y + 14);
+
+// Disclaimer (Smaller, right-aligned or tucked under title)
 doc.setFont("helvetica", "italic");
-doc.setFontSize(8);
-doc.setTextColor(71, 85, 105);
-doc.text("AI-generated clinical summary — for reference only, consult your doctor", 24, y + 17);
+doc.setFontSize(7);
+doc.setTextColor(100, 116, 139); // Slate-500
+doc.text("AI-generated for reference only • Consult a healthcare professional", 22, y + 18);
 
-// Lines with icons
-doc.setFont("helvetica", "normal");
-doc.setFontSize(9.5);
-
+// 3. List Items
+doc.setFontSize(9);
 lines.forEach((line, idx) => {
-  const lineY = y + 24 + idx * 9;
+    const lineY = y + 26 + (idx * lineHeight);
+    let statusColor = [71, 85, 105]; // Default Slate-600
+    let icon = "•";
 
-  // Color code by severity
-  if (line.includes("abnormal") || line.includes("murmur") || 
-      line.includes("Tachycardia") || line.includes("Bradycardia") ||
-      line.includes("Crackling") || line.includes("Wheezing") ||
-      line.includes("Valve")) {
-    doc.setTextColor(153, 27, 27);  // dark red for warnings
-    doc.text("!", 20, lineY);
-  } else if (line.includes("quality was low") || line.includes("moderate")) {
-    doc.setTextColor(120, 80, 0);   // amber for warnings
-    doc.text("~", 20, lineY);
-  } else {
-    doc.setTextColor(21, 128, 61);  // green for normal
-    doc.text("✓", 20, lineY);
-  }
+    // Logic for Severity Colors
+    if (/abnormal|murmur|Tachycardia|Bradycardia|Crackling|Wheezing|Valve/i.test(line)) {
+        statusColor = [185, 28, 28]; // Medical Red
+        icon = "!";
+    } else if (/quality|moderate/i.test(line)) {
+        statusColor = [180, 83, 9];  // Deep Amber
+        icon = "⚠";
+    } else if (/normal|clear/i.test(line)) {
+        statusColor = [5, 150, 105]; // Emerald Green
+        icon = "✓";
+    }
 
-  doc.setTextColor(40, 40, 40);
-  doc.text(line, 26, lineY, { maxWidth: pageWidth - 46 });
+    // Draw Status Icon
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...statusColor);
+    doc.text(icon, 20, lineY);
+
+    // Draw Text
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(51, 65, 85); // Slate-700
+    doc.text(line, 26, lineY, { maxWidth: cardWidth - 15 });
 });
 
+// Reset and move Y
 doc.setTextColor(0, 0, 0);
-y += boxH + 12;
+y += boxH + 10;
 
 // ── Force Heart heading + table on same page ──
 const approxTableH = 9 * 11 + 20;
