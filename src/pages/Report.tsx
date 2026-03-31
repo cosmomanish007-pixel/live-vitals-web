@@ -633,7 +633,12 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
 const cardMargin = 14;
 const cardWidth = pageWidth - (cardMargin * 2);
 const rowHeight = 8;
+// ✅ FIX: Check if card fits on current page
 const boxH = 22 + (lines.length * rowHeight);
+if (y + boxH > doc.internal.pageSize.getHeight() - 30) {
+  doc.addPage();
+  y = 20;
+}
 
 // 1. Shadow / Outer Border (Subtle depth)
 doc.setDrawColor(200, 205, 215); // Slightly darker gray border
