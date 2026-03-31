@@ -563,13 +563,13 @@ if (risk?.level === "RED") {
 
   y += 15;
 
-   /* ── AI AUSCULTATION RESULTS ── */
+/* ── AI AUSCULTATION RESULTS ── */
 if (vital?.ai_artifact || vital?.ai_heart_label) {
   y += 10;
 
-  // Section header
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
+  doc.setTextColor(0, 0, 0);
   doc.text("AI Auscultation Analysis", 14, y);
   y += 10;
 
@@ -579,27 +579,86 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
     doc.roundedRect(14, y, pageWidth - 28, 22, 3, 3, "F");
     doc.setDrawColor(234, 179, 8);
     doc.roundedRect(14, y, pageWidth - 28, 22, 3, 3, "S");
-
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(161, 98, 7);
-    doc.text("⚠  Artifact Detected", 20, y + 9);
-
+    doc.text("Artifact Detected", 20, y + 9);  // ← & removed
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(80, 80, 80);
     doc.text(
       vital.warning || "Motion/Tapping detected — keep device steady",
-      20, y + 16,
-      { maxWidth: pageWidth - 36 }
+      20, y + 16, { maxWidth: pageWidth - 36 }
     );
     doc.setTextColor(0, 0, 0);
     y += 30;
 
   } else {
-    // ── Heart Sound Table ──
+
+    // ── Clinical Intelligence (AI-based) ──
+    const heartLabel = vital.ai_heart_label ?? "Normal";
+    const lungLabel  = vital.ai_lung_label  ?? "Normal";
+    const bpm        = vital.ai_bpm         ?? 0;
+    const sqi        = vital.ai_sqi         ?? 0;
+    const sysM       = vital.ai_sys_murmur  ?? false;
+    const diaM       = vital.ai_dia_murmur  ?? false;
+    const valve      = vital.ai_valve_risk  ?? "None";
+
+    // Generate plain-language clinical summary
+    const lines: string[] = [];
+
+    if (heartLabel === "Abnormal") {
+      if (bpm < 60)  lines.push("Heart is beating too slowly (Bradycardia) — may cause dizziness or fatigue.");
+      else if (bpm > 100) lines.push("Heart is beating too fast (Tachycardia) — possible stress, fever, or cardiac issue.");
+      else lines.push("Heart sounds show abnormal patterns — irregular rhythm or murmur detected.");
+    } else {
+      lines.push("Heart sounds appear normal with no significant abnormalities detected.");
+    }
+
+    if (sysM) lines.push("Systolic murmur detected — abnormal sound during heart contraction. May indicate valve issue.");
+    if (diaM) lines.push("Diastolic murmur detected — abnormal sound during heart relaxation. Requires evaluation.");
+    if (valve !== "None") lines.push(`Valve concern: ${valve}.`);
+
+    if (sqi < 40)  lines.push("Recording quality was low — results may be less accurate. Re-recording recommended.");
+    else if (sqi < 60) lines.push("Recording quality was moderate — results are indicative but not conclusive.");
+
+    if (lungLabel === "Crackle")
+      lines.push("Crackling sounds in lungs detected — may indicate fluid, infection, or fibrosis.");
+    else if (lungLabel === "Wheeze")
+      lines.push("Wheezing sounds in lungs detected — may indicate asthma, bronchitis, or airway narrowing.");
+    else
+      lines.push("Lung sounds appear clear with no crackle or wheeze detected.");
+
+    // Render clinical summary box
+    const boxH = 14 + lines.length * 8;
+    doc.setFillColor(240, 249, 255);
+    doc.roundedRect(14, y, pageWidth - 28, boxH, 3, 3, "F");
+    doc.setDrawColor(37, 99, 235);
+    doc.roundedRect(14, y, pageWidth - 28, boxH, 3, 3, "S");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(30, 64, 175);
+    doc.text("What This Means For You", 20, y + 8);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(50, 50, 50);
+    lines.forEach((line, idx) => {
+      doc.text(`• ${line}`, 20, y + 16 + idx * 8, { maxWidth: pageWidth - 40 });
+    });
+    doc.setTextColor(0, 0, 0);
+    y += boxH + 10;
+
+    // ── Heart Sound Table (dynamic colors) ──
+    const heartAbnormal = heartLabel === "Abnormal";
+    const heartHeaderColor: [number, number, number] = heartAbnormal
+      ? [185, 28, 28]   // red if abnormal
+      : [21, 128, 61];  // green if normal
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
     doc.text("Heart Sound AI", 14, y);
     y += 4;
 
@@ -607,35 +666,32 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
       startY: y,
       head: [["Parameter", "Value"]],
       body: [
-        ["Classification",  vital.ai_heart_label ?? "—"],
-        ["Abnormal Probability", `${vital.ai_heart_prob ?? "—"}%`],
-        ["AI Heart Rate",   `${vital.ai_bpm ?? "—"} bpm`],
-        ["Systole Duration", `${vital.ai_systole_ms ?? "—"} ms`],
-        ["Diastole Duration", `${vital.ai_diastole_ms ?? "—"} ms`],
-        ["Signal Quality (SQI)", `${vital.ai_sqi ?? "—"}%`],
-        ["Systolic Murmur",  vital.ai_sys_murmur ? "YES" : "NO"],
-        ["Diastolic Murmur", vital.ai_dia_murmur ? "YES" : "NO"],
-        ["Valve Risk",       vital.ai_valve_risk ?? "None"],
+        ["Classification",       heartLabel],
+        ["Abnormal Probability",  `${vital.ai_heart_prob ?? "—"}%`],
+        ["AI Heart Rate",         `${bpm} bpm`],
+        ["Systole Duration",      `${vital.ai_systole_ms ?? "—"} ms  (Normal: 250–350 ms)`],
+        ["Diastole Duration",     `${vital.ai_diastole_ms ?? "—"} ms  (Normal: 350–600 ms)`],
+        ["Signal Quality (SQI)",  `${sqi}%`],
+        ["Systolic Murmur",       sysM ? "YES — Abnormal" : "NO — Normal"],
+        ["Diastolic Murmur",      diaM ? "YES — Abnormal" : "NO — Normal"],
+        ["Valve Risk",            valve],
       ],
       theme: "grid",
-      headStyles: { fillColor: [220, 38, 38], textColor: 255 },
+      headStyles: { fillColor: heartHeaderColor, textColor: 255 },
       styles: { fontSize: 10 },
       columnStyles: { 0: { fontStyle: "bold", cellWidth: 70 } },
       didParseCell: function (data) {
-        if (data.column.index === 1) {
-          if (data.cell.raw === "Abnormal") {
+        if (data.section === "body" && data.column.index === 1) {
+          const val = String(data.cell.raw ?? "");
+          if (val.startsWith("Abnormal") || val.startsWith("YES")) {
             data.cell.styles.fillColor = [254, 226, 226];
             data.cell.styles.textColor = [185, 28, 28];
             data.cell.styles.fontStyle = "bold";
           }
-          if (data.cell.raw === "Normal") {
+          if (val.startsWith("Normal") || val.startsWith("NO")) {
             data.cell.styles.fillColor = [220, 252, 231];
             data.cell.styles.textColor = [21, 128, 61];
             data.cell.styles.fontStyle = "bold";
-          }
-          if (data.cell.raw === "YES") {
-            data.cell.styles.fillColor = [254, 226, 226];
-            data.cell.styles.textColor = [185, 28, 28];
           }
         }
       }
@@ -643,9 +699,15 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
 
     y = (doc as any).lastAutoTable.finalY + 10;
 
-    // ── Lung Sound Table ──
+    // ── Lung Sound Table (dynamic colors) ──
+    const lungAbnormal = lungLabel !== "Normal";
+    const lungHeaderColor: [number, number, number] = lungAbnormal
+      ? [161, 98, 7]    // amber if crackle/wheeze
+      : [21, 128, 61];  // green if normal
+
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
     doc.text("Lung Sound AI", 14, y);
     y += 4;
 
@@ -653,24 +715,25 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
       startY: y,
       head: [["Parameter", "Value"]],
       body: [
-        ["Classification",  vital.ai_lung_label ?? "—"],
-        ["Confidence",      `${vital.ai_lung_conf ?? "—"}%`],
-        ["Normal %",        `${vital.ai_normal_pct ?? "—"}%`],
-        ["Crackle %",       `${vital.ai_crackle_pct ?? "—"}%`],
-        ["Wheeze %",        `${vital.ai_wheeze_pct ?? "—"}%`],
+        ["Classification", lungLabel],
+        ["Confidence",     `${vital.ai_lung_conf ?? "—"}%`],
+        ["Normal %",       `${vital.ai_normal_pct ?? "—"}%`],
+        ["Crackle %",      `${vital.ai_crackle_pct ?? "—"}%`],
+        ["Wheeze %",       `${vital.ai_wheeze_pct ?? "—"}%`],
       ],
       theme: "grid",
-      headStyles: { fillColor: [161, 98, 7], textColor: 255 },
+      headStyles: { fillColor: lungHeaderColor, textColor: 255 },
       styles: { fontSize: 10 },
       columnStyles: { 0: { fontStyle: "bold", cellWidth: 70 } },
       didParseCell: function (data) {
-        if (data.column.index === 1) {
-          if (data.cell.raw === "Crackle" || data.cell.raw === "Wheeze") {
+        if (data.section === "body" && data.column.index === 1) {
+          const val = String(data.cell.raw ?? "");
+          if (val === "Crackle" || val === "Wheeze") {
             data.cell.styles.fillColor = [255, 251, 235];
             data.cell.styles.textColor = [161, 98, 7];
             data.cell.styles.fontStyle = "bold";
           }
-          if (data.cell.raw === "Normal") {
+          if (val === "Normal") {
             data.cell.styles.fillColor = [220, 252, 231];
             data.cell.styles.textColor = [21, 128, 61];
             data.cell.styles.fontStyle = "bold";
@@ -687,26 +750,22 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
       doc.roundedRect(14, y, pageWidth - 28, 22, 3, 3, "F");
       doc.setDrawColor(220, 38, 38);
       doc.roundedRect(14, y, pageWidth - 28, 22, 3, 3, "S");
-
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11);
       doc.setTextColor(185, 28, 28);
       doc.text("AI Alert: Abnormality Detected", 20, y + 9);
-
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(80, 80, 80);
       doc.text(
         "AI analysis detected abnormal heart or lung patterns. Medical consultation is recommended.",
-        20, y + 16,
-        { maxWidth: pageWidth - 36 }
+        20, y + 16, { maxWidth: pageWidth - 36 }
       );
       doc.setTextColor(0, 0, 0);
       y += 30;
     }
   }
-}
-     
+}     
   /* ================= INTERPRETATION ================= */
   doc.setFont("helvetica", "bold");
   doc.text("Clinical Interpretation", 14, y);
