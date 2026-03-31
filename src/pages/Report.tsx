@@ -629,68 +629,74 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
     else
       lines.push("Lung sounds appear clear with no crackle or wheeze detected.");
 
-// ── Professional Medical Insight Card ──
-const boxPadding = 8;
-const lineHeight = 7;
-const boxH = 25 + (lines.length * lineHeight);
-const cardWidth = pageWidth - 28;
+// ── Professional High-Contrast Clinical Card ──
+const cardMargin = 14;
+const cardWidth = pageWidth - (cardMargin * 2);
+const rowHeight = 8;
+const boxH = 22 + (lines.length * rowHeight);
 
-// 1. Draw Shadow/Background (Subtle)
-doc.setDrawColor(226, 232, 240); // Slate-200
-doc.setLineWidth(0.5);
-doc.setFillColor(252, 254, 255); // Near-white blue tint
-doc.roundedRect(14, y, cardWidth, boxH, 2, 2, "FD");
+// 1. Shadow / Outer Border (Subtle depth)
+doc.setDrawColor(200, 205, 215); // Slightly darker gray border
+doc.setLineWidth(0.4);
+doc.setFillColor(255, 255, 255); // Pure white background for maximum contrast
+doc.roundedRect(cardMargin, y, cardWidth, boxH, 1.5, 1.5, "FD");
 
-// 2. Header Section
+// 2. Dark Header Bar (Professional Midnight Navy)
+doc.setFillColor(15, 23, 42); // Slate-950 (Very dark navy/black)
+doc.roundedRect(cardMargin, y, cardWidth, 12, 1.5, 1.5, "F");
+// Square off bottom corners of header bar so it fits the top of the box
+doc.rect(cardMargin, y + 6, cardWidth, 6, "F"); 
+
+// Header Text (Bold White)
 doc.setFont("helvetica", "bold");
 doc.setFontSize(10);
-doc.setTextColor(15, 23, 42); // Slate-900 (Deep professional blue-black)
-doc.text("CLINICAL ANALYSIS SUMMARY", 22, y + 10);
+doc.setTextColor(255, 255, 255);
+doc.text("AI CLINICAL AUSCULTATION ANALYSIS", cardMargin + 6, y + 8);
 
-// Divider Line
-doc.setDrawColor(241, 245, 249); // Slate-100
-doc.line(14, y + 14, 14 + cardWidth, y + 14);
-
-// Disclaimer (Smaller, right-aligned or tucked under title)
+// 3. Sub-header (The Disclaimer - Clean & Neat)
 doc.setFont("helvetica", "italic");
-doc.setFontSize(7);
-doc.setTextColor(100, 116, 139); // Slate-500
-doc.text("AI-generated for reference only • Consult a healthcare professional", 22, y + 18);
+doc.setFontSize(7.5);
+doc.setTextColor(100, 116, 139); // Muted Slate
+doc.text("Automated clinical summary for medical review only", cardMargin + 6, y + 17);
 
-// 3. List Items
-doc.setFontSize(9);
+// 4. Content Rows
 lines.forEach((line, idx) => {
-    const lineY = y + 26 + (idx * lineHeight);
-    let statusColor = [71, 85, 105]; // Default Slate-600
+    const lineY = y + 26 + (idx * rowHeight);
+    
+    // Determine Severity & Icon
     let icon = "•";
+    let iconColor = [51, 65, 85]; // Dark Slate
+    
+    const isWarning = /abnormal|murmur|Tachycardia|Bradycardia|Crackling|Wheezing|Valve/i.test(line);
+    const isModerate = /quality|moderate/i.test(line);
+    const isNormal = /normal|clear/i.test(line);
 
-    // Logic for Severity Colors
-    if (/abnormal|murmur|Tachycardia|Bradycardia|Crackling|Wheezing|Valve/i.test(line)) {
-        statusColor = [185, 28, 28]; // Medical Red
+    if (isWarning) {
+        iconColor = [185, 28, 28]; // Strong Medical Red
         icon = "!";
-    } else if (/quality|moderate/i.test(line)) {
-        statusColor = [180, 83, 9];  // Deep Amber
-        icon = "⚠";
-    } else if (/normal|clear/i.test(line)) {
-        statusColor = [5, 150, 105]; // Emerald Green
+    } else if (isModerate) {
+        iconColor = [217, 119, 6]; // Sharp Amber
+        icon = "•";
+    } else if (isNormal) {
+        iconColor = [22, 163, 74]; // Success Green
         icon = "✓";
     }
 
-    // Draw Status Icon
+    // Draw Icon with extra Boldness
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(...statusColor);
-    doc.text(icon, 20, lineY);
+    doc.setTextColor(...iconColor);
+    doc.text(icon, cardMargin + 6, lineY);
 
-    // Draw Text
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(51, 65, 85); // Slate-700
-    doc.text(line, 26, lineY, { maxWidth: cardWidth - 15 });
+    // Draw Line Text - Bold & High Contrast
+    doc.setFont("helvetica", "bold"); // Forced bold for better visibility
+    doc.setTextColor(30, 41, 59);    // Slate-800 (Nearly black)
+    doc.setFontSize(9);
+    doc.text(line, cardMargin + 12, lineY, { maxWidth: cardWidth - 18 });
 });
 
-// Reset and move Y
+// Final Reset for subsequent elements
 doc.setTextColor(0, 0, 0);
-y += boxH + 10;
-
+y += boxH + 15;
 // ── Force Heart heading + table on same page ──
 const approxTableH = 9 * 11 + 20;
 if (y + approxTableH > doc.internal.pageSize.getHeight() - 30) {
