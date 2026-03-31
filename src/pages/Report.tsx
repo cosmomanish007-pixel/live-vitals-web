@@ -629,97 +629,61 @@ if (vital?.ai_artifact || vital?.ai_heart_label) {
     else
       lines.push("Lung sounds appear clear with no crackle or wheeze detected.");
 
-   // ── UPGRADED Clinical Intelligence Box ──
-const boxH = 28 + lines.length * 10;
+// ── Clinical Intelligence Box (UPGRADED) ──
+const boxH = 18 + lines.length * 9;
 
-// Shadow effect (slightly offset dark rect)
-doc.setFillColor(200, 215, 235);
-doc.roundedRect(16, y + 2, pageWidth - 28, boxH, 4, 4, "F");
-
-// Main box
-doc.setFillColor(240, 247, 255);
+// Gradient-like background with stronger border
+doc.setFillColor(235, 245, 255);
 doc.roundedRect(14, y, pageWidth - 28, boxH, 4, 4, "F");
 
-// Top gradient bar — dark navy
-doc.setFillColor(15, 23, 42);
-doc.roundedRect(14, y, pageWidth - 28, 14, 4, 4, "F");
-doc.setFillColor(15, 23, 42);
-doc.rect(14, y + 8, pageWidth - 28, 6, "F"); // fill bottom corners
-
-// Left accent stripe
+// Left accent bar (bold blue stripe)
 doc.setFillColor(37, 99, 235);
-doc.rect(14, y + 14, 5, boxH - 14, "F");
+doc.rect(14, y, 5, boxH, "F");
 
-// Title in header bar
+// Top accent line
+doc.setFillColor(37, 99, 235);
+doc.rect(14, y, pageWidth - 28, 2, "F");
+
+// Title
 doc.setFont("helvetica", "bold");
-doc.setFontSize(10);
-doc.setTextColor(255, 255, 255);
-doc.text("AI CLINICAL SUMMARY", 22, y + 9.5);
-
-// "Powered by AURA" on right
-doc.setFont("helvetica", "italic");
-doc.setFontSize(8);
-doc.setTextColor(150, 180, 220);
-doc.text("Powered by AURA AI", pageWidth - 16, y + 9.5, { align: "right" });
+doc.setFontSize(11);
+doc.setTextColor(30, 58, 138);
+doc.text("What This Means For You", 24, y + 10);
 
 // Subtitle
 doc.setFont("helvetica", "italic");
 doc.setFontSize(8);
-doc.setTextColor(100, 120, 150);
-doc.text("For patient understanding only — not a clinical diagnosis", 22, y + 20);
+doc.setTextColor(71, 85, 105);
+doc.text("AI-generated clinical summary — for reference only, consult your doctor", 24, y + 17);
 
-// Divider line
-doc.setDrawColor(200, 215, 235);
-doc.line(22, y + 23, pageWidth - 16, y + 23);
-
-// Lines
+// Lines with icons
+doc.setFont("helvetica", "normal");
 doc.setFontSize(9.5);
+
 lines.forEach((line, idx) => {
-  const lineY = y + 30 + idx * 10;
+  const lineY = y + 24 + idx * 9;
 
-  const isWarning = line.includes("abnormal") || line.includes("murmur") ||
-    line.includes("Tachycardia") || line.includes("Bradycardia") ||
-    line.includes("Crackling") || line.includes("Wheezing") ||
-    line.includes("Valve") || line.includes("fluid") || line.includes("airway");
-
-  const isCaution = line.includes("quality was low") || line.includes("moderate") ||
-    line.includes("less accurate") || line.includes("indicative");
-
-  const isGood = !isWarning && !isCaution;
-
-  // Colored dot
-  if (isWarning) {
-    doc.setFillColor(220, 38, 38);
-    doc.circle(21, lineY - 1.5, 1.5, "F");
-    doc.setTextColor(153, 27, 27);
-  } else if (isCaution) {
-    doc.setFillColor(180, 120, 0);
-    doc.circle(21, lineY - 1.5, 1.5, "F");
-    doc.setTextColor(120, 80, 0);
+  // Color code by severity
+  if (line.includes("abnormal") || line.includes("murmur") || 
+      line.includes("Tachycardia") || line.includes("Bradycardia") ||
+      line.includes("Crackling") || line.includes("Wheezing") ||
+      line.includes("Valve")) {
+    doc.setTextColor(153, 27, 27);  // dark red for warnings
+    doc.text("!", 20, lineY);
+  } else if (line.includes("quality was low") || line.includes("moderate")) {
+    doc.setTextColor(120, 80, 0);   // amber for warnings
+    doc.text("~", 20, lineY);
   } else {
-    doc.setFillColor(21, 128, 61);
-    doc.circle(21, lineY - 1.5, 1.5, "F");
-    doc.setTextColor(21, 128, 61);
+    doc.setTextColor(21, 128, 61);  // green for normal
+    doc.text("✓", 20, lineY);
   }
 
-  // Line background highlight for warnings
-  if (isWarning) {
-    doc.setFillColor(255, 245, 245);
-    doc.rect(19, lineY - 5, pageWidth - 36, 8, "F");
-  }
-
-  doc.setFont("helvetica", isWarning ? "bold" : "normal");
-  doc.text(line, 26, lineY, { maxWidth: pageWidth - 44 });
+  doc.setTextColor(40, 40, 40);
+  doc.text(line, 26, lineY, { maxWidth: pageWidth - 46 });
 });
 
-// Bottom border
-doc.setDrawColor(37, 99, 235);
-doc.setLineWidth(0.5);
-doc.line(14, y + boxH, pageWidth - 14, y + boxH);
-doc.setLineWidth(0.2);
-
 doc.setTextColor(0, 0, 0);
-y += boxH + 14;
+y += boxH + 12;
 
 // ── Force Heart heading + table on same page ──
 const approxTableH = 9 * 11 + 20;
