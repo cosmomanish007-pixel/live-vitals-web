@@ -303,7 +303,7 @@ if (!vital || !session) {
     vital.temp != null && vital.hr != null && vital.spo2 != null
       ? "GOOD"
       : "PARTIAL";
-  const isArtifact = vital?.ai_artifact === true || vital?.ai_artifact === 1;
+  const isArtifact = vital?.ai_artifact === true || (vital?.ai_artifact as unknown) === 1;
 
 // Console logs AFTER null check
 console.log("🔥 VITAL DATA:", vital);
