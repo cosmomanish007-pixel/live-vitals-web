@@ -518,9 +518,9 @@ if (risk?.level === "RED") {
       ],
       [
         "SpO₂",
-        `${vital.spo2 ?? "—"} %`,
+        vital.spo2 != null ? `${vital.spo2} %` : "—",
         "80 – 100 %",
-        spo2Eval.label,
+        vital.spo2 != null ? spo2Eval.label : "Re-measure",
       ],
       [
         "Audio Peak",
