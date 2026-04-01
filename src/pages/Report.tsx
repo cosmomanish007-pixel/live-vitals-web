@@ -700,7 +700,7 @@ lines.forEach((line, idx) => {
 
     // Draw Icon with extra Boldness
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(...iconColor);
+    doc.setTextColor(iconColor[0], iconColor[1], iconColor[2]);
     doc.text(icon, cardMargin + 6, lineY);
 
     // Draw Line Text - Bold & High Contrast
