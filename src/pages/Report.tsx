@@ -496,9 +496,9 @@ if (risk?.level === "RED") {
         "Temperature",
         `${vital.temp ?? "—"} °C ${
           vital.temp && vital.temp < 31
-            ? "↓"
+            ? "(Below Range)"
             : vital.temp && vital.temp > 37.5
-            ? "↑"
+            ? "(Above Range)"
             : ""
         }`,
         "31 – 37.5 °C",
@@ -508,9 +508,9 @@ if (risk?.level === "RED") {
         "Heart Rate",
         `${vital.hr ?? "—"} bpm ${
           vital.hr && vital.hr < 60
-            ? "(LOW)"
+            ? "(Below Range)"
             : vital.hr && vital.hr > 100
-            ? "(HIGH)"
+            ? "(Above Range)"
             : ""
         }`,
         "60 – 100 bpm",
