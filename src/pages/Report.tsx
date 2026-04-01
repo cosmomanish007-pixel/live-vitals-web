@@ -572,6 +572,23 @@ if (risk?.level === "RED") {
 
   y += 15;
 
+/* ================= INTERPRETATION ================= */
+doc.setFont("helvetica", "bold");
+doc.text("Clinical Interpretation", 14, y);
+y += 8;
+
+doc.setFont("helvetica", "normal");
+
+const interpretation =
+    risk.level === "RED"
+      ? "Critical physiological deviations detected. Immediate medical evaluation is strongly recommended."
+      : risk.level === "YELLOW"
+      ? "Some parameters outside optimal range. Continued monitoring advised."
+      : "All vital parameters within acceptable physiological limits.";
+
+doc.text(doc.splitTextToSize(interpretation, pageWidth - 28), 14, y);
+
+
 /* ── AI AUSCULTATION RESULTS ── */
 if (vital?.ai_artifact || vital?.ai_heart_label) {
   y += 10;
@@ -849,21 +866,6 @@ y += 4;
     }
   }
 }     
-  /* ================= INTERPRETATION ================= */
-  doc.setFont("helvetica", "bold");
-  doc.text("Clinical Interpretation", 14, y);
-  y += 8;
-
-  doc.setFont("helvetica", "normal");
-
-  const interpretation =
-    risk.level === "RED"
-      ? "Critical physiological deviations detected. Immediate medical evaluation is strongly recommended."
-      : risk.level === "YELLOW"
-      ? "Some parameters outside optimal range. Continued monitoring advised."
-      : "All vital parameters within acceptable physiological limits.";
-
-  doc.text(doc.splitTextToSize(interpretation, pageWidth - 28), 14, y);
 
   /* ================= FOOTER ================= */
   const pageCount = doc.getNumberOfPages();
