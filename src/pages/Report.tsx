@@ -522,7 +522,16 @@ if (risk?.level === "RED") {
         "80 – 100 %",
         spo2Eval.label,
       ],
-    ["Audio Peak", vital.audio ?? "—", "—", "Not Applicable"],
+    [
+  "Audio Peak",
+  vital.audio ?? "—",
+  "Amplitude (Raw)",
+  vital.audio != null
+    ? vital.audio > 30000
+      ? "High Signal"
+      : "Normal Signal"
+    : "Not Recorded"
+],
     theme: "grid",
     headStyles: { fillColor: blue, textColor: 255 },
     styles: { fontSize: 10 },
