@@ -508,9 +508,9 @@ if (risk?.level === "RED") {
         "Heart Rate",
         `${vital.hr ?? "—"} bpm ${
           vital.hr && vital.hr < 60
-            ? "↓"
+            ? "(LOW)"
             : vital.hr && vital.hr > 100
-            ? "↑"
+            ? "(HIGH)"
             : ""
         }`,
         "60 – 100 bpm",
