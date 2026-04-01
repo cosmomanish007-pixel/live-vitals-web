@@ -303,7 +303,7 @@ if (!vital || !session) {
     vital.temp != null && vital.hr != null && vital.spo2 != null
       ? "GOOD"
       : "PARTIAL";
-  const isArtifact = vital?.ai_artifact === true || vital?.ai_artifact === 1;
+  const isArtifact = vital?.ai_artifact === true || (vital?.ai_artifact as unknown) === 1;
 
 // Console logs AFTER null check
 console.log("🔥 VITAL DATA:", vital);
@@ -700,7 +700,7 @@ lines.forEach((line, idx) => {
 
     // Draw Icon with extra Boldness
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(...iconColor);
+    doc.setTextColor(iconColor[0], iconColor[1], iconColor[2]);
     doc.text(icon, cardMargin + 6, lineY);
 
     // Draw Line Text - Bold & High Contrast
