@@ -357,7 +357,7 @@
 
 <div align="center">
   <img src="images/pat.png" alt="Patient Dashboard Initial" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/pati.png" alt="Patient Details Form" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/patii.png" alt="Patient Details Form" width="45%" style="margin: 8px; border-radius: 8px;"/>
   <p><em>🏠 Dashboard landing → 👤 Enter patient demographic details (name, age, gender)</em></p>
 </div>
 
