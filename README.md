@@ -66,3 +66,94 @@ graph LR
     C -- WAV Stream --> D[FastAPI AI Backend]
     D -- Inference --> C
     D -- Storage --> B
+````
+
+### **Hardware Layer**
+
+| Component | Function | Interface |
+| :--- | :--- | :--- |
+| **INMP441** | 24-bit Digital Audio Capture | I2S |
+| **MAX30105** | Photoplethysmogram (HR & SpO2) | I2C |
+| **MAX30205** | Human Body Temperature (±0.1°C) | I2C |
+| **SH1106** | HMI / User Guidance Display | I2C |
+
+-----
+
+## ⚙️ Quick Start
+
+### 1️⃣ Clone & Dependencies
+
+```bash
+git clone [https://github.com/cosmomanish007-pixel/live-vitals-web.git](https://github.com/cosmomanish007-pixel/live-vitals-web.git)
+cd live-vitals-web && npm install
+```
+
+### 2️⃣ Environment Configuration
+
+Create a `.env.local` file:
+
+```env
+VITE_SUPABASE_URL=[https://your-id.supabase.co](https://your-id.supabase.co)
+VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_AI_BACKEND_URL=https://your-hf-space-url/predict/full
+```
+
+### 3️⃣ AI Backend (HuggingFace)
+
+Deploy the contents of `/hf-space` to a Docker-enabled Space. The backend uses **FastAPI** to serve both `AURANet` and `LungNet` models concurrently.
+
+-----
+
+## 🚦 Health Scoring Logic
+
+The system uses a weighted algorithm to categorize patient status:
+
+> [\!IMPORTANT]
+> **Status Logic:**
+>
+>   * **Green (Healthy):** Score \< 30. All vitals within clinical range.
+>   * **Yellow (Warning):** Score 30-69. Slight deviation in vitals (Temp/SpO2).
+>   * **Red (Critical):** Score 70+ OR **AI Anomaly Detected**. Triggered by heart murmur or lung wheeze.
+
+-----
+
+## 🗺️ Roadmap
+
+  - [x] **Phase 1:** Core hardware integration & I2S Audio pipeline.
+  - [x] **Phase 2:** AURANet Model training (95% AUC).
+  - [x] **Phase 3:** Telemedicine & PDF Report automation.
+  - [ ] **Phase 4:** Multi-lingual support (Hindi/Marathi/Spanish).
+  - [ ] **Phase 5:** 3D Printed Ergonomic Enclosure.
+
+-----
+
+## 👥 The Team
+
+**Final Year Engineering Capstone Project**
+
+  * **Project Lead:** [Manish Dhatrak](https://github.com/cosmomanish007-pixel)
+  * **Specialization:** Hardware Architecture, ML Pipelines, Full-Stack Development.
+
+-----
+
+\<div align="center"\>
+
+**Found this project interesting? Give it a ⭐\!**
+
+\<img src="https://www.google.com/search?q=https://capsule-render.vercel.app/api%3Ftype%3Dwaving%26color%3D0:0077b6,50:00b4d8,100:0d1117%26height%3D100%26section%3Dfooter" width="100%"/\>
+
+*Built with ❤️ in Aurangabad, Maharashtra 🇮🇳*
+
+\</div\>
+
+```
+
+### Key Improvements Made:
+
+1.  **Call-to-Action (CTA):** Added links to docs, demo, and issues at the top to make it feel like a professional product.
+2.  **Mermaid Diagram:** Swapped the text block for a Mermaid-style logic flow (GitHub renders this natively as a clean diagram).
+3.  **Modern GitHub Blocks:** Used `> [!IMPORTANT]` syntax for the Health Scoring section to make it pop visually.
+4.  **Premium Badges:** Used official colors and logos for the technology stack.
+5.  **Refined Typography:** Used bolding and bullet points to reduce "wall of text" fatigue.
+6.  **Image Styling:** Suggested border-radii and shadows for the gallery (though GitHub limits some CSS, the layout is much cleaner).
+```
