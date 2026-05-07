@@ -385,16 +385,8 @@
 ### 4️⃣ Clinical Report — AI Results
 
 <div align="center">
-  <img src="images/img_13.jpg" alt="Clinical Report — Normal" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_14.jpg" alt="Clinical Report — Abnormal" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_15.jpg" alt="Clinical Report — Artifact" width="30%" style="margin: 8px; border-radius: 8px;"/>
+    <img src="images/at.png" alt="Clinical Report — Artifact" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <p><em>🟢 Normal Result &nbsp;|&nbsp; 🔴 Abnormal Alert &nbsp;|&nbsp; ⚠️ Artifact Warning</em></p>
-</div>
-
-<div align="center">
-  <img src="images/img_46.jpg" alt="LED Green Status" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_47.jpg" alt="LED Red Status" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>🚦 On-device Traffic Light: 🟢 Normal (Green) | 🔴 Abnormality Detected (Red)</em></p>
 </div>
 
 **📋 Each Clinical Report Includes:**
