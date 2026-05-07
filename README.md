@@ -361,27 +361,26 @@
   <p><em>🏠 Dashboard landing → 👤 Enter patient demographic details (name, age, gender)</em></p>
 </div>
 
-### 3️⃣ Guided 5-Step Monitoring Workflow
+### 🔄 Guided 5-Step Monitoring Workflow
+*A clinical-grade diagnostic sequence executed in < 2 minutes*
 
 <div align="center">
 
-```
-  STEP 1          STEP 2          STEP 3          STEP 4          STEP 5
-📱 Init      →  🌡️ Temp       →  🎙️ Audio      →  💓 HR/SpO₂    →  🧠 AI Result
-System Start    MAX30205 30s     INMP441 10s       MAX30105 30s     Report + Risk
-```
+| **STEP 1** | **STEP 2** | **STEP 3** | **STEP 4** | **STEP 5** |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="https://img.shields.io/badge/1-INIT-00d4ff?style=for-the-badge" /> | <img src="https://img.shields.io/badge/2-TEMP-00d4ff?style=for-the-badge" /> | <img src="https://img.shields.io/badge/3-AUDIO-00d4ff?style=for-the-badge" /> | <img src="https://img.shields.io/badge/4-VITALS-00d4ff?style=for-the-badge" /> | <img src="https://img.shields.io/badge/5-DIAGNOSIS-FF4757?style=for-the-badge" /> |
+| 📱 | 🌡️ | 🎙️ | 💓 | 🧠 |
+| **System Start** | **MAX30205** | **INMP441** | **MAX30105** | **AI Inference** |
+| `Sync & Calibrate` | `30s Capture` | `10s WAV Rec` | `30s PPG Reading` | `Risk Scoring` |
+
+<br />
+
+<img src="images/st.jpeg" alt="Step 5 — AI Analysis" width="35%" style="border-radius: 15px; border: 2px solid #FF4757; margin-top: 10px;"/>
+<p><em>🔬 Real-time AI Classification & Confidence Mapping</em></p>
 
 </div>
 
-<div align="center">
-    <img src="images/st.jpeg" alt="Step 5 — AI Analysis" width="18%" style="margin: 5px; border-radius: 8px;"/>
-</div>
-
-<div align="center">
-  <img src="images/img_43.jpg" alt="OLED Recording" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_44.jpg" alt="OLED Vitals Display" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>🖥️ OLED: "Recording Auscultation..." → Live vitals: HR 72 | SpO₂ 98% | Temp 36.8°C</em></p>
-</div>
+---
 
 ### 4️⃣ Clinical Report — AI Results
 
