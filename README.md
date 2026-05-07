@@ -165,32 +165,30 @@
 
 <br/>
 
+<div align="center">
+
 ### ✨ Feature Matrix
+*Comprehensive breakdown of AI-powered diagnostics and hardware integration*
 
-<table width="100%">
-<tr>
-<th>🔬 Feature</th>
-<th>📝 Description</th>
-<th align="center">🚦 Status</th>
-</tr>
-<tr><td>🫀 <b>AI Heart Analysis</b></td><td>Normal/Abnormal, murmurs, systole & diastole timing, valve risk</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>🫁 <b>AI Lung Analysis</b></td><td>Normal / Crackle / Wheeze with confidence scores</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>🚨 <b>Artifact Detection</b></td><td>Motion/tapping detection during recording, retry prompt</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>🌡️ <b>Skin Temperature</b></td><td>MAX30205 I2C with exponential smoothing filter</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>💓 <b>Heart Rate + SpO₂</b></td><td>MAX30105 optical PPG sensor</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>🎙️ <b>I2S Microphone</b></td><td>INMP441 — 10s WAV capture at 16kHz</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>🖥️ <b>OLED Display</b></td><td>SH1106 128×64 — real-time vitals + step instructions</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>🔴🟡🟢 <b>Traffic Light LEDs</b></td><td>Visual on-device health status indicator</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>🩺 <b>Doctor Consultation</b></td><td>Live video call + digital prescription generation</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>📄 <b>Clinical PDF Report</b></td><td>Auto-generated with risk scoring per session</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>📡 <b>HC12 Offline Fail-Safe</b></td><td>RF alert transmission with no WiFi needed</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>📲 <b>SMS + Call Alerts</b></td><td>Auto-triggered on HIGH risk when online</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
-<tr><td>🌍 <b>Multi-language</b></td><td>Hindi, Marathi support</td><td align="center"><img src="https://img.shields.io/badge/PLANNED-7b2fff?style=flat-square"/></td></tr>
-<tr><td>📱 <b>Mobile App</b></td><td>React Native companion app</td><td align="center"><img src="https://img.shields.io/badge/PLANNED-7b2fff?style=flat-square"/></td></tr>
-<tr><td>🖨️ <b>3D Printed Enclosure</b></td><td>Wearable form factor</td><td align="center"><img src="https://img.shields.io/badge/PLANNED-7b2fff?style=flat-square"/></td></tr>
-</table>
+| 🔬 Feature | 📝 Description | 🚦 Status |
+| :--- | :--- | :---: |
+| 🫀 **AI Heart Analysis** | Normal/Abnormal, murmurs, systole & diastole timing | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 🫁 **AI Lung Analysis** | Normal / Crackle / Wheeze with confidence scores | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 🚨 **Artifact Detection** | Motion/tapping detection during recording, retry prompt | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 🌡️ **Skin Temperature** | MAX30205 I2C with exponential smoothing filter | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 💓 **Heart Rate + SpO₂** | MAX30105 optical PPG sensor | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 🎙️ **I2S Microphone** | INMP441 — 10s WAV capture at 16kHz | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 🖥️ **OLED Display** | SH1106 128×64 — real-time vitals + instructions | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 🚦 **Traffic Light LEDs** | Visual on-device health status indicator | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 🩺 **Doctor Consultation** | Live video call + digital prescription generation | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 📄 **Clinical PDF Report** | Auto-generated with risk scoring per session | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 📡 **HC12 Offline Fail-Safe** | RF alert transmission with no WiFi needed | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 📲 **SMS + Call Alerts** | Auto-triggered on HIGH risk when online | ![LIVE](https://img.shields.io/badge/LIVE-2ECC71?style=for-the-badge&logo=checkmarx&logoColor=white) |
+| 🌍 **Multi-language** | Hindi, Marathi support | ![PLANNED](https://img.shields.io/badge/PLANNED-9B59B6?style=for-the-badge&logo=target&logoColor=white) |
+| 📱 **Mobile App** | React Native companion app | ![PLANNED](https://img.shields.io/badge/PLANNED-9B59B6?style=for-the-badge&logo=target&logoColor=white) |
+| 🖨️ **3D Enclosure** | Wearable form factor | ![PLANNED](https://img.shields.io/badge/PLANNED-9B59B6?style=for-the-badge&logo=target&logoColor=white) |
 
----
+</div>
 
 ## 🏗️ System Architecture
 
