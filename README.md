@@ -347,6 +347,7 @@
 ### 1️⃣ Splash Screen & Authentication
 
 <div align="center">
+  <img src="images/wel.png" alt="Welcome" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/log.png" alt="Patient Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/reg.png" alt="Registration Screen" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <p><em> 🔐 Patient Sign In → 📝 New User Registration</em></p>
