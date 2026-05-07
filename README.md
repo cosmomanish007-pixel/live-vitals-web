@@ -33,7 +33,6 @@
 
 <br/>
 
-
 ---
 </div>
 
@@ -45,10 +44,11 @@
 </div>
 
 ---
+
 <div align="center">
 
 <a href="https://live-vitals-web.lovable.app">
-  <img src="https://img.shields.io/badge/LIVE%20DEMO-live--vitals--web.lovable.app-ffd700?style=for-the-badge&logo=vercel&logoColor=white&labelColor=0d1117"/>
+  <img src="https://img.shields.io/badge/LIVE%20DEMO-live--vitals--web.lovable.app-ffd700?style=for-the-badge&logo=vercel&logoColor=black&labelColor=0d1117"/>
 </a>
 &nbsp;
 <a href="mailto:manishdhatrak1121@gmail.com">
@@ -81,33 +81,46 @@
 <tr><td align="center">7</td><td>🌐 <a href="#-feature-showcase--patient-flow">Feature Showcase — Patient Flow</a></td><td align="center">15</td><td>📈 <a href="#-achievements">Achievements</a></td></tr>
 <tr><td align="center">8</td><td>👨‍⚕️ <a href="#️-feature-showcase--doctor-dashboard">Feature Showcase — Doctor Dashboard</a></td><td align="center">16</td><td>📬 <a href="#-contact">Contact</a></td></tr>
 </table>
+
 ---
 
 ## 🔥 Problem Statement
 
 <div align="center">
 
-> *"India has **1 doctor per 1,511 people** — far below the WHO recommended ratio of 1:1,000. In rural areas, this gap widens dramatically. Cardiovascular and respiratory diseases are the **#1 and #3 leading causes of death** in India — yet early-stage auscultation diagnosis is nearly inaccessible outside urban hospitals."*
+![Problem](https://img.shields.io/badge/-%F0%9F%87%AE%F0%9F%87%B3%20India%20Health%20Crisis-ff4757?style=for-the-badge)
+
+> *"India has **1 doctor per 1,511 people** — far below the WHO ratio of 1:1,000. In rural areas, this gap widens dramatically. Cardiovascular and respiratory diseases are the **#1 and #3 leading causes of death** in India — yet early-stage auscultation diagnosis is nearly inaccessible outside urban hospitals."*
 
 </div>
 
+<br/>
+
 **The Core Challenges:**
 
-| Challenge | Impact |
-|-----------|--------|
-| 🏥 Doctor shortage in rural PHCs | Patients travel 50–100 km for basic cardiac/lung screening |
-| 🩺 Stethoscope skill barrier | Auscultation requires years of training — not scalable |
-| 📡 Connectivity issues | Traditional telemedicine fails without stable internet |
-| 💰 High cost of diagnostics | ECG, spirometry, CT scans cost thousands per visit |
-| ⏱️ Delayed diagnosis | Murmurs and crackles go undetected until a critical stage |
+<table width="100%">
+<tr>
+<th>⚡ Challenge</th>
+<th>💥 Impact</th>
+</tr>
+<tr><td>🏥 Doctor shortage in rural PHCs</td><td>Patients travel 50–100 km for basic cardiac/lung screening</td></tr>
+<tr><td>🩺 Stethoscope skill barrier</td><td>Auscultation requires years of training — not scalable</td></tr>
+<tr><td>📡 Connectivity issues</td><td>Traditional telemedicine fails without stable internet</td></tr>
+<tr><td>💰 High cost of diagnostics</td><td>ECG, spirometry, CT scans cost thousands per visit</td></tr>
+<tr><td>⏱️ Delayed diagnosis</td><td>Murmurs and crackles go undetected until critical stage</td></tr>
+</table>
+
+<br/>
 
 <div align="center">
   <img src="images/img_40.jpg" alt="Device on Patient Chest" width="45%" style="margin: 10px; border-radius: 12px;"/>
   <img src="images/img_41.jpg" alt="Health Worker Operating Device" width="45%" style="margin: 10px; border-radius: 12px;"/>
-  <p><em>AURA-STETH AI in action — empowering rural health workers with AI-driven auscultation diagnostics</em></p>
+  <p><em>🩺 AURA-STETH AI in action — empowering rural health workers with AI-driven auscultation diagnostics</em></p>
 </div>
 
-**AURA-STETH AI** solves this by putting a **ResNet50-powered AI cardiologist and EfficientNet-B0 pulmonologist** into a ₹2,000 ESP32 device that any health worker can operate with a guided 5-step workflow.
+<br/>
+
+> 💡 **AURA-STETH AI** solves this by putting a **ResNet50-powered AI cardiologist** and **EfficientNet-B0 pulmonologist** into a ₹2,000 ESP32 device that any health worker can operate with a guided 5-step workflow.
 
 ---
 
@@ -115,37 +128,52 @@
 
 **AURA-STETH AI** is a complete end-to-end smart medical monitoring system — a custom-built ESP32 stethoscope that measures **heart rate, SpO₂, skin temperature, and auscultation audio**, streams it to a cloud dashboard with **AI-powered heart & lung diagnostics**, **real-time doctor consultation**, and **offline HC12 RF fail-safe transmission**.
 
+<br/>
+
+<div align="center">
+
 ```
 🎙️ Record Audio  →  🧠 AI Analysis  →  📊 Clinical Report  →  👨‍⚕️ Doctor Review  →  💊 Digital Prescription
      10s WAV           < 30 sec          Risk Score + Labels      Live Video Call        PDF Download
 ```
 
+</div>
+
+<br/>
+
 <div align="center">
   <img src="images/img_24.jpg" alt="Final Hardware Model — Front View" width="30%" style="margin: 10px; border-radius: 12px;"/>
   <img src="images/img_25.jpg" alt="Final Hardware Model — Side View with OLED" width="30%" style="margin: 10px; border-radius: 12px;"/>
   <img src="images/img_26.jpg" alt="Hardware Internals" width="30%" style="margin: 10px; border-radius: 12px;"/>
-  <p><em>Custom ESP32-S3 stethoscope — front, side with OLED display, and internal hardware</em></p>
+  <p><em>⚙️ Custom ESP32-S3 stethoscope — front view | side with OLED display | internal hardware</em></p>
 </div>
+
+<br/>
 
 ### ✨ Feature Matrix
 
-| Feature | Description | Status |
-|---------|-------------|--------|
-| 🫀 **AI Heart Analysis** | Normal/Abnormal, murmurs, systole & diastole timing, valve risk | ✅ Live |
-| 🫁 **AI Lung Analysis** | Normal / Crackle / Wheeze with confidence scores | ✅ Live |
-| 🚨 **Artifact Detection** | Motion/tapping detection during recording, retry prompt | ✅ Live |
-| 🌡️ **Skin Temperature** | MAX30205 I2C with exponential smoothing filter | ✅ Live |
-| 💓 **Heart Rate + SpO₂** | MAX30105 optical PPG sensor | ✅ Live |
-| 🎙️ **I2S Microphone** | INMP441 — 10s WAV capture at 16kHz | ✅ Live |
-| 🖥️ **OLED Display** | SH1106 128×64 — real-time vitals + step instructions | ✅ Live |
-| 🔴🟡🟢 **Traffic Light LEDs** | Visual on-device health status indicator | ✅ Live |
-| 🩺 **Doctor Consultation** | Live video call + digital prescription generation | ✅ Live |
-| 📄 **Clinical PDF Report** | Auto-generated with risk scoring per session | ✅ Live |
-| 📡 **HC12 Offline Fail-Safe** | RF alert transmission with no WiFi needed | ✅ Live |
-| 📲 **SMS + Call Alerts** | Auto-triggered on HIGH risk when online | ✅ Live |
-| 🌍 **Multi-language** | Hindi, Marathi support | 🔄 Planned |
-| 📱 **Mobile App** | React Native companion app | 🔄 Planned |
-| 🖨️ **3D Printed Enclosure** | Wearable form factor | 🔄 Planned |
+<table width="100%">
+<tr>
+<th>🔬 Feature</th>
+<th>📝 Description</th>
+<th align="center">🚦 Status</th>
+</tr>
+<tr><td>🫀 <b>AI Heart Analysis</b></td><td>Normal/Abnormal, murmurs, systole & diastole timing, valve risk</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>🫁 <b>AI Lung Analysis</b></td><td>Normal / Crackle / Wheeze with confidence scores</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>🚨 <b>Artifact Detection</b></td><td>Motion/tapping detection during recording, retry prompt</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>🌡️ <b>Skin Temperature</b></td><td>MAX30205 I2C with exponential smoothing filter</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>💓 <b>Heart Rate + SpO₂</b></td><td>MAX30105 optical PPG sensor</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>🎙️ <b>I2S Microphone</b></td><td>INMP441 — 10s WAV capture at 16kHz</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>🖥️ <b>OLED Display</b></td><td>SH1106 128×64 — real-time vitals + step instructions</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>🔴🟡🟢 <b>Traffic Light LEDs</b></td><td>Visual on-device health status indicator</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>🩺 <b>Doctor Consultation</b></td><td>Live video call + digital prescription generation</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>📄 <b>Clinical PDF Report</b></td><td>Auto-generated with risk scoring per session</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>📡 <b>HC12 Offline Fail-Safe</b></td><td>RF alert transmission with no WiFi needed</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>📲 <b>SMS + Call Alerts</b></td><td>Auto-triggered on HIGH risk when online</td><td align="center"><img src="https://img.shields.io/badge/LIVE-00d4ff?style=flat-square"/></td></tr>
+<tr><td>🌍 <b>Multi-language</b></td><td>Hindi, Marathi support</td><td align="center"><img src="https://img.shields.io/badge/PLANNED-7b2fff?style=flat-square"/></td></tr>
+<tr><td>📱 <b>Mobile App</b></td><td>React Native companion app</td><td align="center"><img src="https://img.shields.io/badge/PLANNED-7b2fff?style=flat-square"/></td></tr>
+<tr><td>🖨️ <b>3D Printed Enclosure</b></td><td>Wearable form factor</td><td align="center"><img src="https://img.shields.io/badge/PLANNED-7b2fff?style=flat-square"/></td></tr>
+</table>
 
 ---
 
@@ -153,115 +181,151 @@
 
 <div align="center">
   <img src="images/img_36.jpg" alt="System Architecture Diagram" width="95%" style="border-radius: 12px; margin: 20px 0;"/>
-  <p><em>Complete AURA-STETH AI System Architecture — Hardware Layer → Cloud Layer → AI Backend</em></p>
+  <p><em>🏗️ Complete AURA-STETH AI System Architecture — Hardware Layer → Cloud Layer → AI Backend</em></p>
 </div>
 
-### Technology Stack
+<br/>
 
-| Layer | Technology |
-|-------|-----------|
-| **MCU Firmware** | ESP32-S3, Arduino C++, FreeRTOS |
-| **Frontend** | React 18, Vite, TypeScript, TailwindCSS, shadcn/ui |
-| **Backend / DB** | Supabase (PostgreSQL + Auth + Storage + Realtime) |
-| **AI Inference Host** | HuggingFace Spaces (Render backend) |
-| **Heart Model** | ResNet50 + multi-scale fusion — AURANet |
-| **Lung Model** | EfficientNet-B0 → 3-class softmax — LungNet |
-| **Audio Processing** | DWT + Bandpass Filter + Z-norm + Mel-Spectrogram + MFCC |
-| **Video Consult** | WebRTC integration |
-| **PDF Generation** | In-browser jsPDF / html2canvas |
-| **Offline RF** | HC12 433MHz RF module (TX/RX pair), UART |
+### 🛠️ Technology Stack
+
+<table width="100%">
+<tr>
+<th>🔩 Layer</th>
+<th>⚡ Technology</th>
+</tr>
+<tr><td>📟 <b>MCU Firmware</b></td><td><img src="https://img.shields.io/badge/ESP32--S3-Arduino%20C%2B%2B%20%2B%20FreeRTOS-ff6b35?style=flat-square&logo=espressif&logoColor=white"/></td></tr>
+<tr><td>🖥️ <b>Frontend</b></td><td><img src="https://img.shields.io/badge/React%2018%20%2B%20Vite%20%2B%20TypeScript%20%2B%20TailwindCSS-61dafb?style=flat-square&logo=react&logoColor=black"/></td></tr>
+<tr><td>🗄️ <b>Backend / DB</b></td><td><img src="https://img.shields.io/badge/Supabase-PostgreSQL%20%2B%20Auth%20%2B%20Storage%20%2B%20Realtime-3ecf8e?style=flat-square&logo=supabase&logoColor=white"/></td></tr>
+<tr><td>🤗 <b>AI Inference Host</b></td><td><img src="https://img.shields.io/badge/HuggingFace%20Spaces-Render%20Backend-ffd21e?style=flat-square&logo=huggingface&logoColor=black"/></td></tr>
+<tr><td>🫀 <b>Heart Model</b></td><td>ResNet50 + multi-scale fusion — AURANet</td></tr>
+<tr><td>🫁 <b>Lung Model</b></td><td>EfficientNet-B0 → 3-class softmax — LungNet</td></tr>
+<tr><td>🎵 <b>Audio Processing</b></td><td>DWT + Bandpass Filter + Z-norm + Mel-Spectrogram + MFCC</td></tr>
+<tr><td>📹 <b>Video Consult</b></td><td>WebRTC integration</td></tr>
+<tr><td>📄 <b>PDF Generation</b></td><td>In-browser jsPDF / html2canvas</td></tr>
+<tr><td>📡 <b>Offline RF</b></td><td>HC12 433MHz RF module (TX/RX pair), UART</td></tr>
+</table>
 
 ---
 
 ## ⚙️ Hardware Components
 
-| Component | Role | Specs |
-|-----------|------|-------|
-| **ESP32-S3** | Main MCU | Dual-core 240MHz, WiFi + BT, 8MB PSRAM |
-| **INMP441** | I2S Digital Microphone | 16kHz, 10s WAV for auscultation |
-| **MAX30105** | PPG Optical Sensor | Heart rate + SpO₂ via photoplethysmography |
-| **MAX30205** | Temperature Sensor | I2C, ±0.1°C accuracy, exponential smoothing |
-| **SH1106 OLED** | Display | 128×64px, I2C, guided step-by-step UI |
-| **HC12 RF Module** | Wireless (Offline Mode) | 433MHz, ~1km range, UART, fail-safe alerts |
-| **RGB LEDs** | Status Indicator | 🔴 Alert / 🟡 Attention / 🟢 Normal |
-| **Custom Enclosure** | Housing | Hand-built (3D print planned), pink acoustic cup |
+<table width="100%">
+<tr>
+<th>🔧 Component</th>
+<th>🎯 Role</th>
+<th>📐 Specs</th>
+</tr>
+<tr><td>⚡ <b>ESP32-S3</b></td><td>Main MCU</td><td>Dual-core 240MHz, WiFi + BT, 8MB PSRAM</td></tr>
+<tr><td>🎙️ <b>INMP441</b></td><td>I2S Digital Microphone</td><td>16kHz, 10s WAV for auscultation</td></tr>
+<tr><td>💓 <b>MAX30105</b></td><td>PPG Optical Sensor</td><td>Heart rate + SpO₂ via photoplethysmography</td></tr>
+<tr><td>🌡️ <b>MAX30205</b></td><td>Temperature Sensor</td><td>I2C, ±0.1°C accuracy, exponential smoothing</td></tr>
+<tr><td>🖥️ <b>SH1106 OLED</b></td><td>Display</td><td>128×64px, I2C, guided step-by-step UI</td></tr>
+<tr><td>📡 <b>HC12 RF Module</b></td><td>Wireless Offline Mode</td><td>433MHz, ~1km range, UART, fail-safe alerts</td></tr>
+<tr><td>🚦 <b>RGB LEDs</b></td><td>Status Indicator</td><td>🔴 Alert / 🟡 Attention / 🟢 Normal</td></tr>
+<tr><td>📦 <b>Custom Enclosure</b></td><td>Housing</td><td>Hand-built (3D print planned), pink acoustic cup</td></tr>
+</table>
+
+<br/>
 
 <div align="center">
-  <img src="images/img_27.jpg" alt="ESP32-S3 Board" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_28.jpg" alt="INMP441 Microphone" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_29.jpg" alt="MAX30105 PPG Sensor" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_30.jpg" alt="MAX30205 Temperature Sensor" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_31.jpg" alt="SH1106 OLED Display" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_32.jpg" alt="HC12 RF Module" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_33.jpg" alt="RGB LED Indicators" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_34.jpg" alt="Full Hardware Kit" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>Top row: ESP32-S3 | INMP441 Mic | MAX30105 PPG — Middle row: MAX30205 Temp | SH1106 OLED | HC12 RF — Bottom: RGB LEDs | Full Kit</em></p>
+  <img src="images/img_27.jpg" alt="ESP32-S3 Board" width="22%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_28.jpg" alt="INMP441 Microphone" width="22%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_29.jpg" alt="MAX30105 PPG Sensor" width="22%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_30.jpg" alt="MAX30205 Temperature Sensor" width="22%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_31.jpg" alt="SH1106 OLED Display" width="22%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_32.jpg" alt="HC12 RF Module" width="22%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_33.jpg" alt="RGB LED Indicators" width="22%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_34.jpg" alt="Full Hardware Kit" width="22%" style="margin: 6px; border-radius: 8px;"/>
+  <p><em>ESP32-S3 | INMP441 Mic | MAX30105 PPG | MAX30205 Temp | SH1106 OLED | HC12 RF | RGB LEDs | Full Kit</em></p>
 </div>
 
-### ESP32 Pin Map & Circuit Diagram
+### 🔌 ESP32 Pin Map & Circuit Diagram
 
 <div align="center">
   <img src="images/img_35.jpg" alt="Circuit Diagram / Schematic" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
-  <p><em>ESP32-S3 Schematic — All sensor connections, I2C bus, I2S mic, HC12 UART</em></p>
+  <p><em>🔌 ESP32-S3 Schematic — All sensor connections, I2C bus, I2S mic, HC12 UART</em></p>
 </div>
 
 ```
-INMP441  →  I2S   (GPIO 6=WS,  GPIO 7=SCK, GPIO 8=SD)
-MAX30105 →  I2C   (GPIO 21=SDA, GPIO 22=SCL)
-MAX30205 →  I2C   (shared bus with MAX30105)
-SH1106   →  I2C   (shared bus, addr 0x3C)
-HC12     →  UART  (GPIO 17=TX, GPIO 18=RX)
-LED RED  →  GPIO 2
-LED YELLOW → GPIO 3
-LED GREEN → GPIO 4
+📍 INMP441  →  I2S    GPIO 6=WS  | GPIO 7=SCK | GPIO 8=SD
+📍 MAX30105 →  I2C    GPIO 21=SDA | GPIO 22=SCL
+📍 MAX30205 →  I2C    (shared bus with MAX30105)
+📍 SH1106   →  I2C    (shared bus, addr 0x3C)
+📍 HC12     →  UART   GPIO 17=TX | GPIO 18=RX
+📍 LED RED  →  GPIO 2
+📍 LED YELLOW → GPIO 3
+📍 LED GREEN  → GPIO 4
 ```
 
 ---
 
 ## 🧠 AI Models & Metrics
 
+<div align="center">
+
+![Heart AI](https://img.shields.io/badge/🫀%20AURANet-Heart%20Sound%20Classifier-ff4757?style=for-the-badge&labelColor=0d1117)
+&nbsp;
+![Lung AI](https://img.shields.io/badge/🫁%20LungNet-Respiratory%20Classifier-00d4ff?style=for-the-badge&labelColor=0d1117)
+
+</div>
+
+<br/>
+
 ### 🫀 AURANet — Heart Sound Classifier
 
 > **Architecture:** ResNet50 backbone + multi-scale temporal fusion + clinical feature injection
 
-| Metric | Value |
-|--------|-------|
-| **Best AUC (5-fold CV)** | **0.9578** |
-| **Best Single Fold AUC** | 0.9367 |
-| **Global Decision Threshold** | 0.2807 |
-| **Optimal Decision Threshold** | 0.3416 |
-| **Sensitivity Target** | 0.85 (recall-optimised) |
-| **PW Floor / PW Cap** | 1.5 / 2.5 |
+<table width="100%">
+<tr>
+<th align="center">📊 Metric</th>
+<th align="center">🎯 Value</th>
+</tr>
+<tr><td align="center">🏆 <b>Best AUC (5-fold CV)</b></td><td align="center"><img src="https://img.shields.io/badge/AUC-0.9578-ff4757?style=flat-square"/></td></tr>
+<tr><td align="center">📈 Best Single Fold AUC</td><td align="center">0.9367</td></tr>
+<tr><td align="center">⚖️ Global Decision Threshold</td><td align="center">0.2807</td></tr>
+<tr><td align="center">🎯 Optimal Decision Threshold</td><td align="center">0.3416</td></tr>
+<tr><td align="center">🔍 Sensitivity Target</td><td align="center">0.85 (recall-optimised)</td></tr>
+<tr><td align="center">📐 PW Floor / PW Cap</td><td align="center">1.5 / 2.5</td></tr>
+</table>
 
-**Training Datasets:** PhysioNet Challenge 2016 + CirCor DigiScope 2022
+> 📦 **Training Datasets:** PhysioNet Challenge 2016 + CirCor DigiScope 2022
 
 <div align="center">
   <img src="images/img_49.jpg" alt="AURANet Training Curves" width="70%" style="border-radius: 12px; margin: 20px 0;"/>
-  <p><em>AURANet Training — Loss decay & AUC progression per epoch across 5-fold cross-validation</em></p>
+  <p><em>📈 AURANet Training — Loss decay & AUC progression per epoch across 5-fold cross-validation</em></p>
 </div>
 
-**Fold-wise AUC Breakdown:**
+**📊 Fold-wise AUC Breakdown:**
 
-| Fold | Threshold | AUC |
-|------|-----------|-----|
-| Fold 1 | 0.2807 | 0.9367 |
-| Fold 2 | 0.1739 | 0.8739 |
-| Fold 3 | 0.6916 | **0.9578** ⭐ |
-| Fold 4 | 0.2773 | 0.9273 |
-| Fold 5 | 0.3804 | 0.9380 |
+<table width="100%">
+<tr>
+<th align="center">🔢 Fold</th>
+<th align="center">⚖️ Threshold</th>
+<th align="center">📊 AUC</th>
+</tr>
+<tr><td align="center">Fold 1</td><td align="center">0.2807</td><td align="center">0.9367</td></tr>
+<tr><td align="center">Fold 2</td><td align="center">0.1739</td><td align="center">0.8739</td></tr>
+<tr><td align="center">Fold 3 ⭐</td><td align="center">0.6916</td><td align="center"><img src="https://img.shields.io/badge/BEST-0.9578-ff4757?style=flat-square"/></td></tr>
+<tr><td align="center">Fold 4</td><td align="center">0.2773</td><td align="center">0.9273</td></tr>
+<tr><td align="center">Fold 5</td><td align="center">0.3804</td><td align="center">0.9380</td></tr>
+</table>
 
-**Outputs per Inference:**
+<br/>
 
-```
-heart_label    → Normal / Abnormal
-abnormal_prob  → 0.0 – 1.0  (probability score)
-ai_bpm         → AI-derived heart rate (beats/min)
-systole_ms     → Systolic phase duration (ms)
-diastole_ms    → Diastolic phase duration (ms)
-sqi            → Signal Quality Index (0–100)
-valve_risk     → None / Low / Medium / High
-sys_murmur     → YES / NO
-dia_murmur     → YES / NO
+**🔬 Outputs per Inference:**
+
+```json
+{
+  "heart_label":   "Normal / Abnormal",
+  "abnormal_prob": "0.0 – 1.0  (probability score)",
+  "ai_bpm":        "AI-derived heart rate (beats/min)",
+  "systole_ms":    "Systolic phase duration (ms)",
+  "diastole_ms":   "Diastolic phase duration (ms)",
+  "sqi":           "Signal Quality Index (0–100)",
+  "valve_risk":    "None / Low / Medium / High",
+  "sys_murmur":    "YES / NO",
+  "dia_murmur":    "YES / NO"
+}
 ```
 
 ---
@@ -270,26 +334,30 @@ dia_murmur     → YES / NO
 
 > **Architecture:** EfficientNet-B0 on Mel-Spectrogram → 3-class softmax
 
-| Metric | Value |
-|--------|-------|
-| **ICBHI 2017 Score** | **70.47%** |
-| **Best AUC (multiclass OvR)** | **0.8495** |
-| **Overall AUC** | 0.8078 |
-| **Input Sample Rate** | 22,050 Hz |
-| **Breathing Cycle Window** | 5 seconds |
-| **Mel Frequency Bands** | 128 |
-| **FFT Size (n_fft)** | 1024 |
-| **Hop Length** | 512 |
-| **Max Frequency (fmax)** | 2,000 Hz |
+<table width="100%">
+<tr>
+<th align="center">📊 Metric</th>
+<th align="center">🎯 Value</th>
+</tr>
+<tr><td align="center">🏆 <b>ICBHI 2017 Score</b></td><td align="center"><img src="https://img.shields.io/badge/Score-70.47%25-00d4ff?style=flat-square"/></td></tr>
+<tr><td align="center">📈 <b>Best AUC (multiclass OvR)</b></td><td align="center"><img src="https://img.shields.io/badge/AUC-0.8495-00d4ff?style=flat-square"/></td></tr>
+<tr><td align="center">📊 Overall AUC</td><td align="center">0.8078</td></tr>
+<tr><td align="center">🎵 Input Sample Rate</td><td align="center">22,050 Hz</td></tr>
+<tr><td align="center">🌊 Breathing Cycle Window</td><td align="center">5 seconds</td></tr>
+<tr><td align="center">🎚️ Mel Frequency Bands</td><td align="center">128</td></tr>
+<tr><td align="center">📐 FFT Size (n_fft)</td><td align="center">1024</td></tr>
+<tr><td align="center">🔁 Hop Length</td><td align="center">512</td></tr>
+<tr><td align="center">🔊 Max Frequency (fmax)</td><td align="center">2,000 Hz</td></tr>
+</table>
 
-**Training Datasets:** ICBHI 2017 + SPRSound BioCAS 2022
+> 📦 **Training Datasets:** ICBHI 2017 + SPRSound BioCAS 2022
 
 <div align="center">
   <img src="images/img_50.jpg" alt="LungNet Confusion Matrix" width="55%" style="border-radius: 12px; margin: 20px 0;"/>
-  <p><em>LungNet Confusion Matrix — Normal vs Crackle vs Wheeze classification performance</em></p>
+  <p><em>🫁 LungNet Confusion Matrix — Normal vs Crackle vs Wheeze classification performance</em></p>
 </div>
 
-**Output Classes:**
+**🔬 Output Classes:**
 
 ```
 🟢 Normal   →  Clear breath sounds — no pathology detected
@@ -297,7 +365,7 @@ dia_murmur     → YES / NO
 🔴 Wheeze   →  Continuous high-pitched sounds (asthma, COPD, bronchospasm)
 ```
 
-**Example Full AI Inference Output:**
+**📋 Example Full AI Inference Output:**
 
 ```json
 {
@@ -320,7 +388,7 @@ dia_murmur     → YES / NO
     "confidence": 0.582
   },
   "artifact": false,
-  "alert": "AI Alert: Abnormality Detected"
+  "alert": "⚠️ AI Alert: Abnormality Detected"
 }
 ```
 
@@ -329,111 +397,150 @@ dia_murmur     → YES / NO
 ### 🚨 Artifact Detection Engine
 
 ```
-During 10s auscultation recording:
+⚡ During 10s auscultation recording:
    Audio RMS  >  threshold  →  artifact_flag = TRUE
-                             →  OLED: "Keep device steady"
-                             →  Dashboard: ⚠️ Artifact Detected — Motion/Tapping
-                             →  AI analysis skipped — User prompted to retry
+                             →  🖥️  OLED: "Keep device steady"
+                             →  📊  Dashboard: ⚠️ Artifact Detected — Motion/Tapping
+                             →  🚫  AI analysis skipped — User prompted to retry
 ```
 
 ---
 
 ## 🗄️ Database Schema
 
-> Powered by **Supabase PostgreSQL** with Row-Level Security (RLS)
+<div align="center">
+
+![Supabase](https://img.shields.io/badge/Powered%20By-Supabase%20PostgreSQL-3ecf8e?style=for-the-badge&logo=supabase&logoColor=white&labelColor=0d1117)
+![RLS](https://img.shields.io/badge/Security-Row%20Level%20Security-7b2fff?style=for-the-badge&logo=postgresql&logoColor=white&labelColor=0d1117)
+
+</div>
 
 ```sql
--- Core Tables --
-sessions (id PK uuid, state text, mode text, user_name text, 
-          age int, gender text, user_id FK→auth.users, 
-          created_at timestamp, consultation_completed bool)
+-- ══════════════════════════════════════════════════
+-- 🗄️  AURA-STETH AI — Core Database Tables
+-- ══════════════════════════════════════════════════
 
-vitals (id PK, session_id FK→sessions, temp float, hr int, 
-        spo2 int, audio text, ai_heart_label text, 
-        ai_heart_prob float, ai_lung_label text, ai_lung_conf float,
-        ai_sqi int, ai_bpm float, ai_systole_ms int, 
-        ai_diastole_ms int, ai_sys_murmur bool, ai_dia_murmur bool,
-        ai_valve_risk text, ai_normal_pct float, ai_crackle_pct float,
-        ai_wheeze_pct float, ai_alert text, ai_artifact bool, warning text)
+sessions (
+  id PK uuid, state text, mode text,
+  user_name text, age int, gender text,
+  user_id FK→auth.users, created_at timestamp,
+  consultation_completed bool
+)
 
-profiles (id FK→auth.users, role text, doctor_status text,
-          license_number text, specialization text, hospital text,
-          is_available bool, full_name text)
+vitals (
+  id PK, session_id FK→sessions,
+  temp float, hr int, spo2 int, audio text,
+  ai_heart_label text, ai_heart_prob float,
+  ai_lung_label text, ai_lung_conf float,
+  ai_sqi int, ai_bpm float,
+  ai_systole_ms int, ai_diastole_ms int,
+  ai_sys_murmur bool, ai_dia_murmur bool,
+  ai_valve_risk text, ai_normal_pct float,
+  ai_crackle_pct float, ai_wheeze_pct float,
+  ai_alert text, ai_artifact bool, warning text
+)
 
-consultation_requests (id PK, session_id FK→sessions, doctor_id FK→profiles,
-                       risk_level text, status text, doctor_notes text,
-                       prescription text, diagnosis text, chief_complaints text,
-                       advice text, follow_up_date text, video_channel text,
-                       call_started_at timestamp, call_ended_at timestamp)
+profiles (
+  id FK→auth.users, role text,
+  doctor_status text, license_number text,
+  specialization text, hospital text,
+  is_available bool, full_name text
+)
 
-consultation_medicines (id PK, consultation_id FK→consultation_requests,
-                        medicine_name text, dosage text, frequency text,
-                        duration text, total_quantity int)
+consultation_requests (
+  id PK, session_id FK→sessions,
+  doctor_id FK→profiles, risk_level text,
+  status text, doctor_notes text,
+  prescription text, diagnosis text,
+  chief_complaints text, advice text,
+  follow_up_date text, video_channel text,
+  call_started_at timestamp, call_ended_at timestamp
+)
 
-statuses (id PK, session_id FK→sessions, message text, created_at timestamp)
+consultation_medicines (
+  id PK, consultation_id FK→consultation_requests,
+  medicine_name text, dosage text,
+  frequency text, duration text, total_quantity int
+)
+
+statuses (
+  id PK, session_id FK→sessions,
+  message text, created_at timestamp
+)
 ```
 
 ---
 
 ## 🌐 Feature Showcase — Patient Flow
 
-### 1. Splash Screen & Authentication
+### 1️⃣ Splash Screen & Authentication
 
 <div align="center">
   <img src="images/img_5.jpg" alt="Splash Screen" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_2.jpg" alt="Patient Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_4.jpg" alt="Registration Screen" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>Splash animation → Patient Sign In → New User Registration</em></p>
+  <p><em>✨ Splash animation → 🔐 Patient Sign In → 📝 New User Registration</em></p>
 </div>
 
-### 2. Patient Dashboard & Session Initiation
+### 2️⃣ Patient Dashboard & Session Initiation
 
 <div align="center">
   <img src="images/img_6.jpg" alt="Patient Dashboard Initial" width="45%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_7.jpg" alt="Patient Details Form" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>Dashboard landing → Enter patient demographic details (name, age, gender)</em></p>
+  <p><em>🏠 Dashboard landing → 👤 Enter patient demographic details (name, age, gender)</em></p>
 </div>
 
-### 3. Guided 5-Step Monitoring
+### 3️⃣ Guided 5-Step Monitoring Workflow
 
 <div align="center">
-  <img src="images/img_8.jpg" alt="Step 1 — System Init" width="30%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_9.jpg" alt="Step 2 — Temperature" width="30%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_10.jpg" alt="Step 3 — Auscultation" width="30%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_11.jpg" alt="Step 4 — HR & SpO2" width="30%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_12.jpg" alt="Step 5 — AI Analysis" width="30%" style="margin: 6px; border-radius: 8px;"/>
+
+```
+  STEP 1          STEP 2          STEP 3          STEP 4          STEP 5
+📱 Init      →  🌡️ Temp       →  🎙️ Audio      →  💓 HR/SpO₂    →  🧠 AI Result
+System Start    MAX30205 30s     INMP441 10s       MAX30105 30s     Report + Risk
+```
+
 </div>
 
-> **Step 1:** System Initialization → **Step 2:** Skin Temperature (MAX30205) → **Step 3:** Auscultation Recording 10s (INMP441) → **Step 4:** HR & SpO₂ (MAX30105) → **Step 5:** AI Final Analysis
+<div align="center">
+  <img src="images/img_8.jpg" alt="Step 1 — System Init" width="18%" style="margin: 5px; border-radius: 8px;"/>
+  <img src="images/img_9.jpg" alt="Step 2 — Temperature" width="18%" style="margin: 5px; border-radius: 8px;"/>
+  <img src="images/img_10.jpg" alt="Step 3 — Auscultation" width="18%" style="margin: 5px; border-radius: 8px;"/>
+  <img src="images/img_11.jpg" alt="Step 4 — HR & SpO2" width="18%" style="margin: 5px; border-radius: 8px;"/>
+  <img src="images/img_12.jpg" alt="Step 5 — AI Analysis" width="18%" style="margin: 5px; border-radius: 8px;"/>
+</div>
 
 <div align="center">
   <img src="images/img_43.jpg" alt="OLED Recording" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_44.jpg" alt="OLED Vitals Display" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>OLED display: "Recording Auscultation..." → Live vitals: HR 72 | SpO₂ 98% | Temp 36.8°C</em></p>
+  <p><em>🖥️ OLED: "Recording Auscultation..." → Live vitals: HR 72 | SpO₂ 98% | Temp 36.8°C</em></p>
 </div>
 
-### 4. Clinical Report — AI Results
+### 4️⃣ Clinical Report — AI Results
 
 <div align="center">
   <img src="images/img_13.jpg" alt="Clinical Report — Normal" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_14.jpg" alt="Clinical Report — Abnormal" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_15.jpg" alt="Clinical Report — Artifact" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>Left: Normal result 🟢 — Middle: Abnormal / Alert 🔴 — Right: Artifact warning ⚠️</em></p>
+  <p><em>🟢 Normal Result &nbsp;|&nbsp; 🔴 Abnormal Alert &nbsp;|&nbsp; ⚠️ Artifact Warning</em></p>
 </div>
 
 <div align="center">
   <img src="images/img_46.jpg" alt="LED Green Status" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_47.jpg" alt="LED Red Status" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>On-device Traffic Light LED status: 🟢 Normal (Green) | 🔴 Alert — Abnormality Detected (Red)</em></p>
+  <p><em>🚦 On-device Traffic Light: 🟢 Normal (Green) | 🔴 Abnormality Detected (Red)</em></p>
 </div>
 
-**Each clinical report includes:**
-- 📊 Vitals summary: Temperature, HR, SpO₂
-- 🫀 Heart AI: Label, BPM, Systole/Diastole timing, SQI, Valve Risk, Murmur flags
-- 🫁 Lung AI: Normal/Crackle/Wheeze percentages, Confidence score
-- 🚨 Alert banner (if abnormal detected)
-- 📄 "Download Clinical PDF" button
-- 🩺 "Request Doctor Consultation" button
+**📋 Each Clinical Report Includes:**
+
+<table width="100%">
+<tr><td>📊</td><td><b>Vitals Summary</b></td><td>Temperature, HR, SpO₂</td></tr>
+<tr><td>🫀</td><td><b>Heart AI</b></td><td>Label, BPM, Systole/Diastole timing, SQI, Valve Risk, Murmur flags</td></tr>
+<tr><td>🫁</td><td><b>Lung AI</b></td><td>Normal/Crackle/Wheeze percentages, Confidence score</td></tr>
+<tr><td>🚨</td><td><b>Alert Banner</b></td><td>Shown if abnormal detected</td></tr>
+<tr><td>📄</td><td><b>PDF Download</b></td><td>"Download Clinical PDF" button</td></tr>
+<tr><td>🩺</td><td><b>Consult Request</b></td><td>"Request Doctor Consultation" button</td></tr>
+</table>
 
 ---
 
@@ -443,20 +550,20 @@ statuses (id PK, session_id FK→sessions, message text, created_at timestamp)
   <img src="images/img_3.jpg" alt="Doctor Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_16.jpg" alt="Doctor Dashboard Active Consultations" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_17.jpg" alt="Live Video Consultation" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>Doctor Sign In → Active Consultations List (risk badges) → Live Video Call Interface</em></p>
+  <p><em>🔐 Doctor Sign In → 📋 Active Consultations (risk badges) → 📹 Live Video Call Interface</em></p>
 </div>
 
-### Prescription Writing & PDF Generation
+### 💊 Prescription Writing & PDF Generation
 
 <div align="center">
   <img src="images/img_18.jpg" alt="Doctor Prescription Modal" width="45%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_19.jpg" alt="Digital Prescription PDF" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>Prescription modal with dynamic chief complaints, diagnosis, medicines table → Auto-generated signed PDF</em></p>
+  <p><em>📝 Prescription modal (chief complaints, diagnosis, medicines) → 📄 Auto-generated signed PDF</em></p>
 </div>
 
 <div align="center">
   <img src="images/img_42.jpg" alt="Doctor on Video Call" width="60%" style="border-radius: 12px; margin: 15px 0;"/>
-  <p><em>Real-world usage — doctor reviewing AI clinical report during live video consultation</em></p>
+  <p><em>👨‍⚕️ Real-world usage — doctor reviewing AI clinical report during live video consultation</em></p>
 </div>
 
 ---
@@ -468,21 +575,246 @@ statuses (id PK, session_id FK→sessions, message text, created_at timestamp)
   <img src="images/img_21.jpg" alt="Admin Sessions Tab" width="45%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_22.jpg" alt="Admin Doctors Tab" width="45%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_23.jpg" alt="Admin Analytics Tab" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>Overview (charts + stats) → All Sessions (filterable) → Doctor Management → Analytics & Trends</em></p>
+  <p><em>📊 Overview (charts + stats) → 📋 All Sessions (filterable) → 👨‍⚕️ Doctor Management → 📈 Analytics & Trends</em></p>
 </div>
 
 ---
 
 ## 📡 Offline Fail-Safe — HC12 RF Module
 
-> **Because rural India doesn't always have WiFi. AURA-STETH AI never leaves a patient unmonitored.**
+<div align="center">
+
+> **⚡ Because rural India doesn't always have WiFi. AURA-STETH AI never leaves a patient unmonitored.**
+
+![Offline](https://img.shields.io/badge/HC12%20RF-433MHz%20Fail--Safe-ff6b35?style=for-the-badge&labelColor=0d1117)
+![Range](https://img.shields.io/badge/Range-~1km%20Outdoor-00d4ff?style=for-the-badge&labelColor=0d1117)
+![Mode](https://img.shields.io/badge/Mode-Auto%20Trigger-7b2fff?style=for-the-badge&labelColor=0d1117)
+
+</div>
+
+<br/>
 
 <div align="center">
   <img src="images/img_39.jpg" alt="HC12 Offline Architecture" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
-  <p><em>HC12 RF Offline Fail-Safe System — ESP32 transmitter → 433MHz → Receiver station (PC/RPi/ESP32)</em></p>
+  <p><em>📡 HC12 RF Offline Fail-Safe — ESP32 TX → 433MHz → Remote Receiver Station (PC/RPi/ESP32)</em></p>
 </div>
+
+**🔄 Offline Flow:**
+
+```
+📶 No Internet Detected
+        ↓
+🩺 Stethoscope step skipped → Normal Vitals Calculated (Temp, Pulse, etc.)
+        ↓
+⚠️ If HIGH RISK → High-risk signal transmitted via HC12 RF
+        ↓
+🔴 Local Alert: Buzzer + Signal LED (Green/Yellow/Red)
+        ↓
+🌍 Global Alert: High-risk signal received at remote receiver
+        ↓
+🖥️ OLED: Patient direction guidance shown on screen
+```
 
 <div align="center">
   <img src="images/img_32.jpg" alt="HC12 RF Module Close-up" width="35%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_45.jpg" alt="OLED Offline Mode" width="35%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em
+  <p><em>📡 HC12 RF Module | 🖥️ OLED showing offline mode guidance</em></p>
+</div>
+
+> ✅ **Ensures continuous monitoring & alerts even without internet.**
+
+---
+
+## 📊 Data Flow & AI Pipeline
+
+<div align="center">
+
+```
+  🎙️ CAPTURE          🔧 PREPROCESS         🧠 AI ANALYSIS        📊 REPORT            ☁️ SYNC
+─────────────      ─────────────────      ──────────────────    ──────────────      ───────────────
+Heart & Lung  →    Noise Reduction    →   Deep Learning     →   Instant Results →   Cloud Storage
+Sounds (WAV)       Signal Enhancement     Heart & Lung Models   & Insights           + Telemedicine
+  INMP441           DWT + Bandpass         ResNet50 / B0         Risk Scoring         Supabase DB
+  10s @ 16kHz       Mel-Spectrogram        AUC 0.9578            PDF Report           Doctor Alert
+                    MFCC Features          AUC 0.8495            SMS + Call           Video Consult
+```
+
+</div>
+
+---
+
+## 🚀 Getting Started
+
+### 📋 Prerequisites
+
+```bash
+# Required
+Node.js >= 18.0.0
+npm >= 9.0.0
+Git
+
+# Accounts needed
+✅ Supabase account (free tier works)
+✅ HuggingFace account (for AI backend)
+```
+
+### ⚡ Quick Start
+
+```bash
+# 1️⃣ Clone the repository
+git clone https://github.com/cosmomanish007-pixel/live-vitals-web.git
+cd live-vitals-web
+
+# 2️⃣ Install dependencies
+npm install
+
+# 3️⃣ Configure environment
+cp .env.example .env
+# → Add your Supabase URL & anon key
+
+# 4️⃣ Start development server
+npm run dev
+
+# 5️⃣ Open in browser
+# http://localhost:5173
+```
+
+### 🔧 Environment Variables
+
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+---
+
+## 📁 Repository Structure
+
+```
+live-vitals-web/
+├── 📁 src/
+│   ├── 📁 components/          # React UI components
+│   │   ├── 📁 patient/         # Patient flow screens
+│   │   ├── 📁 doctor/          # Doctor dashboard
+│   │   ├── 📁 admin/           # Admin dashboard
+│   │   └── 📁 shared/          # Shared UI elements
+│   ├── 📁 pages/               # Route-level pages
+│   ├── 📁 hooks/               # Custom React hooks
+│   ├── 📁 lib/                 # Supabase client & utils
+│   ├── 📁 types/               # TypeScript definitions
+│   └── 📁 styles/              # Global CSS / Tailwind
+├── 📁 images/                  # All project images
+├── 📁 esp32-firmware/          # ESP32-S3 Arduino code
+│   ├── 📄 main.ino
+│   ├── 📄 sensors.ino
+│   ├── 📄 hc12_offline.ino
+│   └── 📄 wifi_upload.ino
+├── 📁 ai-models/               # Python training notebooks
+│   ├── 📄 auranet_heart.ipynb
+│   └── 📄 lungnet_lung.ipynb
+├── 📄 .env.example
+├── 📄 package.json
+└── 📄 README.md
+```
+
+---
+
+## 🛣️ Roadmap
+
+<table width="100%">
+<tr>
+<th align="center">🚦 Status</th>
+<th>🎯 Feature</th>
+<th align="center">📅 Timeline</th>
+</tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/✅%20DONE-00d4ff?style=flat-square"/></td><td>Heart AI (AUC 0.9578) + Lung AI (AUC 0.8495)</td><td align="center">v1.0</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/✅%20DONE-00d4ff?style=flat-square"/></td><td>Live telemedicine video consultation + digital Rx</td><td align="center">v1.0</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/✅%20DONE-00d4ff?style=flat-square"/></td><td>HC12 RF offline fail-safe mode</td><td align="center">v1.0</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/✅%20DONE-00d4ff?style=flat-square"/></td><td>SMS + Call alerts on HIGH risk</td><td align="center">v1.0</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/✅%20DONE-00d4ff?style=flat-square"/></td><td>Admin dashboard with analytics</td><td align="center">v1.0</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/🔄%20NEXT-7b2fff?style=flat-square"/></td><td>🌍 Hindi + Marathi language support</td><td align="center">v1.1</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/🔄%20NEXT-7b2fff?style=flat-square"/></td><td>📱 React Native mobile app (Android first)</td><td align="center">v1.2</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/🔄%20NEXT-7b2fff?style=flat-square"/></td><td>🖨️ 3D printed wearable enclosure</td><td align="center">v1.2</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/🔮%20FUTURE-ff6b35?style=flat-square"/></td><td>🏥 Government PHC pilot deployment (100 units)</td><td align="center">v2.0</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/🔮%20FUTURE-ff6b35?style=flat-square"/></td><td>🧬 Federated learning across devices</td><td align="center">v2.0</td></tr>
+<tr><td align="center"><img src="https://img.shields.io/badge/🔮%20FUTURE-ff6b35?style=flat-square"/></td><td>📡 LoRa long-range offline transmission upgrade</td><td align="center">v2.1</td></tr>
+</table>
+
+---
+
+## 📈 Achievements
+
+<div align="center">
+
+<table width="100%">
+<tr>
+<td align="center" width="25%">
+<h3>🫀 0.9578</h3>
+<sub>Heart AI AUC<br/>(5-fold CV Best)</sub>
+</td>
+<td align="center" width="25%">
+<h3>🫁 0.8495</h3>
+<sub>Lung AI AUC<br/>(Multiclass OvR)</sub>
+</td>
+<td align="center" width="25%">
+<h3>📊 92+</h3>
+<sub>Live Sessions<br/>Completed</sub>
+</td>
+<td align="center" width="25%">
+<h3>💰 ₹2,000</h3>
+<sub>Total Hardware<br/>Cost</sub>
+</td>
+</tr>
+<tr>
+<td align="center" width="25%">
+<h3>⚡ &lt;30s</h3>
+<sub>Full AI Inference<br/>Time</sub>
+</td>
+<td align="center" width="25%">
+<h3>📡 ~1km</h3>
+<sub>HC12 RF Offline<br/>Range</sub>
+</td>
+<td align="center" width="25%">
+<h3>🎯 5-Step</h3>
+<sub>Guided Workflow<br/>Any Health Worker</sub>
+</td>
+<td align="center" width="25%">
+<h3>🌐 100%</h3>
+<sub>Open Source<br/>MIT Licensed</sub>
+</td>
+</tr>
+</table>
+
+</div>
+
+---
+
+## 📬 Contact
+
+<div align="center">
+
+![Built By](https://img.shields.io/badge/Built%20with%20❤️%20for-Rural%20India-ff4757?style=for-the-badge&labelColor=0d1117)
+
+<br/><br/>
+
+<a href="mailto:manishdhatrak1121@gmail.com">
+  <img src="https://img.shields.io/badge/Email-manishdhatrak1121@gmail.com-ff4757?style=for-the-badge&logo=gmail&logoColor=white&labelColor=0d1117"/>
+</a>
+&nbsp;
+<a href="https://github.com/cosmomanish007-pixel/live-vitals-web">
+  <img src="https://img.shields.io/badge/GitHub-cosmomanish007--pixel-ffffff?style=for-the-badge&logo=github&logoColor=white&labelColor=0d1117"/>
+</a>
+&nbsp;
+<a href="https://live-vitals-web.lovable.app">
+  <img src="https://img.shields.io/badge/Live%20Demo-live--vitals--web.lovable.app-ffd700?style=for-the-badge&logo=vercel&logoColor=black&labelColor=0d1117"/>
+</a>
+
+<br/><br/>
+
+> *"Real Stethoscope. AI Intelligence. Better Care."*
+
+<br/>
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:00d4ff,50:7b2fff,100:0d1117&height=120&section=footer" width="100%"/>
+
+</div>
