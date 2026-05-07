@@ -47,7 +47,7 @@
 <div align="center">
 
 <a href="https://live-vitals-web.lovable.app">
-  <img src="https://img.shields.io/badge/LIVE%20DEMO-live--vitals--web.lovable.app-00d4ff?style=for-the-badge&logo=vercel&logoColor=white&labelColor=0d1117"/>
+  <img src="https://img.shields.io/badge/LIVE%20DEMO-live--vitals--web.lovable.app-ffd700?style=for-the-badge&logo=vercel&logoColor=white&labelColor=0d1117"/>
 </a>
 &nbsp;
 <a href="mailto:manishdhatrak1121@gmail.com">
