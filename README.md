@@ -356,8 +356,8 @@
 ### 2️⃣ Patient Dashboard & Session Initiation
 
 <div align="center">
-  <img src="images/img_6.jpg" alt="Patient Dashboard Initial" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_7.jpg" alt="Patient Details Form" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/pat.png" alt="Patient Dashboard Initial" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/pati.png" alt="Patient Details Form" width="45%" style="margin: 8px; border-radius: 8px;"/>
   <p><em>🏠 Dashboard landing → 👤 Enter patient demographic details (name, age, gender)</em></p>
 </div>
 
