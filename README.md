@@ -1,13 +1,13 @@
 <div align="center">
 
 <!-- Animated Header Banner -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:00d4ff,100:00ff88&height=200&section=header&text=AURA-STETH%20AI&fontSize=60&fontColor=ffffff&fontAlignY=38&desc=Intelligent%20AI-Powered%20Smart%20Stethoscope%20%7C%20Telemedicine%20for%20Rural%20India&descAlignY=58&descSize=16&animation=fadeIn" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:7b2fff,100:00d4ff&height=200&section=header&text=AURA-STETH%20AI&fontSize=60&fontColor=ffffff&fontAlignY=38&desc=Intelligent%20AI-Powered%20Smart%20Stethoscope%20%7C%20Telemedicine%20for%20Rural%20India&descAlignY=58&descSize=16&animation=fadeIn" width="100%"/>
 
 <!-- Badges Row 1 -->
 <p>
   <img src="https://img.shields.io/badge/Heart%20AI%20AUC-0.9578-ff4757?style=for-the-badge&logo=heart&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Lung%20AI%20Acc-70.47%25-00d4ff?style=for-the-badge&logo=lungs&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Platform-ESP32--S3-orange?style=for-the-badge&logo=espressif&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Lung%20AI%20Acc-70.47%25-00d4ff?style=for-the-badge&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Platform-ESP32--S3-ff6b35?style=for-the-badge&logo=espressif&logoColor=white"/>
   <img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61dafb?style=for-the-badge&logo=react&logoColor=black"/>
 </p>
 
@@ -15,17 +15,21 @@
 <p>
   <img src="https://img.shields.io/badge/Database-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=white"/>
   <img src="https://img.shields.io/badge/AI%20Backend-HuggingFace%20Spaces-ffd21e?style=for-the-badge&logo=huggingface&logoColor=black"/>
-  <img src="https://img.shields.io/badge/Offline%20Mode-HC12%20RF%20FailSafe-ff6b35?style=for-the-badge&logo=radio&logoColor=white"/>
-  <img src="https://img.shields.io/badge/License-MIT-00ff88?style=for-the-badge&logoColor=black"/>
+  <img src="https://img.shields.io/badge/Offline%20Mode-HC12%20RF%20FailSafe-ff6b35?style=for-the-badge&logoColor=white"/>
+  <img src="https://img.shields.io/badge/License-MIT-7b2fff?style=for-the-badge&logoColor=white"/>
 </p>
 
 <!-- Badges Row 3 -->
 <p>
   <img src="https://img.shields.io/badge/Sessions-92%2B-7b2fff?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Telemedicine-Live%20Video%20%2B%20Rx-00ff88?style=for-the-badge&logoColor=black"/>
+  <img src="https://img.shields.io/badge/Telemedicine-Live%20Video%20%2B%20Rx-7b2fff?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/Status-%F0%9F%9F%A2%20Operational-00d4ff?style=for-the-badge&labelColor=0d1117"/>
   <img src="https://img.shields.io/github/stars/cosmomanish007-pixel/live-vitals-web?style=for-the-badge&color=ffd700&labelColor=0d1117"/>
 </p>
+
+<br/>
+
+> **🏆 Built for Rural India — Bringing Cardiopulmonary AI Diagnostics Where Doctors Cannot Reach**
 
 <br/>
 
