@@ -392,7 +392,7 @@
 </div>
 
 <div align="center">
-  <img src="images/li.png" alt="AI ANALYSIS" width="10%" style="margin: 4px; border-radius: 4px;"/>
+  <img src="images/li.png" alt="AI ANALYSIS" width="25%" style="margin: 4px; border-radius: 4px;"/>
   <p><em>🟢 AI ANALYSIS 🔴</em></p>
 </div>
 
@@ -418,6 +418,11 @@
   <img src="images/img_16.jpg" alt="Doctor Dashboard Active Consultations" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/img_17.jpg" alt="Live Video Consultation" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <p><em>🔐 Doctor Sign In → 📋 Active Consultations (risk badges) → 📹 Live Video Call Interface</em></p>
+</div>
+
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
 
 ### 💊 Prescription Writing & PDF Generation
