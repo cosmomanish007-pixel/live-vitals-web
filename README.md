@@ -251,6 +251,10 @@
 
 </div>
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
+
 #### 🧠 AI & Signal Processing
 * **Heart Model (AURANet):** ResNet50 Architecture + Multi-scale Feature Fusion. (AUC: 0.9578)
 * **Lung Model (LungNet):** EfficientNet-B0 classification. (AUC: 0.8495)
@@ -268,7 +272,7 @@
 <br />
 
 <div align="center">
-  <img src="https://capsule-render.vercel.app/render?type=soft&color=auto&height=100&section=footer&text=Turning%20Data%20Into%20Diagnosis&fontSize=25" />
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
 
 <!-- Project Poster -->
