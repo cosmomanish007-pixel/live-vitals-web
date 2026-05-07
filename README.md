@@ -33,7 +33,10 @@
 
 <br/>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+</div>
+
 </div>
 
 <!-- Project Poster -->
@@ -43,7 +46,9 @@
   <sub><i>AURA-STETH AI — Complete System Overview</i></sub>
 </div>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+</div>
 
 <div align="center">
 
@@ -61,7 +66,9 @@
 
 </div>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+</div>
 
 ## 📋 Table of Contents
 
@@ -82,8 +89,9 @@
 <tr><td align="center">8</td><td>👨‍⚕️ <a href="#️-feature-showcase--doctor-dashboard">Feature Showcase — Doctor Dashboard</a></td><td align="center">16</td><td>📬 <a href="#-contact">Contact</a></td></tr>
 </table>
 
----
-
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
+</div>
 # 🩺 Project Pulse: Addressing the Healthcare Gap
 
 <div align="center">
