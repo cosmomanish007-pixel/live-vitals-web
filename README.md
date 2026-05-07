@@ -414,10 +414,11 @@
 ## 👨‍⚕️ Feature Showcase — Doctor Dashboard
 
 <div align="center">
-  <img src="images/img_3.jpg" alt="Doctor Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_16.jpg" alt="Doctor Dashboard Active Consultations" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_17.jpg" alt="Live Video Consultation" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>🔐 Doctor Sign In → 📋 Active Consultations (risk badges) → 📹 Live Video Call Interface</em></p>
+  <img src="images/log.png" alt="Doctor Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/dd.png" alt="Doctor Dashboard Active Consultations" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/cons.png" alt="Live Video Consultation" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/prec.png" alt="Prescription Sucess" width="30%" style="margin: 8px; border-radius: 8px;"/>  
+  <p><em>🔐 Doctor Sign In → 📋 Active Consultations (risk badges) → 📹 Live Video Call Interface → ✅ Prescription Completion </em></p>
 </div>
 
 
