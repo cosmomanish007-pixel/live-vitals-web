@@ -112,19 +112,18 @@
 
 <br />
 
-## ⚡ The Core Challenges & Impact
-*Visualizing the friction in rural diagnostics*
+## ⚡ The Core Challenges
+*Breaking down the friction in rural diagnostics*
 
 | Challenge | Impact & Friction |
 | :--- | :--- |
-| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/local_hospital/default/24px.svg" width="25"> **Resource Scarcity** | **50–100 KM Travel:** Patients in rural PHCs must travel hours just for a basic cardiac screening. |
-| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/stethoscope/default/24px.svg" width="25"> **Expertise Barrier** | **Skill Bottleneck:** Professional auscultation takes years to master. It doesn't scale with the population. |
-| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/signal_cellular_connected_no_internet_4_bar/default/24px.svg" width="25"> **The Digital Divide** | **Offline Reality:** Traditional telemedicine crumbles without stable 4G/Fiber connectivity. |
-| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/payments/default/24px.svg" width="25"> **Economic Burden** | **Prohibitive Costs:** ECGs and CT scans cost thousands, making early detection a luxury. |
-| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/alarm/default/24px.svg" width="25"> **Fatal Delays** | **Silent Progression:** Murmurs and crackles go unheard until they become terminal. |
+| 🏥 **Resource Scarcity** | **50–100 KM Travel:** Patients in rural PHCs must travel hours just for a basic cardiac screening. |
+| 🩺 **Expertise Barrier** | **Skill Bottleneck:** Professional auscultation takes years to master. It doesn't scale. |
+| 📡 **Connectivity Issues** | **Offline Reality:** Traditional telemedicine crumbles without stable 4G/Fiber connectivity. |
+| 💰 **Economic Burden** | **Prohibitive Costs:** ECGs and CT scans cost thousands, making early detection a luxury. |
+| ⏱️ **Fatal Delays** | **Silent Progression:** Murmurs and crackles go unheard until they become terminal. |
 
 <br />
-
 ---
 
 ### 💡 Why this matters now?
