@@ -1,6 +1,3 @@
-I'll create a comprehensive, visually stunning README with image references for all UI screens, hardware, and diagrams. I'll structure the image folder and weave them into the document naturally.
-
-```markdown
 <div align="center">
 
 <!-- Animated Header Banner -->
