@@ -440,7 +440,7 @@
 ## 🔧 Feature Showcase — Admin Dashboard
 
 <div align="center">
-  <img src="images/admin.png" alt="Admin Dashboard Overview" width="85%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/admin.png" alt="Admin Dashboard Overview" width="95%" style="margin: 8px; border-radius: 8px;"/>
     <p><em>📊 Overview (charts + stats) → 📋 All Sessions (filterable) → 👨‍⚕️ Doctor Management → 📈 Analytics & Trends</em></p>
 </div>
 
@@ -459,11 +459,6 @@
 </div>
 
 <br/>
-
-<div align="center">
-  <img src="images/img_39.jpg" alt="HC12 Offline Architecture" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
-  <p><em>📡 HC12 RF Offline Fail-Safe — ESP32 TX → 433MHz → Remote Receiver Station (PC/RPi/ESP32)</em></p>
-</div>
 
 **🔄 Offline Flow:**
 
@@ -506,82 +501,6 @@ Sounds (WAV)       Signal Enhancement     Heart & Lung Models   & Insights      
 ```
 
 </div>
-
----
-
-## 🚀 Getting Started
-
-### 📋 Prerequisites
-
-```bash
-# Required
-Node.js >= 18.0.0
-npm >= 9.0.0
-Git
-
-# Accounts needed
-✅ Supabase account (free tier works)
-✅ HuggingFace account (for AI backend)
-```
-
-### ⚡ Quick Start
-
-```bash
-# 1️⃣ Clone the repository
-git clone https://github.com/cosmomanish007-pixel/live-vitals-web.git
-cd live-vitals-web
-
-# 2️⃣ Install dependencies
-npm install
-
-# 3️⃣ Configure environment
-cp .env.example .env
-# → Add your Supabase URL & anon key
-
-# 4️⃣ Start development server
-npm run dev
-
-# 5️⃣ Open in browser
-# http://localhost:5173
-```
-
-### 🔧 Environment Variables
-
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
----
-
-## 📁 Repository Structure
-
-```
-live-vitals-web/
-├── 📁 src/
-│   ├── 📁 components/          # React UI components
-│   │   ├── 📁 patient/         # Patient flow screens
-│   │   ├── 📁 doctor/          # Doctor dashboard
-│   │   ├── 📁 admin/           # Admin dashboard
-│   │   └── 📁 shared/          # Shared UI elements
-│   ├── 📁 pages/               # Route-level pages
-│   ├── 📁 hooks/               # Custom React hooks
-│   ├── 📁 lib/                 # Supabase client & utils
-│   ├── 📁 types/               # TypeScript definitions
-│   └── 📁 styles/              # Global CSS / Tailwind
-├── 📁 images/                  # All project images
-├── 📁 esp32-firmware/          # ESP32-S3 Arduino code
-│   ├── 📄 main.ino
-│   ├── 📄 sensors.ino
-│   ├── 📄 hc12_offline.ino
-│   └── 📄 wifi_upload.ino
-├── 📁 ai-models/               # Python training notebooks
-│   ├── 📄 auranet_heart.ipynb
-│   └── 📄 lungnet_lung.ipynb
-├── 📄 .env.example
-├── 📄 package.json
-└── 📄 README.md
-```
 
 ---
 
