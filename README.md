@@ -34,6 +34,7 @@
 <br/>
 
 
+---
 </div>
 
 <!-- Project Poster -->
@@ -59,6 +60,7 @@
 </a>
 
 </div>
+
 ---
 
 ## 📋 Table of Contents
