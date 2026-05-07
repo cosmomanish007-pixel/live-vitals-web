@@ -11,7 +11,7 @@
 #include <Adafruit_SH110X.h>
 #include <base64.h>
 
-// SpO2 Lookup Table (184 values) - from working test code
+// SpO2 Lookup Table (184 values)
 const uint8_t spo2_table[184] = {
   95, 95, 95, 96, 96, 96, 97, 97, 97, 97, 97, 98, 98, 98, 98, 98, 99, 99, 99, 99,
   99, 99, 99, 99, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
@@ -56,24 +56,26 @@ HardwareSerial HC12(2);  // Use UART2
 bool failsafeActive = false;
 
 /* ===================== WIFI + SUPABASE ===================== */
-#define WIFI_SSID "MSI"
-#define WIFI_PASS "Manish888"
+// 🔐 Replace with your actual credentials before flashing
+#define WIFI_SSID       "YOUR_WIFI_SSID"
+#define WIFI_PASS       "YOUR_WIFI_PASSWORD"
 
-#define SUPABASE_URL "https://cdcircdybukzfzuhgyoz.supabase.co"
-#define SUPABASE_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkY2lyY2R5YnVremZ6dWhneW96Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3MjEzNzEsImV4cCI6MjA4NjI5NzM3MX0.NfaDEXnh10R-TcnsZr75OLqqTjjQHNX-2xJg5KTPI1Q"
+#define SUPABASE_URL    "https://YOUR_PROJECT_ID.supabase.co"
+#define SUPABASE_KEY    "YOUR_SUPABASE_ANON_KEY"
 
-#define AI_BACKEND_HOST "manishdhatrak-aura-backend.hf.space"
-#define AI_BACKEND_URL  "https://manishdhatrak-aura-backend.hf.space/predict/full"
-#define AI_HEALTH_URL   "https://manishdhatrak-aura-backend.hf.space/health"
+#define AI_BACKEND_HOST "YOUR_HF_USERNAME-YOUR_HF_SPACE_NAME.hf.space"
+#define AI_BACKEND_URL  "https://YOUR_HF_USERNAME-YOUR_HF_SPACE_NAME.hf.space/predict/full"
+#define AI_HEALTH_URL   "https://YOUR_HF_USERNAME-YOUR_HF_SPACE_NAME.hf.space/health"
 
 bool   wifiEnabled = true;
 String sessionId   = "";
 
 /* ===================== TWILIO CONFIGURATION ===================== */
-#define TWILIO_ACCOUNT_SID "AC1b2db58b08146192137950aa5191e2f4"
-#define TWILIO_AUTH_TOKEN "eccf51b6d40c46e2700f04cee7811d8c"
-#define TWILIO_PHONE_NUMBER "+16626868762"
-#define EMERGENCY_PHONE_NUMBER "+918999764916"
+// 🔐 Replace with your actual Twilio credentials before flashing
+#define TWILIO_ACCOUNT_SID      "YOUR_TWILIO_ACCOUNT_SID"
+#define TWILIO_AUTH_TOKEN       "YOUR_TWILIO_AUTH_TOKEN"
+#define TWILIO_PHONE_NUMBER     "+1XXXXXXXXXX"       // Your Twilio number
+#define EMERGENCY_PHONE_NUMBER  "+91XXXXXXXXXX"      // Emergency contact number
 
 // Track if alert already sent for current session
 bool alertSentForSession = false;
@@ -178,8 +180,7 @@ String ai_warning      = "";
 #define RECORD_SECONDS 10
 #define WAV_FILE       "/aura_audio.wav"
 
-/* ===================== OLED HELPERS — NEW STYLE ===================== */
-// ✅ NEW: y=0, y=22, y=44
+/* ===================== OLED HELPERS ===================== */
 void oledMsg(const char* line1, const char* line2 = "", const char* line3 = "") {
   display.clearDisplay();
   display.setTextColor(SH110X_WHITE);
@@ -190,7 +191,6 @@ void oledMsg(const char* line1, const char* line2 = "", const char* line3 = "") 
   display.display();
 }
 
-// ✅ NEW: constrain + fillW guard
 void oledProgress(const char* title, const char* subtitle, int percent) {
   percent = constrain(percent, 0, 100);
   display.clearDisplay();
@@ -206,7 +206,6 @@ void oledProgress(const char* title, const char* subtitle, int percent) {
   display.display();
 }
 
-// ✅ NEW: "%s %ds" format (no "left")
 void oledCountdown(const char* title, const char* sub,
                    unsigned long elapsed, unsigned long total) {
   int pct      = (int)((elapsed * 100UL) / total);
@@ -222,7 +221,6 @@ void updateAlert() {
 
   unsigned long now = millis();
 
-  // stop after 10 sec
   if (now - alertStartTime > 15000) {
     digitalWrite(LED_RED_PIN, LOW);
     digitalWrite(LED_YELLOW_PIN, LOW);
@@ -232,7 +230,6 @@ void updateAlert() {
     return;
   }
 
-  // GREEN → steady ON, no buzzer
   if (alertStatus == "GREEN") {
     digitalWrite(LED_RED_PIN, LOW);
     digitalWrite(LED_YELLOW_PIN, LOW);
@@ -265,7 +262,6 @@ void updateAlert() {
 /* ===================== HF SPACE WARMUP ===================== */
 void warmupBackend() {
   Serial.println("🔥 Warming up HF Space...");
-  // ✅ NEW msg
   oledMsg("AURA AI", "Waking up AI...", "~20s wait");
 
   HTTPClient http;
@@ -279,7 +275,6 @@ void warmupBackend() {
     unsigned long elapsed = millis() - start;
     int percent = (int)((elapsed * 100UL) / 25000UL);
     char buf[24];
-    // ✅ NEW: "Ping %d..."
     snprintf(buf, sizeof(buf), "Ping %d...", ++attempts);
     oledProgress("Waking AI Backend", buf, percent);
 
@@ -301,7 +296,6 @@ void warmupBackend() {
 }
 
 /* ===================== WAV HEADER ===================== */
-// ✅ VALIDATED: proper 44-byte header
 void writeWavHeader(File &file, uint32_t totalSamples) {
   uint32_t dataSize      = totalSamples * 2;
   uint32_t fileSize      = dataSize + 36;
@@ -328,7 +322,6 @@ void writeWavHeader(File &file, uint32_t totalSamples) {
 }
 
 /* ===================== RECORD WAV ===================== */
-// ✅ VALIDATED INMP441 conversion (raw >> 12 * 2)
 void recordAndSaveWav() {
   Serial.println("🎙️ Recording WAV...");
 
@@ -379,7 +372,6 @@ void recordAndSaveWav() {
 }
 
 /* ===================== SEND TO AI BACKEND ===================== */
-// ✅ VALIDATED WiFiClientSecure direct approach
 void sendToAIBackend() {
   Serial.println("🚀 Sending to AI backend...");
   logStep("AI Analysis Running");
@@ -497,7 +489,6 @@ void sendToAIBackend() {
     return;
   }
 
-  // ✅ Artifact check first
   bool artifact = doc["artifact"] | false;
   if (artifact) {
     ai_artifact = true;
@@ -550,7 +541,7 @@ void sendToAIBackend() {
 }
 
 /* ===================== WIFI HELPERS ===================== */
-#define WIFI_TIMEOUT_MS 20000  // 20 seconds timeout
+#define WIFI_TIMEOUT_MS 20000
 
 void wifiConnect() {
   oledMsg("AURA", "Connecting WiFi", "...");
@@ -563,22 +554,19 @@ void wifiConnect() {
     delay(500);
     dots++;
     
-    // ✅ TIMEOUT CHECK
     if (millis() - startTime > WIFI_TIMEOUT_MS) {
       Serial.println("\n❌ WiFi Connection FAILED! (Timeout)");
       oledMsg("WiFi Error", "Connection timeout", "Entering Failsafe");
       delay(2000);
       
-      // Switch to failsafe mode
       failsafeActive = true;
       HC12.begin(HC12_BAUD, SERIAL_8N1, HC12_RX_PIN, HC12_TX_PIN);
       Serial.println("✅ HC12 Initialized - FAILSAFE MODE ACTIVE");
       oledMsg("FAILSAFE MODE", "WiFi failed", "Using HC12 radio");
       delay(2000);
-      return;  // Exit - don't proceed with normal mode
+      return;
     }
     
-    // Show connecting animation
     char buf[24];
     int seconds = (millis() - startTime) / 1000;
     snprintf(buf, sizeof(buf), "Connecting %ds", seconds);
@@ -586,7 +574,6 @@ void wifiConnect() {
     Serial.print(".");
   }
   
-  // WiFi connected successfully
   Serial.println("\n📶 WiFi Connected!");
   oledMsg("WiFi", "Connected!", WiFi.localIP().toString().c_str());
   delay(1000);
@@ -678,7 +665,6 @@ void sendWifiVitals(String json) {
 
 /* ===================== TWILIO FUNCTIONS ===================== */
 
-// URL Encoding function for special characters in SMS
 String urlencode(String str) {
   String encoded = "";
   char c;
@@ -745,10 +731,8 @@ void makeTwilioCall() {
   http.setAuthorization(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
   
-  // ✅ SILENT CALL - Just connects, no voice, hangs up after 2 seconds
   String twiml = "<Response><Pause length=\"2\"/></Response>";
   
-  // URL encode the TwiML
   String encodedTwiml = "";
   for (int i = 0; i < twiml.length(); i++) {
     char c = twiml.charAt(i);
@@ -780,7 +764,6 @@ void makeTwilioCall() {
   http.end();
 }
 
-// Add this function before runFailsafeMode()
 bool checkWiFiAvailability() {
   Serial.println("🔍 Rechecking WiFi availability...");
   WiFi.mode(WIFI_STA);
@@ -797,6 +780,7 @@ bool checkWiFiAvailability() {
   }
   return false;
 }
+
 /* ===================== FAILSAFE MODE FUNCTIONS ===================== */
 
 void runFailsafeMode() {
@@ -823,13 +807,11 @@ void runFailsafeMode() {
   unsigned long vitalsStart = millis();
   resetVitals();
   
-  // ✅ FIX: Remove delay(50) - let it run as fast as possible like Normal Mode
   while (millis() - vitalsStart < VITALS_DURATION) {
-    readVitals();  // Called continuously
+    readVitals();
     
     unsigned long elapsed = millis() - vitalsStart;
     
-    // Update OLED every 100ms (not every loop iteration)
     static unsigned long lastDisplay = 0;
     if (millis() - lastDisplay > 100) {
       lastDisplay = millis();
@@ -844,8 +826,7 @@ void runFailsafeMode() {
       oledCountdown("HR+SpO2 SCAN", vs, elapsed, VITALS_DURATION);
     }
     
-    // Small yield to prevent watchdog timer issues
-    delay(1);  // Only 1ms delay instead of 50ms
+    delay(1);
   }
   
   // === Calculate Status ===
@@ -885,7 +866,6 @@ void runFailsafeMode() {
   Serial.println(HC12 ? "YES" : "NO");
   Serial.println("=================================");
   
-  // Send multiple times for reliability
   for (int i = 0; i < 3; i++) {
     HC12.println(hc12Message);
     Serial.print("  Sent attempt ");
@@ -906,20 +886,17 @@ void runFailsafeMode() {
   lastToggle = millis();
   alertState = false;
   
-  // Wait for alert to finish (10 seconds)
   unsigned long alertStartTime_local = millis();
   while (millis() - alertStartTime_local < 10000) {
     updateAlert();
     delay(50);
   }
   
-  // Reset alerts
   digitalWrite(LED_RED_PIN, LOW);
   digitalWrite(LED_YELLOW_PIN, LOW);
   digitalWrite(LED_GREEN_PIN, LOW);
   digitalWrite(BUZZER_PIN, LOW);
   
-  // Check for WiFi after each cycle (30 second delay)
   oledMsg("FAILSAFE MODE", "Checking WiFi", "in 30 seconds...");
   delay(30000);
   
@@ -941,10 +918,10 @@ void runFailsafeMode() {
     }
   }
   
-  // If we get here, continue failsafe mode
   oledMsg("FAILSAFE MODE", "Cycle Complete", "Restarting...");
   delay(3000);
 }
+
 /* ===================== SETUP ===================== */
 void setup() {
   Serial.begin(115200);
@@ -954,14 +931,11 @@ void setup() {
   pinMode(LED_GREEN_PIN, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   
-  // sab OFF initially
   digitalWrite(LED_RED_PIN, LOW);
   digitalWrite(LED_YELLOW_PIN, LOW);
   digitalWrite(LED_GREEN_PIN, LOW);
   digitalWrite(BUZZER_PIN, LOW);
 
-    // ===== FAILSAFE MODE CHECK =====
-  // ✅ NEW boot screen: y=16 for AURA, y=44 for subtitle
   if (!display.begin(OLED_ADDR, true)) {
     Serial.println("❌ OLED not found");
   } else {
@@ -1015,7 +989,6 @@ void setup() {
   delay(500);
   Serial.println("✅ I2S ready");
 
-  // ✅ STEP 5: FAILSAFE MODE CHECK (NOW OLED IS READY!)
   #ifdef FAILSAFE_MODE
     Serial.println("🔍 Checking WiFi availability...");
     WiFi.mode(WIFI_STA);
@@ -1029,7 +1002,7 @@ void setup() {
     if (!wifiAvailable) {
       failsafeActive = true;
       Serial.println("⚠️ NO WiFi - ENTERING FAILSAFE MODE");
-      oledMsg("FAILSAFE MODE", "No WiFi detected", "Using HC12 only");  // ✅ Now safe!
+      oledMsg("FAILSAFE MODE", "No WiFi detected", "Using HC12 only");
       delay(2000);
       
       HC12.begin(HC12_BAUD, SERIAL_8N1, HC12_RX_PIN, HC12_TX_PIN);
@@ -1045,7 +1018,6 @@ void setup() {
   #ifdef FAILSAFE_MODE
     if (!failsafeActive) {
       wifiConnect();
-      // Check if WiFi actually connected before warming up backend
       if (WiFi.status() == WL_CONNECTED) {
         warmupBackend();
       } else {
@@ -1065,13 +1037,12 @@ void setup() {
 
 /* ===================== LOOP ===================== */
 void loop() {
-updateAlert();
+  updateAlert();
 
-  // ===== FAILSAFE MODE ENTRY POINT =====
   #ifdef FAILSAFE_MODE
     if (failsafeActive) {
       runFailsafeMode();
-      return;  // Skip normal flow
+      return;
     }
   #endif
 
@@ -1081,7 +1052,6 @@ updateAlert();
       oledMsg("Waiting...", "Start session", "on app/web");
       delay(1000);
     } else {
-      // ✅ NEW: "Session!" (not "Session Found!")
       oledMsg("Session!", sessionId.substring(0, 8).c_str(), "Starting...");
       delay(1500);
     }
@@ -1091,7 +1061,7 @@ updateAlert();
   switch (currentState) {
 
     case IDLE:
-      alertSentForSession = false;  // ✅ RESET FOR NEW SESSION
+      alertSentForSession = false;
       currentState   = TEMP_MEASURE;
       stateStartTime = millis();
       ai_done = false; ai_alert = false;
@@ -1107,7 +1077,6 @@ updateAlert();
       audioPeakFinal = 0;
       updateSessionState("MONITORING");
       logStep("System Initialised");
-      // ✅ NEW msg
       oledMsg("STEP 1", "Place device", "on SKIN");
       delay(3000);
       logStep("Measuring Skin Temperature");
@@ -1117,9 +1086,7 @@ updateAlert();
       readTemp();
       unsigned long el = millis() - stateStartTime;
       char ts[24];
-      // ✅ NEW: "%.1f C" (no "Temp:")
       snprintf(ts, sizeof(ts), "%.1f C", skinTemp);
-      // ✅ NEW: "STEP 1 Temp" (not "STEP 1 — Temp Scan")
       oledCountdown("STEP 1 Temp", ts, el, TEMP_DURATION);
       if (el >= TEMP_DURATION) {
         skinTempFinal  = skinTemp;
@@ -1127,7 +1094,6 @@ updateAlert();
         currentState   = AUDIO_MEASURE;
         oledMsg("STEP 2", "Place stethoscope", "on chest");
         delay(3000);
-        // ✅ NEW: "2 seconds..."
         oledMsg("Hold still...", "Recording in", "2 seconds...");
         delay(2000);
         logStep("Auscultation Started");
@@ -1145,7 +1111,6 @@ updateAlert();
       unsigned long el = millis() - stateStartTime;
       if (el < AUDIO_DURATION) {
         readAudio();
-        // ✅ NEW: "AI done" (not "AI done, waiting")
         oledCountdown("Audio Window", "AI done", el, AUDIO_DURATION);
       } else {
         recorded = false;
@@ -1169,7 +1134,6 @@ updateAlert();
       } else {
         snprintf(vs, sizeof(vs), "Place finger...");
       }
-      // ✅ NEW: "STEP 3 HR+SpO2"
       oledCountdown("STEP 3 HR+SpO2", vs, el, VITALS_DURATION);
       if (el >= VITALS_DURATION) {
         currentState = FINAL_REPORT;
@@ -1184,25 +1148,20 @@ updateAlert();
       bool hrAbnormal   = avgBPM < 60 || avgBPM > 100;
       bool spo2Abnormal = (spo2Valid && spo2Avg < 80);
       
-      // same scoring as UI
       int score = 0;
       if (tempAbnormal) score += 35;
       if (hrAbnormal)   score += 35;
       if (spo2Abnormal) score += 30;
       
-      // status exactly like UI
       String status;
       if (score >= 70)      status = "RED";
       else if (score >= 30) status = "YELLOW"; 
       else                  status = "GREEN";
 
-      // 🔥 AI override (important)
-        // AI override
-  if (ai_alert) {
-    status = "RED";
-  }
-  
-      // ==================== ✅ TWILIO ALERT (ONLY FOR RED STATUS) ====================
+      if (ai_alert) {
+        status = "RED";
+      }
+      
       if (status == "RED" && !alertSentForSession && WiFi.status() == WL_CONNECTED) {
         alertSentForSession = true;
         
@@ -1210,7 +1169,6 @@ updateAlert();
         oledMsg("EMERGENCY!", "Sending Alert...", "SMS + Call");
         delay(1000);
         
-        // Prepare complete SMS message with all vitals
         String smsMessage = "AURA EMERGENCY! Temp:" + String(skinTempFinal, 1) + "C ";
         smsMessage += "HR:" + String(avgBPM) + " ";
         smsMessage += "SpO2:" + String(spo2Valid ? String(spo2Avg, 0) : "??") + "% ";
@@ -1222,11 +1180,9 @@ updateAlert();
         
         smsMessage += " IMMEDIATE ATTENTION!";
         
-        // Send SMS
         sendTwilioSMS(smsMessage);
         delay(2000);
         
-        // Make silent call (no voice)
         makeTwilioCall();
         delay(2000);
         
@@ -1234,18 +1190,16 @@ updateAlert();
         Serial.println("✅ Emergency alert sent!");
         delay(2000);
       }
-      // ==================== END TWILIO ALERT ====================
   
-  // 🔥 PRIORITY: Artifact > AI Alert > Normal Status
-  if (ai_artifact) {
-    alertStatus = "YELLOW";
-  }
-  else if (ai_alert) {
-    alertStatus = "RED";
-  }
-  else {
-    alertStatus = status;
-  }
+      if (ai_artifact) {
+        alertStatus = "YELLOW";
+      }
+      else if (ai_alert) {
+        alertStatus = "RED";
+      }
+      else {
+        alertStatus = status;
+      }
       
       alertActive = true;
       alertStartTime = millis();
@@ -1275,7 +1229,6 @@ updateAlert();
         delay(4000);
       }
 
-      // ✅ NEW: "Report sent!" ""
       oledMsg("Done!", "Report sent!", "");
 
       Serial.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -1314,8 +1267,7 @@ updateAlert();
       }
       sessionId    = "";
       currentState = IDLE;
-      // ✅ NEW: "next session" (no "...")
-      alertSentForSession = false;  // ✅ Reset for next session
+      alertSentForSession = false;
       oledMsg("AURA Ready!", "Waiting for", "next session");
       break;
     }
@@ -1347,7 +1299,6 @@ void readAudio() {
   }
 }
 
-// ✅ FIX: lastBeatTime = 0 (was missing — caused HR=0)
 void resetVitals() {
   fingerPresent = false;
   rateSpot      = 0;
@@ -1357,20 +1308,19 @@ void resetVitals() {
   spo2Valid     = false;
   lastBeatTime  = 0;
   bufferIndex = 0;
-for (int i = 0; i < SPO2_BUFFER; i++) {
-  irBuffer[i] = 0;
-  redBuffer[i] = 0;
-}
+  for (int i = 0; i < SPO2_BUFFER; i++) {
+    irBuffer[i] = 0;
+    redBuffer[i] = 0;
+  }
 }
 
 void readVitals() {
   long ir = hrSensor.getIR();
   long red = hrSensor.getRed();
   
-  // ✅ Better finger detection (increased threshold)
   static int stableCount = 0;
   
-  if (ir > 30000) {  // Changed from 20000 to 30000
+  if (ir > 30000) {
     stableCount++;
     if (stableCount > 5) {
       if (!fingerPresent) {
@@ -1383,7 +1333,6 @@ void readVitals() {
     if (fingerPresent) {
       fingerPresent = false;
       Serial.println("❌ Finger removed");
-      // Reset all vitals
       avgBPM = 0;
       spo2Valid = false;
       validBeats = 0;
@@ -1413,18 +1362,15 @@ void readVitals() {
     lastBeatTime = now;
   }
   
-  // ================== 🩸 SpO₂ (USING LOOKUP TABLE - LIKE TEST CODE) ==================
+  // ================== 🩸 SpO₂ ==================
   
-  // Store in buffers
   irBuffer[bufferIndex] = ir;
   redBuffer[bufferIndex] = red;
   bufferIndex++;
   if (bufferIndex >= SPO2_BUFFER) bufferIndex = 0;
   
-  // Calculate SpO2 only after stable beats
   if (fingerPresent && validBeats >= 5) {
     
-    // ----- Calculate DC -----
     uint32_t irDC = 0, redDC = 0;
     for (int i = 0; i < SPO2_BUFFER; i++) {
       irDC += irBuffer[i];
@@ -1433,7 +1379,6 @@ void readVitals() {
     irDC /= SPO2_BUFFER;
     redDC /= SPO2_BUFFER;
     
-    // ----- Calculate AC -----
     float irAC = 0, redAC = 0;
     for (int i = 0; i < SPO2_BUFFER; i++) {
       irAC += abs((int32_t)irBuffer[i] - (int32_t)irDC);
@@ -1442,7 +1387,6 @@ void readVitals() {
     irAC /= SPO2_BUFFER;
     redAC /= SPO2_BUFFER;
     
-    // ----- Smoothing -----
     static float irAC_prev = 0, redAC_prev = 0;
     irAC = 0.7 * irAC_prev + 0.3 * irAC;
     redAC = 0.7 * redAC_prev + 0.3 * redAC;
@@ -1451,24 +1395,20 @@ void readVitals() {
     
     if (irAC > 0 && redAC > 0 && irDC > 0 && redDC > 0) {
       
-      // ✅ Calculate ratio using same method as working test code
       long numerator = (redAC * irDC);
       long denominator = (redDC * irAC);
       int RX100 = (denominator > 0) ? (numerator * 100) / denominator : 999;
       
-      // ✅ Get SpO2 from lookup table
       int spo2_raw = 95;
       if (RX100 >= 0 && RX100 < 184) {
         spo2_raw = spo2_table[RX100];
       }
       
-      // ✅ Smooth output
       static float spo2_prev = 0;
       spo2Avg = 0.8 * spo2_prev + 0.2 * spo2_raw;
       spo2_prev = spo2Avg;
       spo2Valid = true;
       
-      // Debug print (optional)
       Serial.printf("SpO2 → %.1f%% | R=%d | IR=%ld\n", spo2Avg, RX100, ir);
     }
   }
