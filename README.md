@@ -16,20 +16,16 @@
   <img src="https://img.shields.io/badge/Database-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=white"/>
   <img src="https://img.shields.io/badge/AI%20Backend-HuggingFace%20Spaces-ffd21e?style=for-the-badge&logo=huggingface&logoColor=black"/>
   <img src="https://img.shields.io/badge/Offline%20Mode-HC12%20RF%20FailSafe-ff6b35?style=for-the-badge&logo=radio&logoColor=white"/>
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/License-MIT-00ff88?style=for-the-badge&logoColor=black"/>
 </p>
 
 <!-- Badges Row 3 -->
 <p>
-  <img src="https://img.shields.io/badge/Sessions-92%2B-blueviolet?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Telemedicine-Live%20Video%20%2B%20Rx-00ff88?style=for-the-badge"/>
-  <img src="https://img.shields.io/badge/Status-🟢%20Operational-00d4ff?style=for-the-badge"/>
-  <img src="https://img.shields.io/github/stars/cosmomanish007-pixel/live-vitals-web?style=for-the-badge&color=ffd700"/>
+  <img src="https://img.shields.io/badge/Sessions-92%2B-7b2fff?style=for-the-badge"/>
+  <img src="https://img.shields.io/badge/Telemedicine-Live%20Video%20%2B%20Rx-00ff88?style=for-the-badge&logoColor=black"/>
+  <img src="https://img.shields.io/badge/Status-%F0%9F%9F%A2%20Operational-00d4ff?style=for-the-badge&labelColor=0d1117"/>
+  <img src="https://img.shields.io/github/stars/cosmomanish007-pixel/live-vitals-web?style=for-the-badge&color=ffd700&labelColor=0d1117"/>
 </p>
-
-<br/>
-
-> **🏆 Built for Rural India — Bringing Cardiopulmonary AI Diagnostics Where Doctors Cannot Reach**
 
 <br/>
 
