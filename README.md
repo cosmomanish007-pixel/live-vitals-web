@@ -246,7 +246,7 @@
 | **MCU Firmware** | ![ESP32](https://img.shields.io/badge/ESP32--S3-Arduino_C%2B%2B-ff6b35?style=for-the-badge&logo=espressif&logoColor=white) ![FreeRTOS](https://img.shields.io/badge/FreeRTOS-System-white?style=for-the-badge&logo=cpu) |
 | **Frontend** | ![React](https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) |
 | **Backend** | ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) |
-| **AI Inference** | ![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black) ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white) |
+| **AI Inference** | ![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black) |
 | **Telemedicine** | ![Jitsi](https://img.shields.io/badge/Jitsi_Meet-Open_Source_Video-0052CC?style=for-the-badge&logo=jitsi&logoColor=white) ![WebRTC](https://img.shields.io/badge/WebRTC-P2P-FF6F00?style=for-the-badge&logo=webrtc&logoColor=white) |
 
 </div>
