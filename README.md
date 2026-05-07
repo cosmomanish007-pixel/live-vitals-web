@@ -415,8 +415,8 @@
 
 <div align="center">
   <img src="images/log.png" alt="Doctor Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/dd.png" alt="Doctor Dashboard Active Consultations" width="50%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/cons.jpeg" alt="Live Video Consultation" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/dd.png" alt="Doctor Dashboard Active Consultations" width="65%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/cons.jpeg" alt="Live Video Consultation" width="50%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/prec.jpeg" alt="Prescription Sucess" width="30%" style="margin: 8px; border-radius: 8px;"/>  
   <p><em>🔐 Doctor Sign In → 📋 Active Consultations (risk badges) → 📹 Live Video Call Interface → ✅ Prescription Completion </em></p>
 </div>
