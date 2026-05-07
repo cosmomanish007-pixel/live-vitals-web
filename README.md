@@ -55,7 +55,7 @@
 </a>
 &nbsp;
 <a href="https://github.com/cosmomanish007-pixel/live-vitals-web">
-  <img src="https://img.shields.io/badge/SOURCE%20CODE-live--vitals--web-ffffff?style=for-the-badge&logo=github&logoColor=white&labelColor=0d1117"/>
+  <img src="https://img.shields.io/badge/SOURCE%20CODE-live--vitals--web-00d4ff?style=for-the-badge&logo=github&logoColor=white&labelColor=0d1117"/>
 </a>
 
 </div>
