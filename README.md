@@ -125,15 +125,10 @@
 
 <br />
 
----
-
-<div align="center">
-  <img src="https://capsule-render.vercel.app/render?type=soft&color=auto&height=100&section=footer&text=Turning%20Data%20Into%20Diagnosis&fontSize=25" />
-</div>
-
 <div align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
+
 <div align="center">
   <img src="images/img_40.jpg" alt="Device on Patient Chest" width="45%" style="margin: 10px; border-radius: 12px;"/>
   <img src="images/img_41.jpg" alt="Health Worker Operating Device" width="45%" style="margin: 10px; border-radius: 12px;"/>
