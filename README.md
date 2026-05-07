@@ -33,6 +33,17 @@
 
 <br/>
 
+
+</div>
+
+<!-- Project Poster -->
+<div align="center">
+  <img src="images/FINAL_POSTER.png" alt="AURA-STETH AI — Full System Poster" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
+  <br/>
+  <sub><i>AURA-STETH AI — Complete System Overview</i></sub>
+</div>
+
+---
 <!-- Live Demo Button -->
 <a href="https://live-vitals-web.lovable.app">
   <img src="https://img.shields.io/badge/🌐%20LIVE%20DEMO-live--vitals--web.lovable.app-00d4ff?style=for-the-badge&labelColor=0d1117"/>
@@ -46,16 +57,6 @@
   <img src="https://img.shields.io/badge/📧%20Contact-manishdhatrak1121@gmail.com-red?style=for-the-badge&logo=gmail&labelColor=0d1117"/>
 </a>
 
-</div>
-
-<!-- Project Poster -->
-<div align="center">
-  <img src="images/FINAL_POSTER.png" alt="AURA-STETH AI — Full System Poster" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
-  <br/>
-  <sub><i>AURA-STETH AI — Complete System Overview</i></sub>
-</div>
-
----
 
 
 ## 📋 Table of Contents
