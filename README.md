@@ -111,9 +111,8 @@
 ```
 
 <div align="center">
-  <img src="images/img_24.jpeg" alt="Final Hardware Model — Front View" width="30%" style="margin: 10px; border-radius: 12px;"/>
-  <img src="images/img_26.png" alt="Circuit Diagram Transmitter" width="30%" style="margin: 10px; border-radius: 12px;"/>
-  <p><em>Custom ESP32-S3 stethoscope — front, side with OLED display, and internal hardware</em></p>
+  <img src="images/img_24.jpeg" alt="Final Hardware Model" width="50%" style="margin: 10px; border-radius: 12px;"/>
+   <p><em>Custom ESP32-S3 stethoscope — front, side with OLED display, and internal hardware</em></p>
 </div>
 
 ### ✨ Feature Matrix
