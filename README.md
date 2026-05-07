@@ -44,19 +44,22 @@
 </div>
 
 ---
-<!-- Live Demo Button -->
+<!-- Action Buttons -->
 <a href="https://live-vitals-web.lovable.app">
-  <img src="https://img.shields.io/badge/🌐%20LIVE%20DEMO-live--vitals--web.lovable.app-00d4ff?style=for-the-badge&labelColor=0d1117"/>
+  <img src="https://img.shields.io/badge/LIVE%20DEMO-live--vitals--web.lovable.app-00d4ff?style=for-the-badge&logo=vercel&logoColor=white&labelColor=0d1117"/>
 </a>
-&nbsp;&nbsp;
+&nbsp;
 <a href="https://github.com/cosmomanish007-pixel/live-vitals-web">
-  <img src="https://img.shields.io/badge/📁%20GitHub%20Repo-live--vitals--web-white?style=for-the-badge&logo=github&labelColor=0d1117"/>
+  <img src="https://img.shields.io/badge/SOURCE%20CODE-live--vitals--web-ffffff?style=for-the-badge&logo=github&logoColor=white&labelColor=0d1117"/>
 </a>
-&nbsp;&nbsp;
+&nbsp;
+<a href="https://huggingface.co">
+  <img src="https://img.shields.io/badge/AI%20BACKEND-HuggingFace%20Spaces-ffd21e?style=for-the-badge&logo=huggingface&logoColor=black&labelColor=0d1117"/>
+</a>
+&nbsp;
 <a href="mailto:manishdhatrak1121@gmail.com">
-  <img src="https://img.shields.io/badge/📧%20Contact-manishdhatrak1121@gmail.com-red?style=for-the-badge&logo=gmail&labelColor=0d1117"/>
+  <img src="https://img.shields.io/badge/CONTACT-manishdhatrak1121-ff4757?style=for-the-badge&logo=gmail&logoColor=white&labelColor=0d1117"/>
 </a>
-
 
 
 ## 📋 Table of Contents
