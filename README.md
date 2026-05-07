@@ -87,35 +87,44 @@
 # 🩺 Project Pulse: Addressing the Healthcare Gap
 
 <div align="center">
-  <img src="https://capsule-render.vercel.app/render?type=waving&color=gradient&height=200&section=header&text=India%20Health%20Crisis&fontSize=50&animation=twinkling" />
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%">
 </div>
 
 <br />
 
-> [!CAUTION]
-> ### The Critical Gap
-> **"India has 1 doctor per 1,511 people"** — falling dangerously short of the WHO 1:1,000 mandate. In rural areas, cardiovascular and respiratory diseases are the **#1 & #3 killers**, yet early-stage diagnosis is nearly inaccessible.
+<div align="center">
+  <img src="https://img.shields.io/badge/CRITICAL_STATUS-INDIA_HEALTH_CRISIS-red?style=for-the-badge&logo=alert&logoColor=white" />
+</div>
 
 <br />
 
-## ⚡ The Core Challenges
-*Breaking down the friction in rural diagnostics*
+> [!IMPORTANT]
+> ### The Reality Gap
+> **"India has 1 doctor per 1,511 people"** — falling dangerously short of the WHO 1:1,000 mandate. In the heart of rural India, cardiovascular and respiratory diseases (the **#1 & #3 killers**) often go undetected because the first line of defense—the stethoscope—requires expertise that isn't scalable.
+
+<br />
+
+## ⚡ The Core Challenges & Impact
+*Visualizing the friction in rural diagnostics*
 
 | Challenge | Impact & Friction |
 | :--- | :--- |
-| 🏥 **Resource Scarcity** | **50–100 KM Travel:** Patients in rural PHCs must travel hours just for a basic cardiac screening. |
-| 🩺 **Expertise Barrier** | **Skill Bottleneck:** Professional auscultation takes years to master. It doesn't scale. |
-| 📡 **Connectivity Issues** | **Offline Reality:** Traditional telemedicine crumbles without stable 4G/Fiber connectivity. |
-| 💰 **Economic Burden** | **Prohibitive Costs:** ECGs and CT scans cost thousands, making early detection a luxury. |
-| ⏱️ **Fatal Delays** | **Silent Progression:** Murmurs and crackles go unheard until they become terminal. |
+| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/local_hospital/default/24px.svg" width="25"> **Resource Scarcity** | **50–100 KM Travel:** Patients in rural PHCs must travel hours just for a basic cardiac screening. |
+| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/stethoscope/default/24px.svg" width="25"> **Expertise Barrier** | **Skill Bottleneck:** Professional auscultation takes years to master. It doesn't scale with the population. |
+| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/signal_cellular_connected_no_internet_4_bar/default/24px.svg" width="25"> **The Digital Divide** | **Offline Reality:** Traditional telemedicine crumbles without stable 4G/Fiber connectivity. |
+| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/payments/default/24px.svg" width="25"> **Economic Burden** | **Prohibitive Costs:** ECGs and CT scans cost thousands, making early detection a luxury. |
+| <img src="https://fonts.gstatic.com/s/i/short-term/release/googleglyphs/alarm/default/24px.svg" width="25"> **Fatal Delays** | **Silent Progression:** Murmurs and crackles go unheard until they become terminal. |
 
 <br />
 
-> [!TIP]
-> ### Our Mission
-> We are building **AI-driven "ears"** to bridge the 100km gap between a symptom and a life-saving diagnosis.
+---
 
-<br />
+### 💡 Why this matters now?
+We aren't just building a tool; we are building **time**. By automating the "ears" of the doctor, we can bridge the 100km gap between a symptom and a diagnosis.
+
+<div align="center">
+  <img src="https://capsule-render.vercel.app/render?type=soft&color=auto&height=100&section=footer&text=Turning%20Data%20Into%20Diagnosis&fontSize=25" />
+</div>
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
