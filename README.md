@@ -429,7 +429,7 @@
 ### 💊 Vital Report & Prescription PDF Generation
 
 <div align="center">
-  <img src="images/pdf.png" alt="PDF" width="85%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/pdf.png" alt="PDF" width="95%" style="margin: 8px; border-radius: 8px;"/>
    <p><em> Vital PDF Card → 📄 Auto-generated signed Doctor Prescription PDF</em></p>
 </div>
 
@@ -440,11 +440,8 @@
 ## 🔧 Feature Showcase — Admin Dashboard
 
 <div align="center">
-  <img src="images/img_20.jpg" alt="Admin Dashboard Overview" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_21.jpg" alt="Admin Sessions Tab" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_22.jpg" alt="Admin Doctors Tab" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_23.jpg" alt="Admin Analytics Tab" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>📊 Overview (charts + stats) → 📋 All Sessions (filterable) → 👨‍⚕️ Doctor Management → 📈 Analytics & Trends</em></p>
+  <img src="images/admin.png" alt="Admin Dashboard Overview" width="45%" style="margin: 8px; border-radius: 8px;"/>
+    <p><em>📊 Overview (charts + stats) → 📋 All Sessions (filterable) → 👨‍⚕️ Doctor Management → 📈 Analytics & Trends</em></p>
 </div>
 
 ---
