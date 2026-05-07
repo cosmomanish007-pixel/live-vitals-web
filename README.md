@@ -392,7 +392,7 @@
 </div>
 
 <div align="center">
-  <img src="images/li.png" alt="AI ANALYSIS" width="25%" style="margin: 4px; border-radius: 4px;"/>
+  <img src="images/li.png" alt="AI ANALYSIS" width="75%" style="margin: 4px; border-radius: 4px;"/>
   <p><em>🟢 AI ANALYSIS 🔴</em></p>
 </div>
 
