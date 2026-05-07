@@ -141,20 +141,50 @@
 
 ---
 
-## 💡 What is AURA-STETH AI?
+# 💡 What is AURA-STETH AI?
 
-**AURA-STETH AI** is a complete end-to-end smart medical monitoring system — a custom-built ESP32 stethoscope that measures **heart rate, SpO₂, skin temperature, and auscultation audio**, streams it to a cloud dashboard with **AI-powered heart & lung diagnostics**, **real-time doctor consultation**, and **offline HC12 RF fail-safe transmission**.
+**AURA-STETH AI** is a complete end-to-end smart medical monitoring system. It's a custom-built **ESP32-powered stethoscope** designed to bridge the healthcare gap in rural India. By combining high-fidelity auscultation with Deep Learning, it transforms a simple checkup into a **"Pocket ICU"** diagnostic session.
+
+<br/>
+
+### 🔄 The Smart Diagnostic Lifecycle
+*From heartbeat to health report in under 60 seconds*
+
+<div align="center">
+
+| 1. Capture 🎙️ | | 2. Diagnose 🧠 | | 3. Validate 📊 | | 4. Connect 👨‍⚕️ | | 5. Treat 💊 |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| `10s WAV Audio` | ➡️ | `AI Analysis` | ➡️ | `Risk Scoring` | ➡️ | `Video Call` | ➡️ | `Digital Rx` |
+| *High-Fidelity* | | *Deep Learning* | | *Clinical Report* | | *Telemedicine* | | *PDF Download* |
+
+</div>
+
+<br/>
+
+### 🚀 Technical Excellence
+> [!TIP]
+> **Why it's different:** We aren't just recording sound. AURA-STETH measures **Heart Rate, SpO₂, and Skin Temperature** simultaneously, providing a holistic clinical view. Even with zero internet, our **HC12 RF Fail-Safe** ensures critical alerts reach help.
+
+<div align="center">
+  <img src="https://img.shields.io/badge/HEART_AI_AUC-0.9578-blueviolet?style=for-the-badge&logo=pytorch&logoColor=white" />
+  <img src="https://img.shields.io/badge/LUNG_AI_AUC-0.8495-00d4ff?style=for-the-badge&logo=tensorflow&logoColor=white" />
+  <img src="https://img.shields.io/badge/LATENCY-%3C_30_SEC-2ECC71?style=for-the-badge&logo=lightning&logoColor=white" />
+</div>
 
 <br/>
 
 <div align="center">
-
-```
-🎙️ Record Audio  →  🧠 AI Analysis  →  📊 Clinical Report  →  👨‍⚕️ Doctor Review  →  💊 Digital Prescription
-     10s WAV           < 30 sec          Risk Score + Labels      Live Video Call        PDF Download
-```
-
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
+
+---
+
+### 🛠️ Hardware Stack
+* **Microcontroller:** ESP32 (Dual-Core for real-time processing)
+* **Auscultation:** INMP441 I2S Digital Microphone
+* **Vitals:** MAX30105 (PPG) & MAX30205 (Clinical Grade Temp)
+* **Connectivity:** WiFi (Cloud) + HC12 (Long-range RF Fail-safe)
+* **Interface:** 1.3" SH1106 OLED Display
 
 <br/>
 
