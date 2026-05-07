@@ -61,25 +61,20 @@
 
 ## 📋 Table of Contents
 
-| # | Section |
-|---|---------|
-| 1 | [🔥 Problem Statement](#-problem-statement) |
-| 2 | [💡 What is AURA-STETH AI?](#-what-is-aura-steth-ai) |
-| 3 | [🏗️ System Architecture](#️-system-architecture) |
-| 4 | [⚙️ Hardware Components](#️-hardware-components) |
-| 5 | [🧠 AI Models & Metrics](#-ai-models--metrics) |
-| 6 | [🗄️ Database Schema](#️-database-schema) |
-| 7 | [🌐 Feature Showcase — Patient Flow](#-feature-showcase--patient-flow) |
-| 8 | [👨‍⚕️ Feature Showcase — Doctor Dashboard](#-feature-showcase--doctor-dashboard) |
-| 9 | [🔧 Feature Showcase — Admin Dashboard](#-feature-showcase--admin-dashboard) |
-| 10 | [📡 Offline Fail-Safe (HC12 RF Module)](#-offline-fail-safe--hc12-rf-module) |
-| 11 | [📊 Data Flow & AI Pipeline](#-data-flow--ai-pipeline) |
-| 12 | [🚀 Getting Started](#-getting-started) |
-| 13 | [📁 Repository Structure](#-repository-structure) |
-| 14 | [🛣️ Roadmap](#️-roadmap) |
-| 15 | [📈 Achievements](#-achievements) |
-| 16 | [📬 Contact](#-contact) |
+## 📋 Table of Contents
 
+| # | Section | # | Section |
+|:-:|---------|:-:|---------|
+| 1 | [🔥 Problem Statement](#-problem-statement) | 9 | [🔧 Feature Showcase — Admin Dashboard](#-feature-showcase--admin-dashboard) |
+| 2 | [💡 What is AURA-STETH AI?](#-what-is-aura-steth-ai) | 10 | [📡 Offline Fail-Safe (HC12 RF Module)](#-offline-fail-safe-hc12-rf-module) |
+| 3 | [🏗️ System Architecture](#️-system-architecture) | 11 | [📊 Data Flow & AI Pipeline](#-data-flow--ai-pipeline) |
+| 4 | [⚙️ Hardware Components](#️-hardware-components) | 12 | [🚀 Getting Started](#-getting-started) |
+| 5 | [🧠 AI Models & Metrics](#-ai-models--metrics) | 13 | [📁 Repository Structure](#-repository-structure) |
+| 6 | [🗄️ Database Schema](#️-database-schema) | 14 | [🛣️ Roadmap](#️-roadmap) |
+| 7 | [🌐 Feature Showcase — Patient Flow](#-feature-showcase--patient-flow) | 15 | [📈 Achievements](#-achievements) |
+| 8 | [👨‍⚕️ Feature Showcase — Doctor Dashboard](#-feature-showcase--doctor-dashboard) | 16 | [📬 Contact](#-contact) |
+
+---
 ---
 
 ## 🔥 Problem Statement
