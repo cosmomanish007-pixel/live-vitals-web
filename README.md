@@ -177,8 +177,6 @@
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
 
----
-
 ### 🛠️ Hardware Stack
 * **Microcontroller:** ESP32 (Dual-Core for real-time processing)
 * **Auscultation:** INMP441 I2S Digital Microphone
@@ -236,6 +234,10 @@
 
 <br/>
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
+
 ## 🛠️ Technology Stack
 
 #### 💻 The Software Ecosystem
@@ -249,6 +251,10 @@
 | **AI Inference** | ![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black) |
 | **Telemedicine** | ![Jitsi](https://img.shields.io/badge/Jitsi_Meet-Open_Source_Video-0052CC?style=for-the-badge&logo=jitsi&logoColor=white) ![WebRTC](https://img.shields.io/badge/WebRTC-P2P-FF6F00?style=for-the-badge&logo=webrtc&logoColor=white) |
 
+</div>
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
 
 #### 🧠 AI & Signal Processing
@@ -268,7 +274,7 @@
 <br />
 
 <div align="center">
-  <img src="https://capsule-render.vercel.app/render?type=soft&color=auto&height=100&section=footer&text=Turning%20Data%20Into%20Diagnosis&fontSize=25" />
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
 
 <!-- Project Poster -->
@@ -279,25 +285,87 @@
 </div>
 
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
+
 ### 🔌 ESP32 Pin Map & Circuit Diagram
 
 <div align="center">
-  <img src="images/img_35.jpg" alt="Circuit Diagram / Schematic" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
+  <img src="images/pin.png" alt="Circuit Diagram / Schematic" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
   <p><em>🔌 ESP32-S3 Schematic — All sensor connections, I2C bus, I2S mic, HC12 UART</em></p>
 </div>
 
 ```
-📍 INMP441  →  I2S    GPIO 6=WS  | GPIO 7=SCK | GPIO 8=SD
-📍 MAX30105 →  I2C    GPIO 21=SDA | GPIO 22=SCL
-📍 MAX30205 →  I2C    (shared bus with MAX30105)
-📍 SH1106   →  I2C    (shared bus, addr 0x3C)
-📍 HC12     →  UART   GPIO 17=TX | GPIO 18=RX
-📍 LED RED  →  GPIO 2
-📍 LED YELLOW → GPIO 3
-📍 LED GREEN  → GPIO 4
+## ESP32 Pin Connection Mapping
+
+📍 INMP441 Microphone  →  I2S
+   VCC  →  3.3V
+   GND  →  GND
+   WS   →  GPIO 6
+   SCK  →  GPIO 7
+   SD   →  GPIO 8
+   L/R  →  GND
+
+📍 MAX30105 Pulse/Oxygen Sensor  →  I2C
+   VIN  →  3.3V
+   GND  →  GND
+   SDA  →  GPIO 21
+   SCL  →  GPIO 22
+   INT  →  Not Connected
+
+📍 MAX30205 Temperature Sensor  →  I2C (Shared Bus)
+   VIN  →  3.3V
+   GND  →  GND
+   SDA  →  GPIO 21
+   SCL  →  GPIO 22
+   OS   →  Not Connected
+
+📍 SH1106 OLED Display  →  I2C (Address 0x3C)
+   VCC  →  3.3V
+   GND  →  GND
+   SDA  →  GPIO 21
+   SCL  →  GPIO 22
+
+📍 HC-12 Wireless Module  →  UART
+   VCC  →  5V
+   GND  →  GND
+   TXD  →  GPIO 18 (ESP32 RX)
+   RXD  →  GPIO 17 (ESP32 TX)
+   SET  →  Not Connected
+
+📍 RED LED
+   Anode (+)   →  GPIO 2 through 220Ω resistor
+   Cathode (-) →  GND
+
+📍 YELLOW LED
+   Anode (+)   →  GPIO 3 through 220Ω resistor
+   Cathode (-) →  GND
+
+📍 GREEN LED
+   Anode (+)   →  GPIO 4 through 220Ω resistor
+   Cathode (-) →  GND
+
+## Shared Communication Buses
+
+📡 I2C BUS
+   SDA Line → GPIO 21
+   SCL Line → GPIO 22
+
+   Connected Devices:
+   • MAX30105
+   • MAX30205
+   • SH1106 OLED
+
+🎤 I2S BUS
+   WS   → GPIO 6
+   SCK  → GPIO 7
+   SD   → GPIO 8
 ```
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ## 🧠 AI Models & Metrics
 
