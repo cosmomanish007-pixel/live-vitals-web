@@ -329,68 +329,18 @@
 
 ## 🗄️ Database Schema
 
+<!-- Project Poster -->
 <div align="center">
-
-![Supabase](https://img.shields.io/badge/Powered%20By-Supabase%20PostgreSQL-3ecf8e?style=for-the-badge&logo=supabase&logoColor=white&labelColor=0d1117)
-![RLS](https://img.shields.io/badge/Security-Row%20Level%20Security-7b2fff?style=for-the-badge&logo=postgresql&logoColor=white&labelColor=0d1117)
-
+  <img src="images/database.png" alt="Database Schema" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
+  <br/>
+  <sub><i>Database Schema</i></sub>
 </div>
 
-```sql
--- ══════════════════════════════════════════════════
--- 🗄️  AURA-STETH AI — Core Database Tables
--- ══════════════════════════════════════════════════
 
-sessions (
-  id PK uuid, state text, mode text,
-  user_name text, age int, gender text,
-  user_id FK→auth.users, created_at timestamp,
-  consultation_completed bool
-)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
-vitals (
-  id PK, session_id FK→sessions,
-  temp float, hr int, spo2 int, audio text,
-  ai_heart_label text, ai_heart_prob float,
-  ai_lung_label text, ai_lung_conf float,
-  ai_sqi int, ai_bpm float,
-  ai_systole_ms int, ai_diastole_ms int,
-  ai_sys_murmur bool, ai_dia_murmur bool,
-  ai_valve_risk text, ai_normal_pct float,
-  ai_crackle_pct float, ai_wheeze_pct float,
-  ai_alert text, ai_artifact bool, warning text
-)
-
-profiles (
-  id FK→auth.users, role text,
-  doctor_status text, license_number text,
-  specialization text, hospital text,
-  is_available bool, full_name text
-)
-
-consultation_requests (
-  id PK, session_id FK→sessions,
-  doctor_id FK→profiles, risk_level text,
-  status text, doctor_notes text,
-  prescription text, diagnosis text,
-  chief_complaints text, advice text,
-  follow_up_date text, video_channel text,
-  call_started_at timestamp, call_ended_at timestamp
-)
-
-consultation_medicines (
-  id PK, consultation_id FK→consultation_requests,
-  medicine_name text, dosage text,
-  frequency text, duration text, total_quantity int
-)
-
-statuses (
-  id PK, session_id FK→sessions,
-  message text, created_at timestamp
-)
-```
-
----
 
 ## 🌐 Feature Showcase — Patient Flow
 
