@@ -1,0 +1,21 @@
+{
+  "sr": 22050,
+  "fmax": 2000,
+  "n_fft": 1024,
+  "hop_length": 512,
+  "cycle_sec": 5,
+  "n_mels": 128,
+  "n_classes": 3,
+  "classes": [
+    "Normal",
+    "Crackle",
+    "Wheeze"
+  ],
+  "datasets": [
+    "ICBHI_2017",
+    "SPRSound_BioCAS2022"
+  ],
+  "best_auc": 0.8494970505258072,
+  "overall_auc": 0.8078367534640902,
+  "seed": 42
+}
