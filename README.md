@@ -236,11 +236,7 @@
 
 <br/>
 
-### 🛠️ Technology Stack & Hardware Specs
-
-<div align="center">
-  <img src="https://capsule-render.vercel.app/render?type=rect&color=00d4ff&height=2&width=1000&text=" />
-</div>
+## 🛠️ Technology Stack
 
 #### 💻 The Software Ecosystem
 <div align="center">
@@ -250,20 +246,17 @@
 | **MCU Firmware** | ![ESP32](https://img.shields.io/badge/ESP32--S3-Arduino_C%2B%2B-ff6b35?style=for-the-badge&logo=espressif&logoColor=white) ![FreeRTOS](https://img.shields.io/badge/FreeRTOS-System-white?style=for-the-badge&logo=cpu) |
 | **Frontend** | ![React](https://img.shields.io/badge/React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black) ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) |
 | **Backend** | ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white) |
-| **AI Hosting** | ![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black) ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white) |
+| **AI Inference** | ![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black) ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white) |
+| **Telemedicine** | ![Jitsi](https://img.shields.io/badge/Jitsi_Meet-Open_Source_Video-0052CC?style=for-the-badge&logo=jitsi&logoColor=white) ![WebRTC](https://img.shields.io/badge/WebRTC-P2P-FF6F00?style=for-the-badge&logo=webrtc&logoColor=white) |
 
 </div>
 
 #### 🧠 AI & Signal Processing
-* **Heart Model (AURANet):** ResNet50 Architecture + Multi-scale Feature Fusion.
-* **Lung Model (LungNet):** EfficientNet-B0 with 3-class Softmax classification.
-* **DSP Pipeline:** DWT Noise Reduction → Bandpass Filtering → Mel-Spectrogram Generation → MFCC Extraction.
-
-<br/>
+* **Heart Model (AURANet):** ResNet50 Architecture + Multi-scale Feature Fusion. (AUC: 0.9578)
+* **Lung Model (LungNet):** EfficientNet-B0 classification. (AUC: 0.8495)
+* **DSP Pipeline:** DWT Noise Reduction → Bandpass Filtering → Mel-Spectrogram → MFCC.
 
 #### 🔌 Hardware Blueprint
-<div align="center">
-
 | Component | Role | Technical Spec |
 | :--- | :--- | :--- |
 | **ESP32-S3** | Central Brain | Dual-core 240MHz, 8MB PSRAM |
@@ -271,14 +264,15 @@
 | **MAX30105** | Vitals Lab | PPG Optical Sensor (Heart Rate + SpO₂) |
 | **MAX30205** | Clinical Temp | I2C High-Accuracy (±0.1°C) |
 | **HC-12 RF** | Fail-Safe | 433MHz Long Range (~1km), UART |
-| **SH1106** | Visual Feedback | 1.3" OLED, 128×64 Resolution |
 
+<br />
+
+<div align="center">
+  <img src="https://capsule-render.vercel.app/render?type=soft&color=auto&height=100&section=footer&text=Turning%20Data%20Into%20Diagnosis&fontSize=25" />
 </div>
 
-<br/>
 
-> [!NOTE]
-> **Engineering Detail:** The hardware utilizes **Exponential Smoothing Filters** for temperature stability and **WebRTC** for zero-latency doctor-patient video consultations.
+
 <div align="center">
   <img src="" alt="ESP32-S3 Board" width="22%" style="margin: 6px; border-radius: 8px;"/>
   <img src="images/img_28.jpg" alt="INMP441 Microphone" width="22%" style="margin: 6px; border-radius: 8px;"/>
