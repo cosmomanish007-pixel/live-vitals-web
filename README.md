@@ -271,19 +271,13 @@
   <img src="https://capsule-render.vercel.app/render?type=soft&color=auto&height=100&section=footer&text=Turning%20Data%20Into%20Diagnosis&fontSize=25" />
 </div>
 
-
-
+<!-- Project Poster -->
 <div align="center">
-  <img src="" alt="ESP32-S3 Board" width="22%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_28.jpg" alt="INMP441 Microphone" width="22%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_29.jpg" alt="MAX30105 PPG Sensor" width="22%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_30.jpg" alt="MAX30205 Temperature Sensor" width="22%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_31.jpg" alt="SH1106 OLED Display" width="22%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_32.jpg" alt="HC12 RF Module" width="22%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_33.jpg" alt="RGB LED Indicators" width="22%" style="margin: 6px; border-radius: 8px;"/>
-  <img src="images/img_34.jpg" alt="Full Hardware Kit" width="22%" style="margin: 6px; border-radius: 8px;"/>
-  <p><em>ESP32-S3 | INMP441 Mic | MAX30105 PPG | MAX30205 Temp | SH1106 OLED | HC12 RF | RGB LEDs | Full Kit</em></p>
+  <img src="images/hardware.png" alt="Hardware Components" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
+  <br/>
+  <sub><i>AURA-STETH AI — Complete System Overview</i></sub>
 </div>
+
 
 ### 🔌 ESP32 Pin Map & Circuit Diagram
 
