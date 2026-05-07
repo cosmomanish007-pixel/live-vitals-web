@@ -165,8 +165,6 @@
 
 <br/>
 
-<div align="center">
-
 ### ✨ Feature Matrix
 *Comprehensive breakdown of AI-powered diagnostics and hardware integration*
 
@@ -188,7 +186,6 @@
 | 📱 **Mobile App** | React Native companion app | ![PLANNED](https://img.shields.io/badge/PLANNED-9B59B6?style=for-the-badge&logo=target&logoColor=white) |
 | 🖨️ **3D Enclosure** | Wearable form factor | ![PLANNED](https://img.shields.io/badge/PLANNED-9B59B6?style=for-the-badge&logo=target&logoColor=white) |
 
-</div>
 
 ## 🏗️ System Architecture
 
