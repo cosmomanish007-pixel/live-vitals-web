@@ -440,7 +440,7 @@
 ## 🔧 Feature Showcase — Admin Dashboard
 
 <div align="center">
-  <img src="images/admin.png" alt="Admin Dashboard Overview" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/admin.png" alt="Admin Dashboard Overview" width="85%" style="margin: 8px; border-radius: 8px;"/>
     <p><em>📊 Overview (charts + stats) → 📋 All Sessions (filterable) → 👨‍⚕️ Doctor Management → 📈 Analytics & Trends</em></p>
 </div>
 
