@@ -444,7 +444,9 @@
     <p><em>📊 Overview (charts + stats) → 📋 All Sessions (filterable) → 👨‍⚕️ Doctor Management → 📈 Analytics & Trends</em></p>
 </div>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ## 📡 Offline Fail-Safe — HC12 RF Module
 
@@ -484,7 +486,9 @@
 
 > ✅ **Ensures continuous monitoring & alerts even without internet.**
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ## 📊 Data Flow & AI Pipeline
 
@@ -502,7 +506,9 @@ Sounds (WAV)       Signal Enhancement     Heart & Lung Models   & Insights      
 
 </div>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ## 🛣️ Roadmap
 
@@ -525,7 +531,9 @@ Sounds (WAV)       Signal Enhancement     Heart & Lung Models   & Insights      
 <tr><td align="center"><img src="https://img.shields.io/badge/🔮%20FUTURE-ff6b35?style=flat-square"/></td><td>📡 LoRa long-range offline transmission upgrade</td><td align="center">v2.1</td></tr>
 </table>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ## 📈 Achievements
 
@@ -572,7 +580,9 @@ Sounds (WAV)       Signal Enhancement     Heart & Lung Models   & Insights      
 
 </div>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ## 📬 Contact
 
