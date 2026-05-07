@@ -429,7 +429,7 @@
 ### 💊 Vital Report & Prescription PDF Generation
 
 <div align="center">
-  <img src="images/pdf.png" alt="PDF" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/pdf.png" alt="PDF" width="85%" style="margin: 8px; border-radius: 8px;"/>
    <p><em> Vital PDF Card → 📄 Auto-generated signed Doctor Prescription PDF</em></p>
 </div>
 
