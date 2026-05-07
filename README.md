@@ -314,152 +314,18 @@
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
 
-## 🧠 AI Models & Metrics
+### 🧠 AI Models & Metrics
 
+<!-- Project Poster -->
 <div align="center">
-
-![Heart AI](https://img.shields.io/badge/🫀%20AURANet-Heart%20Sound%20Classifier-ff4757?style=for-the-badge&labelColor=0d1117)
-&nbsp;
-![Lung AI](https://img.shields.io/badge/🫁%20LungNet-Respiratory%20Classifier-00d4ff?style=for-the-badge&labelColor=0d1117)
-
+  <img src="images/ai.png" alt="AI MODEL" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
+  <br/>
+  <sub><i>AI MODEL</i></sub>
 </div>
 
-<br/>
-
-### 🫀 AURANet — Heart Sound Classifier
-
-> **Architecture:** ResNet50 backbone + multi-scale temporal fusion + clinical feature injection
-
-<table width="100%">
-<tr>
-<th align="center">📊 Metric</th>
-<th align="center">🎯 Value</th>
-</tr>
-<tr><td align="center">🏆 <b>Best AUC (5-fold CV)</b></td><td align="center"><img src="https://img.shields.io/badge/AUC-0.9578-ff4757?style=flat-square"/></td></tr>
-<tr><td align="center">📈 Best Single Fold AUC</td><td align="center">0.9367</td></tr>
-<tr><td align="center">⚖️ Global Decision Threshold</td><td align="center">0.2807</td></tr>
-<tr><td align="center">🎯 Optimal Decision Threshold</td><td align="center">0.3416</td></tr>
-<tr><td align="center">🔍 Sensitivity Target</td><td align="center">0.85 (recall-optimised)</td></tr>
-<tr><td align="center">📐 PW Floor / PW Cap</td><td align="center">1.5 / 2.5</td></tr>
-</table>
-
-> 📦 **Training Datasets:** PhysioNet Challenge 2016 + CirCor DigiScope 2022
-
 <div align="center">
-  <img src="images/img_49.jpg" alt="AURANet Training Curves" width="70%" style="border-radius: 12px; margin: 20px 0;"/>
-  <p><em>📈 AURANet Training — Loss decay & AUC progression per epoch across 5-fold cross-validation</em></p>
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
-
-**📊 Fold-wise AUC Breakdown:**
-
-<table width="100%">
-<tr>
-<th align="center">🔢 Fold</th>
-<th align="center">⚖️ Threshold</th>
-<th align="center">📊 AUC</th>
-</tr>
-<tr><td align="center">Fold 1</td><td align="center">0.2807</td><td align="center">0.9367</td></tr>
-<tr><td align="center">Fold 2</td><td align="center">0.1739</td><td align="center">0.8739</td></tr>
-<tr><td align="center">Fold 3 ⭐</td><td align="center">0.6916</td><td align="center"><img src="https://img.shields.io/badge/BEST-0.9578-ff4757?style=flat-square"/></td></tr>
-<tr><td align="center">Fold 4</td><td align="center">0.2773</td><td align="center">0.9273</td></tr>
-<tr><td align="center">Fold 5</td><td align="center">0.3804</td><td align="center">0.9380</td></tr>
-</table>
-
-<br/>
-
-**🔬 Outputs per Inference:**
-
-```json
-{
-  "heart_label":   "Normal / Abnormal",
-  "abnormal_prob": "0.0 – 1.0  (probability score)",
-  "ai_bpm":        "AI-derived heart rate (beats/min)",
-  "systole_ms":    "Systolic phase duration (ms)",
-  "diastole_ms":   "Diastolic phase duration (ms)",
-  "sqi":           "Signal Quality Index (0–100)",
-  "valve_risk":    "None / Low / Medium / High",
-  "sys_murmur":    "YES / NO",
-  "dia_murmur":    "YES / NO"
-}
-```
-
----
-
-### 🫁 LungNet — Respiratory Sound Classifier
-
-> **Architecture:** EfficientNet-B0 on Mel-Spectrogram → 3-class softmax
-
-<table width="100%">
-<tr>
-<th align="center">📊 Metric</th>
-<th align="center">🎯 Value</th>
-</tr>
-<tr><td align="center">🏆 <b>ICBHI 2017 Score</b></td><td align="center"><img src="https://img.shields.io/badge/Score-70.47%25-00d4ff?style=flat-square"/></td></tr>
-<tr><td align="center">📈 <b>Best AUC (multiclass OvR)</b></td><td align="center"><img src="https://img.shields.io/badge/AUC-0.8495-00d4ff?style=flat-square"/></td></tr>
-<tr><td align="center">📊 Overall AUC</td><td align="center">0.8078</td></tr>
-<tr><td align="center">🎵 Input Sample Rate</td><td align="center">22,050 Hz</td></tr>
-<tr><td align="center">🌊 Breathing Cycle Window</td><td align="center">5 seconds</td></tr>
-<tr><td align="center">🎚️ Mel Frequency Bands</td><td align="center">128</td></tr>
-<tr><td align="center">📐 FFT Size (n_fft)</td><td align="center">1024</td></tr>
-<tr><td align="center">🔁 Hop Length</td><td align="center">512</td></tr>
-<tr><td align="center">🔊 Max Frequency (fmax)</td><td align="center">2,000 Hz</td></tr>
-</table>
-
-> 📦 **Training Datasets:** ICBHI 2017 + SPRSound BioCAS 2022
-
-<div align="center">
-  <img src="images/img_50.jpg" alt="LungNet Confusion Matrix" width="55%" style="border-radius: 12px; margin: 20px 0;"/>
-  <p><em>🫁 LungNet Confusion Matrix — Normal vs Crackle vs Wheeze classification performance</em></p>
-</div>
-
-**🔬 Output Classes:**
-
-```
-🟢 Normal   →  Clear breath sounds — no pathology detected
-🟡 Crackle  →  Discontinuous adventitious sounds (pneumonia, fibrosis, fluid)
-🔴 Wheeze   →  Continuous high-pitched sounds (asthma, COPD, bronchospasm)
-```
-
-**📋 Example Full AI Inference Output:**
-
-```json
-{
-  "heart": {
-    "label": "Normal",
-    "abnormal_prob": 0.071,
-    "ai_bpm": 44.4,
-    "systole_ms": 272,
-    "diastole_ms": 335,
-    "sqi": 91,
-    "valve_risk": "None",
-    "sys_murmur": false,
-    "dia_murmur": false
-  },
-  "lung": {
-    "label": "Crackle",
-    "normal_pct": 22.7,
-    "crackle_pct": 58.2,
-    "wheeze_pct": 19.1,
-    "confidence": 0.582
-  },
-  "artifact": false,
-  "alert": "⚠️ AI Alert: Abnormality Detected"
-}
-```
-
----
-
-### 🚨 Artifact Detection Engine
-
-```
-⚡ During 10s auscultation recording:
-   Audio RMS  >  threshold  →  artifact_flag = TRUE
-                             →  🖥️  OLED: "Keep device steady"
-                             →  📊  Dashboard: ⚠️ Artifact Detected — Motion/Tapping
-                             →  🚫  AI analysis skipped — User prompted to retry
-```
-
----
 
 ## 🗄️ Database Schema
 
