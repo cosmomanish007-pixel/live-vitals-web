@@ -478,12 +478,6 @@
 🖥️ OLED: Patient direction guidance shown on screen
 ```
 
-<div align="center">
-  <img src="images/img_32.jpg" alt="HC12 RF Module Close-up" width="35%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_45.jpg" alt="OLED Offline Mode" width="35%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>📡 HC12 RF Module | 🖥️ OLED showing offline mode guidance</em></p>
-</div>
-
 > ✅ **Ensures continuous monitoring & alerts even without internet.**
 
 <div align="center">
