@@ -159,8 +159,8 @@
 <br/>
 
 <div align="center">
-  <img src="images/img.jpeg" alt="Final Hardware Model — Front View" width="30%" style="margin: 20px; border-radius: 20px;"/>
-<p><em>⚙️FINAL PROTOTYPE OF AI-ENHANCED STETHOSCOPE⚙️</em></p>
+  <img src="images/img.jpeg" alt="Final Hardware Model — Front View" width="80%" style="border-radius: 20px;"/>
+  <p><em>⚙️ FINAL PROTOTYPE OF AI-ENHANCED STETHOSCOPE ⚙️</em></p>
 </div>
 
 <br/>
