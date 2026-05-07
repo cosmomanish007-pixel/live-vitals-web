@@ -281,7 +281,7 @@
 <div align="center">
   <img src="images/hardware.png" alt="Hardware Components" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
   <br/>
-  <sub><i>AURA-STETH AI — Complete System Overview</i></sub>
+  <sub><i>Hardware Components</i></sub>
 </div>
 
 
@@ -291,77 +291,24 @@
 
 ### 🔌 ESP32 Pin Map & Circuit Diagram
 
+<!-- Project Poster -->
 <div align="center">
-  <img src="images/pin.png" alt="Circuit Diagram / Schematic" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
-  <p><em>🔌 ESP32-S3 Schematic — All sensor connections, I2C bus, I2S mic, HC12 UART</em></p>
+  <img src="images/circuit.png" alt="Circuit Diagram" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
+  <br/>
+  <sub><i>Circuit Diagram</i></sub>
 </div>
 
-```
-## ESP32 Pin Connection Mapping
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
-📍 INMP441 Microphone  →  I2S
-   VCC  →  3.3V
-   GND  →  GND
-   WS   →  GPIO 6
-   SCK  →  GPIO 7
-   SD   →  GPIO 8
-   L/R  →  GND
 
-📍 MAX30105 Pulse/Oxygen Sensor  →  I2C
-   VIN  →  3.3V
-   GND  →  GND
-   SDA  →  GPIO 21
-   SCL  →  GPIO 22
-   INT  →  Not Connected
-
-📍 MAX30205 Temperature Sensor  →  I2C (Shared Bus)
-   VIN  →  3.3V
-   GND  →  GND
-   SDA  →  GPIO 21
-   SCL  →  GPIO 22
-   OS   →  Not Connected
-
-📍 SH1106 OLED Display  →  I2C (Address 0x3C)
-   VCC  →  3.3V
-   GND  →  GND
-   SDA  →  GPIO 21
-   SCL  →  GPIO 22
-
-📍 HC-12 Wireless Module  →  UART
-   VCC  →  5V
-   GND  →  GND
-   TXD  →  GPIO 18 (ESP32 RX)
-   RXD  →  GPIO 17 (ESP32 TX)
-   SET  →  Not Connected
-
-📍 RED LED
-   Anode (+)   →  GPIO 2 through 220Ω resistor
-   Cathode (-) →  GND
-
-📍 YELLOW LED
-   Anode (+)   →  GPIO 3 through 220Ω resistor
-   Cathode (-) →  GND
-
-📍 GREEN LED
-   Anode (+)   →  GPIO 4 through 220Ω resistor
-   Cathode (-) →  GND
-
-## Shared Communication Buses
-
-📡 I2C BUS
-   SDA Line → GPIO 21
-   SCL Line → GPIO 22
-
-   Connected Devices:
-   • MAX30105
-   • MAX30205
-   • SH1106 OLED
-
-🎤 I2S BUS
-   WS   → GPIO 6
-   SCK  → GPIO 7
-   SD   → GPIO 8
-```
+<!-- Project Poster -->
+<div align="center">
+  <img src="images/pin.png" alt="Pin Connections" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
+  <br/>
+  <sub><i>Pin Connections</i></sub>
+</div>
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
