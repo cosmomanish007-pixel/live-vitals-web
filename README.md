@@ -285,10 +285,14 @@
 </div>
 
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
+
 ### 🔌 ESP32 Pin Map & Circuit Diagram
 
 <div align="center">
-  <img src="images/img_35.jpg" alt="Circuit Diagram / Schematic" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
+  <img src="images/pin.png" alt="Circuit Diagram / Schematic" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
   <p><em>🔌 ESP32-S3 Schematic — All sensor connections, I2C bus, I2S mic, HC12 UART</em></p>
 </div>
 
@@ -302,8 +306,9 @@
 📍 LED YELLOW → GPIO 3
 📍 LED GREEN  → GPIO 4
 ```
-
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ## 🧠 AI Models & Metrics
 
