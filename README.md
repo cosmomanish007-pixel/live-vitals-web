@@ -374,11 +374,7 @@ System Start    MAX30205 30s     INMP441 10s       MAX30105 30s     Report + Ris
 </div>
 
 <div align="center">
-  <img src="images/img_8.jpg" alt="Step 1 — System Init" width="18%" style="margin: 5px; border-radius: 8px;"/>
-  <img src="images/img_9.jpg" alt="Step 2 — Temperature" width="18%" style="margin: 5px; border-radius: 8px;"/>
-  <img src="images/img_10.jpg" alt="Step 3 — Auscultation" width="18%" style="margin: 5px; border-radius: 8px;"/>
-  <img src="images/img_11.jpg" alt="Step 4 — HR & SpO2" width="18%" style="margin: 5px; border-radius: 8px;"/>
-  <img src="images/img_12.jpg" alt="Step 5 — AI Analysis" width="18%" style="margin: 5px; border-radius: 8px;"/>
+    <img src="images/st.jpeg" alt="Step 5 — AI Analysis" width="18%" style="margin: 5px; border-radius: 8px;"/>
 </div>
 
 <div align="center">
