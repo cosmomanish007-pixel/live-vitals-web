@@ -44,7 +44,8 @@
 </div>
 
 ---
-<!-- Action Buttons -->
+<div align="center">
+
 <a href="https://live-vitals-web.lovable.app">
   <img src="https://img.shields.io/badge/LIVE%20DEMO-live--vitals--web.lovable.app-00d4ff?style=for-the-badge&logo=vercel&logoColor=white&labelColor=0d1117"/>
 </a>
@@ -57,6 +58,7 @@
   <img src="https://img.shields.io/badge/SOURCE%20CODE-live--vitals--web-ffffff?style=for-the-badge&logo=github&logoColor=white&labelColor=0d1117"/>
 </a>
 
+</div>
 ---
 
 ## 📋 Table of Contents
