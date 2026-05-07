@@ -380,7 +380,9 @@
 
 </div>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ### 4️⃣ Clinical Report — AI Results
 
@@ -390,7 +392,7 @@
 </div>
 
 <div align="center">
-  <img src="images/li.png" alt="AI ANALYSIS" style="margin: 4px; border-radius: 4px;"/>
+  <img src="images/li.png" alt="AI ANALYSIS" width="10%" style="margin: 4px; border-radius: 4px;"/>
   <p><em>🟢 AI ANALYSIS 🔴</em></p>
 </div>
 
@@ -405,7 +407,9 @@
 <tr><td>🩺</td><td><b>Consult Request</b></td><td>"Request Doctor Consultation" button</td></tr>
 </table>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ## 👨‍⚕️ Feature Showcase — Doctor Dashboard
 
@@ -429,7 +433,9 @@
   <p><em>👨‍⚕️ Real-world usage — doctor reviewing AI clinical report during live video consultation</em></p>
 </div>
 
----
+<div align="center">
+  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+</div>
 
 ## 🔧 Feature Showcase — Admin Dashboard
 
