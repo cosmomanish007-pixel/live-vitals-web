@@ -177,8 +177,6 @@
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
 
----
-
 ### 🛠️ Hardware Stack
 * **Microcontroller:** ESP32 (Dual-Core for real-time processing)
 * **Auscultation:** INMP441 I2S Digital Microphone
