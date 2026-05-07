@@ -61,20 +61,22 @@
 
 ## 📋 Table of Contents
 
-## 📋 Table of Contents
-
-| # | Section | # | Section |
-|:-:|---------|:-:|---------|
-| 1 | [🔥 Problem Statement](#-problem-statement) | 9 | [🔧 Feature Showcase — Admin Dashboard](#-feature-showcase--admin-dashboard) |
-| 2 | [💡 What is AURA-STETH AI?](#-what-is-aura-steth-ai) | 10 | [📡 Offline Fail-Safe (HC12 RF Module)](#-offline-fail-safe-hc12-rf-module) |
-| 3 | [🏗️ System Architecture](#️-system-architecture) | 11 | [📊 Data Flow & AI Pipeline](#-data-flow--ai-pipeline) |
-| 4 | [⚙️ Hardware Components](#️-hardware-components) | 12 | [🚀 Getting Started](#-getting-started) |
-| 5 | [🧠 AI Models & Metrics](#-ai-models--metrics) | 13 | [📁 Repository Structure](#-repository-structure) |
-| 6 | [🗄️ Database Schema](#️-database-schema) | 14 | [🛣️ Roadmap](#️-roadmap) |
-| 7 | [🌐 Feature Showcase — Patient Flow](#-feature-showcase--patient-flow) | 15 | [📈 Achievements](#-achievements) |
-| 8 | [👨‍⚕️ Feature Showcase — Doctor Dashboard](#-feature-showcase--doctor-dashboard) | 16 | [📬 Contact](#-contact) |
-
----
+<table width="100%">
+<tr>
+<th align="center" width="5%">#</th>
+<th align="left" width="45%">Section</th>
+<th align="center" width="5%">#</th>
+<th align="left" width="45%">Section</th>
+</tr>
+<tr><td align="center">1</td><td>🔥 <a href="#-problem-statement">Problem Statement</a></td><td align="center">9</td><td>🔧 <a href="#-feature-showcase--admin-dashboard">Feature Showcase — Admin Dashboard</a></td></tr>
+<tr><td align="center">2</td><td>💡 <a href="#-what-is-aura-steth-ai">What is AURA-STETH AI?</a></td><td align="center">10</td><td>📡 <a href="#-offline-fail-safe-hc12-rf-module">Offline Fail-Safe (HC12 RF Module)</a></td></tr>
+<tr><td align="center">3</td><td>🏗️ <a href="#️-system-architecture">System Architecture</a></td><td align="center">11</td><td>📊 <a href="#-data-flow--ai-pipeline">Data Flow & AI Pipeline</a></td></tr>
+<tr><td align="center">4</td><td>⚙️ <a href="#️-hardware-components">Hardware Components</a></td><td align="center">12</td><td>🚀 <a href="#-getting-started">Getting Started</a></td></tr>
+<tr><td align="center">5</td><td>🧠 <a href="#-ai-models--metrics">AI Models & Metrics</a></td><td align="center">13</td><td>📁 <a href="#-repository-structure">Repository Structure</a></td></tr>
+<tr><td align="center">6</td><td>🗄️ <a href="#️-database-schema">Database Schema</a></td><td align="center">14</td><td>🛣️ <a href="#️-roadmap">Roadmap</a></td></tr>
+<tr><td align="center">7</td><td>🌐 <a href="#-feature-showcase--patient-flow">Feature Showcase — Patient Flow</a></td><td align="center">15</td><td>📈 <a href="#-achievements">Achievements</a></td></tr>
+<tr><td align="center">8</td><td>👨‍⚕️ <a href="#️-feature-showcase--doctor-dashboard">Feature Showcase — Doctor Dashboard</a></td><td align="center">16</td><td>📬 <a href="#-contact">Contact</a></td></tr>
+</table>
 ---
 
 ## 🔥 Problem Statement
