@@ -48,7 +48,7 @@
 
 </div>
 
----
+
 
 ## 📋 Table of Contents
 
@@ -60,14 +60,16 @@
 | 4 | [⚙️ Hardware Components](#️-hardware-components) |
 | 5 | [🧠 AI Models & Metrics](#-ai-models--metrics) |
 | 6 | [🗄️ Database Schema](#️-database-schema) |
-| 7 | [🌐 Feature Showcase](#-feature-showcase) |
-| 8 | [📡 Offline Fail-Safe (HC12)](#-offline-fail-safe--hc12-rf-module) |
-| 9 | [📊 Data Flow Diagrams](#-data-flow-diagrams) |
-| 10 | [🚀 Getting Started](#-getting-started) |
-| 11 | [📁 Repository Structure](#-repository-structure) |
-| 12 | [🛣️ Roadmap](#️-roadmap) |
-| 13 | [📈 Achievements](#-achievements) |
-| 14 | [📬 Contact](#-contact) |
+| 7 | [🌐 Feature Showcase — Patient Flow](#-feature-showcase--patient-flow) |
+| 8 | [👨‍⚕️ Feature Showcase — Doctor Dashboard](#-feature-showcase--doctor-dashboard) |
+| 9 | [🔧 Feature Showcase — Admin Dashboard](#-feature-showcase--admin-dashboard) |
+| 10 | [📡 Offline Fail-Safe (HC12 RF Module)](#-offline-fail-safe--hc12-rf-module) |
+| 11 | [📊 Data Flow & AI Pipeline](#-data-flow--ai-pipeline) |
+| 12 | [🚀 Getting Started](#-getting-started) |
+| 13 | [📁 Repository Structure](#-repository-structure) |
+| 14 | [🛣️ Roadmap](#️-roadmap) |
+| 15 | [📈 Achievements](#-achievements) |
+| 16 | [📬 Contact](#-contact) |
 
 ---
 
@@ -89,6 +91,12 @@
 | 💰 High cost of diagnostics | ECG, spirometry, CT scans cost thousands per visit |
 | ⏱️ Delayed diagnosis | Murmurs and crackles go undetected until a critical stage |
 
+<div align="center">
+  <img src="images/img_40.jpg" alt="Device on Patient Chest" width="45%" style="margin: 10px; border-radius: 12px;"/>
+  <img src="images/img_41.jpg" alt="Health Worker Operating Device" width="45%" style="margin: 10px; border-radius: 12px;"/>
+  <p><em>AURA-STETH AI in action — empowering rural health workers with AI-driven auscultation diagnostics</em></p>
+</div>
+
 **AURA-STETH AI** solves this by putting a **ResNet50-powered AI cardiologist and EfficientNet-B0 pulmonologist** into a ₹2,000 ESP32 device that any health worker can operate with a guided 5-step workflow.
 
 ---
@@ -101,6 +109,13 @@
 🎙️ Record Audio  →  🧠 AI Analysis  →  📊 Clinical Report  →  👨‍⚕️ Doctor Review  →  💊 Digital Prescription
      10s WAV           < 30 sec          Risk Score + Labels      Live Video Call        PDF Download
 ```
+
+<div align="center">
+  <img src="images/img_24.jpeg" alt="Final Hardware Model — Front View" width="30%" style="margin: 10px; border-radius: 12px;"/>
+  <img src="images/img_25.jpg" alt="Final Hardware Model — Side View with OLED" width="30%" style="margin: 10px; border-radius: 12px;"/>
+  <img src="images/img_26.jpg" alt="Hardware Internals" width="30%" style="margin: 10px; border-radius: 12px;"/>
+  <p><em>Custom ESP32-S3 stethoscope — front, side with OLED display, and internal hardware</em></p>
+</div>
 
 ### ✨ Feature Matrix
 
@@ -126,36 +141,10 @@
 
 ## 🏗️ System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          AURA-STETH AI SYSTEM                               │
-├──────────────────┬───────────────────────────┬─────────────────────────────┤
-│   HARDWARE LAYER │        CLOUD LAYER        │         AI BACKEND           │
-│   (ESP32-S3)     │                           │   (HuggingFace Spaces)       │
-│                  │  ┌─────────────────────┐  │                             │
-│  ┌─────────────┐ │  │    Supabase DB      │  │  ┌─────────────────────┐   │
-│  │  INMP441    │─┼─▶│  ├─ sessions        │  │  │   AURANet (Heart)   │   │
-│  │  I2S Mic    │ │  │  ├─ vitals          │◀─┼──│   ResNet50 + Fusion │   │
-│  └─────────────┘ │  │  ├─ profiles        │  │  │   AUC: 0.9578       │   │
-│  ┌─────────────┐ │  │  ├─ consultation_   │  │  └─────────────────────┘   │
-│  │  MAX30105   │─┼─▶│  │  requests        │  │  ┌─────────────────────┐   │
-│  │  HR + SpO₂  │ │  │  ├─ consultation_   │  │  │   LungNet (Lung)    │   │
-│  └─────────────┘ │  │  │  medicines       │  │  │   EfficientNet-B0   │   │
-│  ┌─────────────┐ │  │  └─ statuses        │  │  │   Acc: 70.47%       │   │
-│  │  MAX30205   │─┼─▶└─────────────────────┘  │  └─────────────────────┘   │
-│  │  Temp Sensor│ │             │              │          ▲                  │
-│  └─────────────┘ │  ┌──────────▼──────────┐  │          │                  │
-│  ┌─────────────┐ │  │   React Web App     │  │  POST /predict/full         │
-│  │  SH1106     │ │  │  ├─ Patient View    │──┼──────────┘                  │
-│  │  OLED 128×64│ │  │  ├─ Doctor View     │  │  WAV → JSON response        │
-│  └─────────────┘ │  │  └─ Admin View      │  │                             │
-│  ┌─────────────┐ │  └─────────────────────┘  │                             │
-│  │  HC12 RF    │─┼──── OFFLINE FAIL-SAFE ─────────────────────────────▶   │
-│  │  TX / RX    │ │        433 MHz, 1 km       Even WITHOUT WiFi!           │
-│  └─────────────┘ │                           │                             │
-│  🔴🟡🟢 LEDs     │                           │                             │
-└──────────────────┴───────────────────────────┴─────────────────────────────┘
-```
+<div align="center">
+  <img src="images/img_36.jpg" alt="System Architecture Diagram" width="95%" style="border-radius: 12px; margin: 20px 0;"/>
+  <p><em>Complete AURA-STETH AI System Architecture — Hardware Layer → Cloud Layer → AI Backend</em></p>
+</div>
 
 ### Technology Stack
 
@@ -187,7 +176,24 @@
 | **RGB LEDs** | Status Indicator | 🔴 Alert / 🟡 Attention / 🟢 Normal |
 | **Custom Enclosure** | Housing | Hand-built (3D print planned), pink acoustic cup |
 
-### ESP32 Pin Map (Key Connections)
+<div align="center">
+  <img src="images/img_27.jpg" alt="ESP32-S3 Board" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_28.jpg" alt="INMP441 Microphone" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_29.jpg" alt="MAX30105 PPG Sensor" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_30.jpg" alt="MAX30205 Temperature Sensor" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_31.jpg" alt="SH1106 OLED Display" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_32.jpg" alt="HC12 RF Module" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_33.jpg" alt="RGB LED Indicators" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_34.jpg" alt="Full Hardware Kit" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>Top row: ESP32-S3 | INMP441 Mic | MAX30105 PPG — Middle row: MAX30205 Temp | SH1106 OLED | HC12 RF — Bottom: RGB LEDs | Full Kit</em></p>
+</div>
+
+### ESP32 Pin Map & Circuit Diagram
+
+<div align="center">
+  <img src="images/img_35.jpg" alt="Circuit Diagram / Schematic" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
+  <p><em>ESP32-S3 Schematic — All sensor connections, I2C bus, I2S mic, HC12 UART</em></p>
+</div>
 
 ```
 INMP441  →  I2S   (GPIO 6=WS,  GPIO 7=SCK, GPIO 8=SD)
@@ -218,6 +224,11 @@ LED GREEN → GPIO 4
 | **PW Floor / PW Cap** | 1.5 / 2.5 |
 
 **Training Datasets:** PhysioNet Challenge 2016 + CirCor DigiScope 2022
+
+<div align="center">
+  <img src="images/img_49.jpg" alt="AURANet Training Curves" width="70%" style="border-radius: 12px; margin: 20px 0;"/>
+  <p><em>AURANet Training — Loss decay & AUC progression per epoch across 5-fold cross-validation</em></p>
+</div>
 
 **Fold-wise AUC Breakdown:**
 
@@ -262,6 +273,11 @@ dia_murmur     → YES / NO
 | **Max Frequency (fmax)** | 2,000 Hz |
 
 **Training Datasets:** ICBHI 2017 + SPRSound BioCAS 2022
+
+<div align="center">
+  <img src="images/img_50.jpg" alt="LungNet Confusion Matrix" width="55%" style="border-radius: 12px; margin: 20px 0;"/>
+  <p><em>LungNet Confusion Matrix — Normal vs Crackle vs Wheeze classification performance</em></p>
+</div>
 
 **Output Classes:**
 
@@ -316,113 +332,134 @@ During 10s auscultation recording:
 
 > Powered by **Supabase PostgreSQL** with Row-Level Security (RLS)
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        SUPABASE SCHEMA                              │
-│                                                                     │
-│  sessions                            profiles                       │
-│  ├─ id (uuid PK)                     ├─ id (FK → auth.users)       │
-│  ├─ state (text)                     ├─ role (patient/doctor/admin) │
-│  ├─ mode (text)                      ├─ doctor_status               │
-│  ├─ user_name (text)                 ├─ license_number              │
-│  ├─ age (int)                        ├─ specialization              │
-│  ├─ gender (text)                    ├─ hospital                    │
-│  ├─ user_id (FK → auth.users)        ├─ is_available (bool)         │
-│  ├─ created_at (timestamp)           └─ full_name                   │
-│  └─ consultation_completed (bool)                                   │
-│                                                                     │
-│  vitals                              statuses                       │
-│  ├─ id, session_id (FK)              ├─ id, session_id (FK)         │
-│  ├─ temp, hr, spo2, audio            ├─ message (text)              │
-│  ├─ ai_heart_label, ai_heart_prob    └─ created_at (timestamp)      │
-│  ├─ ai_lung_label, ai_lung_conf                                     │
-│  ├─ ai_sqi, ai_bpm                   consultation_requests          │
-│  ├─ ai_systole_ms, ai_diastole_ms    ├─ id, session_id (FK)         │
-│  ├─ ai_sys_murmur, ai_dia_murmur     ├─ doctor_id (FK)              │
-│  ├─ ai_valve_risk                    ├─ risk_level, status          │
-│  ├─ ai_normal_pct, ai_crackle_pct    ├─ doctor_notes, prescription  │
-│  ├─ ai_wheeze_pct                    ├─ diagnosis, chief_complaints  │
-│  ├─ ai_alert (text)                  ├─ advice, follow_up_date      │
-│  ├─ ai_artifact (bool)               ├─ video_channel               │
-│  └─ warning (text)                   ├─ call_started_at             │
-│                                      └─ call_ended_at               │
-│  consultation_medicines                                             │
-│  ├─ id, consultation_id (FK)                                        │
-│  ├─ medicine_name, dosage                                           │
-│  ├─ frequency, duration                                             │
-│  └─ total_quantity                                                  │
-└─────────────────────────────────────────────────────────────────────┘
+```sql
+-- Core Tables --
+sessions (id PK uuid, state text, mode text, user_name text, 
+          age int, gender text, user_id FK→auth.users, 
+          created_at timestamp, consultation_completed bool)
+
+vitals (id PK, session_id FK→sessions, temp float, hr int, 
+        spo2 int, audio text, ai_heart_label text, 
+        ai_heart_prob float, ai_lung_label text, ai_lung_conf float,
+        ai_sqi int, ai_bpm float, ai_systole_ms int, 
+        ai_diastole_ms int, ai_sys_murmur bool, ai_dia_murmur bool,
+        ai_valve_risk text, ai_normal_pct float, ai_crackle_pct float,
+        ai_wheeze_pct float, ai_alert text, ai_artifact bool, warning text)
+
+profiles (id FK→auth.users, role text, doctor_status text,
+          license_number text, specialization text, hospital text,
+          is_available bool, full_name text)
+
+consultation_requests (id PK, session_id FK→sessions, doctor_id FK→profiles,
+                       risk_level text, status text, doctor_notes text,
+                       prescription text, diagnosis text, chief_complaints text,
+                       advice text, follow_up_date text, video_channel text,
+                       call_started_at timestamp, call_ended_at timestamp)
+
+consultation_medicines (id PK, consultation_id FK→consultation_requests,
+                        medicine_name text, dosage text, frequency text,
+                        duration text, total_quantity int)
+
+statuses (id PK, session_id FK→sessions, message text, created_at timestamp)
 ```
 
 ---
 
-## 🌐 Feature Showcase
+## 🌐 Feature Showcase — Patient Flow
 
-### 👤 Patient Monitoring Flow
+### 1. Splash Screen & Authentication
 
-```
-1. Splash Screen  ──▶  2. Sign In / Sign Up  ──▶  3. Enter Patient Details
-                                                          │
-                                   ┌──────────────────────▼──────────────────────┐
-                                   │           Monitoring Live                   │
-                                   │  ✅ System Initialised                      │
-                                   │  ✅ Measuring Skin Temperature (MAX30205)   │
-                                   │  ✅ Auscultation Started (10s INMP441)      │
-                                   │  ✅ Measuring HR & SpO₂ (MAX30105)          │
-                                   │  ⏳ Final Analysis — AI inference...        │
-                                   └─────────────────────────────────────────────┘
-                                                          │
-                                   ┌──────────────────────▼──────────────────────┐
-                                   │           Clinical Report                   │
-                                   │  Risk: 🟢 Normal / 🟡 Attention / 🔴 HIGH  │
-                                   │  Vitals: Temp | HR | SpO₂ | Audio Peak     │
-                                   │  🫀 Heart AI: label, BPM, systole, SQI...  │
-                                   │  🫁 Lung AI: Normal/Crackle/Wheeze %...    │
-                                   │  ⚠️  Artifact warning (if detected)        │
-                                   │  📄 Download Clinical PDF                  │
-                                   │  🩺 Request Doctor Consultation            │
-                                   └─────────────────────────────────────────────┘
-                                                          │
-                               ┌───────────────────────────▼──────────────────────────┐
-                               │  Video Consultation  ──▶  Doctor Prescription PDF   │
-                               └──────────────────────────────────────────────────────┘
-```
+<div align="center">
+  <img src="images/img_5.jpg" alt="Splash Screen" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_2.jpg" alt="Patient Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_4.jpg" alt="Registration Screen" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>Splash animation → Patient Sign In → New User Registration</em></p>
+</div>
 
-### 👨‍⚕️ Doctor Dashboard
+### 2. Patient Dashboard & Session Initiation
 
-```
-Doctor Panel
-├── Online / Offline availability toggle
-├── Active / Pending Consultations
-│   ├── Session ID + Risk Level Badge (HIGH / MEDIUM / LOW)
-│   ├── View Patient AI Report
-│   └── Join Video Call button
-├── Completed Consultations
-│   ├── Doctor notes, completion timestamp
-│   └── View / Download records
-└── Write Prescription Modal
-    ├── Doctor Notes (free text)
-    ├── Chief Complaints (dynamic fields)
-    ├── Diagnosis (dynamic fields)
-    ├── Advice text
-    ├── Medicines Table (Name | Dosage | Frequency | Duration)
-    └── Finalize & Complete → PDF auto-generated & saved
-```
+<div align="center">
+  <img src="images/img_6.jpg" alt="Patient Dashboard Initial" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_7.jpg" alt="Patient Details Form" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>Dashboard landing → Enter patient demographic details (name, age, gender)</em></p>
+</div>
 
-### 🔧 Admin Dashboard
+### 3. Guided 5-Step Monitoring
 
-```
-Admin Panel
-├── Overview
-│   ├── Total Sessions: 92+   Total Users: 14+
-│   ├── Green Vitals: 12      Red Alerts: 60
-│   ├── Health Status Pie Chart (Red / Yellow / Green)
-│   ├── Sessions by State Bar Chart (Created / Completed / Monitoring)
-│   └── Session Activity by Hour (00-06 / 06-12 / 12-18 / 18-24)
-├── Sessions Tab (all sessions with search/filter)
-├── Doctors Tab (approval, availability management)
-└── Analytics Tab (trends, risk distribution over time)
-```
+<div align="center">
+  <img src="images/img_8.jpg" alt="Step 1 — System Init" width="30%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_9.jpg" alt="Step 2 — Temperature" width="30%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_10.jpg" alt="Step 3 — Auscultation" width="30%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_11.jpg" alt="Step 4 — HR & SpO2" width="30%" style="margin: 6px; border-radius: 8px;"/>
+  <img src="images/img_12.jpg" alt="Step 5 — AI Analysis" width="30%" style="margin: 6px; border-radius: 8px;"/>
+</div>
+
+> **Step 1:** System Initialization → **Step 2:** Skin Temperature (MAX30205) → **Step 3:** Auscultation Recording 10s (INMP441) → **Step 4:** HR & SpO₂ (MAX30105) → **Step 5:** AI Final Analysis
+
+<div align="center">
+  <img src="images/img_43.jpg" alt="OLED Recording" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_44.jpg" alt="OLED Vitals Display" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>OLED display: "Recording Auscultation..." → Live vitals: HR 72 | SpO₂ 98% | Temp 36.8°C</em></p>
+</div>
+
+### 4. Clinical Report — AI Results
+
+<div align="center">
+  <img src="images/img_13.jpg" alt="Clinical Report — Normal" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_14.jpg" alt="Clinical Report — Abnormal" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_15.jpg" alt="Clinical Report — Artifact" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>Left: Normal result 🟢 — Middle: Abnormal / Alert 🔴 — Right: Artifact warning ⚠️</em></p>
+</div>
+
+<div align="center">
+  <img src="images/img_46.jpg" alt="LED Green Status" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_47.jpg" alt="LED Red Status" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>On-device Traffic Light LED status: 🟢 Normal (Green) | 🔴 Alert — Abnormality Detected (Red)</em></p>
+</div>
+
+**Each clinical report includes:**
+- 📊 Vitals summary: Temperature, HR, SpO₂
+- 🫀 Heart AI: Label, BPM, Systole/Diastole timing, SQI, Valve Risk, Murmur flags
+- 🫁 Lung AI: Normal/Crackle/Wheeze percentages, Confidence score
+- 🚨 Alert banner (if abnormal detected)
+- 📄 "Download Clinical PDF" button
+- 🩺 "Request Doctor Consultation" button
+
+---
+
+## 👨‍⚕️ Feature Showcase — Doctor Dashboard
+
+<div align="center">
+  <img src="images/img_3.jpg" alt="Doctor Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_16.jpg" alt="Doctor Dashboard Active Consultations" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_17.jpg" alt="Live Video Consultation" width="30%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>Doctor Sign In → Active Consultations List (risk badges) → Live Video Call Interface</em></p>
+</div>
+
+### Prescription Writing & PDF Generation
+
+<div align="center">
+  <img src="images/img_18.jpg" alt="Doctor Prescription Modal" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_19.jpg" alt="Digital Prescription PDF" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>Prescription modal with dynamic chief complaints, diagnosis, medicines table → Auto-generated signed PDF</em></p>
+</div>
+
+<div align="center">
+  <img src="images/img_42.jpg" alt="Doctor on Video Call" width="60%" style="border-radius: 12px; margin: 15px 0;"/>
+  <p><em>Real-world usage — doctor reviewing AI clinical report during live video consultation</em></p>
+</div>
+
+---
+
+## 🔧 Feature Showcase — Admin Dashboard
+
+<div align="center">
+  <img src="images/img_20.jpg" alt="Admin Dashboard Overview" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_21.jpg" alt="Admin Sessions Tab" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_22.jpg" alt="Admin Doctors Tab" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_23.jpg" alt="Admin Analytics Tab" width="45%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>Overview (charts + stats) → All Sessions (filterable) → Doctor Management → Analytics & Trends</em></p>
+</div>
 
 ---
 
@@ -430,362 +467,12 @@ Admin Panel
 
 > **Because rural India doesn't always have WiFi. AURA-STETH AI never leaves a patient unmonitored.**
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                HC12 OFFLINE FAIL-SAFE SYSTEM                 │
-│                                                              │
-│  ESP32 — Patient Device          Receiver Station            │
-│  ┌──────────────────────┐       ┌──────────────────────┐    │
-│  │  Capture Vitals      │       │  HC12 RX Module      │    │
-│  │  Temp, HR, SpO₂      │       │  Connected to:       │    │
-│  │         │            │       │  ├─ Laptop / PC      │    │
-│  │  WiFi Available?     │       │  ├─ Raspberry Pi     │    │
-│  │  YES → Supabase ✅   │       │  └─ Another ESP32    │    │
-│  │  NO  → HC12 TX 📡   │──────▶│                      │    │
-│  └──────────────────────┘       └──────────────────────┘    │
-│                                          │                   │
-│  433 MHz  |  ~1 km range         Alert decoded              │
-│  UART Serial Protocol             Notification triggered     │
-│                                                              │
-│  RF Packet format:                                           │
-│  { name, age, hr, spo2, temp, alert_level }                 │
-└──────────────────────────────────────────────────────────────┘
-```
-
-**Offline Capabilities (no internet required):**
-
-| Capability | Details |
-|-----------|---------|
-| ✅ Full vitals capture | Temp, HR, SpO₂ measured and displayed |
-| ✅ OLED local display | Results shown on-device instantly |
-| ✅ LED health status | 🔴🟡🟢 on-device risk indicator |
-| ✅ HC12 RF alert | Transmits patient alert to receiver within ~1km |
-| ✅ Multi-patient support | Separate RF channels per device |
-| ✅ OLED status | Shows "OFFLINE MODE — HC12 ACTIVE" |
-
-**Online Capabilities (with WiFi):**
-
-| Capability | Details |
-|-----------|---------|
-| ✅ Full AI analysis | AURANet + LungNet heart & lung diagnostics |
-| ✅ Cloud session storage | Supabase real-time sync |
-| ✅ Doctor video consultation | WebRTC live call |
-| ✅ SMS alerts | Auto-sent to guardian on HIGH risk |
-| ✅ Phone call escalation | Auto-triggered for critical alerts |
-| ✅ Digital prescription PDF | Doctor-signed, downloadable |
-
----
-
-## 📊 Data Flow Diagrams
-
-### DFD Level 0 — System Context
-
-```
-                    PhysioNet 2016 + CirCor 2022
-                    ICBHI 2017 + SPRSound 2022
-                           (Offline Training)
-                                  │
-         Patient Demographics     │
-         Audio Recording ─────────┼──────────────────────────────┐
-         Vital Signs              ▼                               │
-                        ╔════════════════════╗             Doctor │
-         Patient ──────▶║   AURA-STETH AI   ║◀── Consultation ──┘
-                 ◀──────║    System (P0)     ║    Notes, Rx
-         Session Status ╚════════════════════╝──▶ Patient List
-         AI Report               │                 AI Reports
-         Prescription            │
-                        Session Data, Audio Files
-                        AI Reports, User Records
-                                 ▼
-                  ╔══════════════════════════════╗
-                  ║     Cloud Infrastructure     ║
-                  ║    (Supabase + HF Spaces)    ║
-                  ╚══════════════════════════════╝
-```
-
-### DFD Level 1 — System Internals
-
-```
-Patient ─create_session──▶ [P1 Session Manager — Supabase]
-                                      │ session_config
-                                      ▼
-                           [P2 ESP32 Sensor Acquisition]
-                            │ temp, spo2, bpm ──▶ [D4 Vitals Table]
-                            │ audio_uri
-                            ▼
-                      [P3 AI Inference Engine — HuggingFace]
-                            │ classification_results
-                            ▼
-                      [P4 Report Generator — Render]
-                            │ write_report ──▶ [D2 AI Reports Table]
-                            ▼
-                      [P5 Frontend Display — React]
-                      ▲                   ▲
-                user_action          doctor_action
-```
-
-### DFD Level 2 — AI Inference Pipeline
-
-```
-[D1: Sessions DB]
-  audio_url ──▶ [P3.1 Audio Loader — Fetch WAV from Supabase Storage]
-                         │ raw_audio
-                         ▼
-               [P3.2 Signal Preprocessor]
-               DWT + Bandpass Filter + Z-normalization
-                         │ clean_signal
-                         ▼
-               [P3.3 Feature Extractor]
-               Mel-Spectrogram + MFCC + Clinical Features
-               ├── features ──────────▶ [P3.4 AURANet Heart Classifier]
-               │                         ResNet50 + Fusion → P(abnormal)
-               └── mel_spectrogram ──▶ [P3.5 LungNet Classifier]
-                                        EfficientNet-B0 → 3-class probs
-                                               │ class_probabilities
-                                               ▼
-                                        [P3.6 Report Assembler]
-                                        Combine heart + lung → JSON
-                                               │ diagnostic_report_json
-                                               ▼
-                                       [D2: AI Reports Table]
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-```bash
-Node.js  >= 18.0.0
-Bun      >= 1.0  (or npm)
-Arduino IDE 2.x  with ESP32-S3 board support
-Python   >= 3.10  (for AI backend development)
-Supabase account (free tier sufficient)
-```
-
-### 1️⃣ Clone the Repository
-
-```bash
-git clone https://github.com/cosmomanish007-pixel/live-vitals-web.git
-cd live-vitals-web
-```
-
-### 2️⃣ Install Frontend Dependencies
-
-```bash
-bun install
-# or
-npm install
-```
-
-### 3️⃣ Configure Environment Variables
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_AI_BACKEND_URL=https://your-huggingface-space.hf.space
-```
-
-### 4️⃣ Apply Supabase Migrations
-
-```bash
-supabase db push
-# Or manually run SQL files in /supabase/migrations/
-```
-
-### 5️⃣ Start the Frontend
-
-```bash
-bun run dev
-# Opens at http://localhost:5173
-```
-
-### 6️⃣ Flash ESP32 Firmware
-
-```
-1. Open  Arduino_Code/aura_firmware.ino  in Arduino IDE 2.x
-2. Install required libraries via Library Manager:
-   - Adafruit GFX Library
-   - Adafruit SH110x (OLED)
-   - SparkFun MAX3010x Pulse + Oximeter
-   - Protocentral MAX30205 Temperature
-   - ESP32 I2S (built-in with ESP32 board package)
-3. Board Settings:
-   - Board: ESP32S3 Dev Module
-   - Upload Speed: 921600
-   - USB CDC On Boot: Enabled
-4. Update in firmware:
-   - WiFi SSID + Password
-   - Supabase URL + API Key
-   - AI Backend endpoint URL
-5. Upload → Open Serial Monitor at 115200 baud
-```
-
-### 7️⃣ AI Backend (HuggingFace Spaces)
-
-```
-The AI backend is deployed on HuggingFace Spaces.
-
-Loaded Models:
-├── AURANet.pt   (~150 MB)  — Heart sound classifier
-└── LungNet.pt   (~80 MB)   — Lung sound classifier
-
-API Endpoint:
-  POST /predict/full
-  Content-Type: multipart/form-data
-  Body: WAV file (16kHz, 10 seconds, mono)
-  Returns: JSON with full heart + lung analysis
-```
-
----
-
-## 📁 Repository Structure
-
-```
-live-vitals-web/
-├── 📁 Arduino_Code/
-│   └── aura_firmware.ino              # Complete ESP32-S3 firmware
-│
-├── 📁 TRAINED MODELS/
-│   ├── AURANet.pt                     # Heart AI model weights (~150MB)
-│   ├── LungNet.pt                     # Lung AI model weights (~80MB)
-│   ├── heart_config_FINAL.json        # AURANet hyperparameters & thresholds
-│   └── lung_config_FINAL.json         # LungNet hyperparameters & class config
-│
-├── 📁 src/
-│   ├── 📁 components/
-│   │   ├── PatientDashboard.tsx       # Patient session + monitoring UI
-│   │   ├── DoctorPanel.tsx            # Doctor consultation interface
-│   │   ├── AdminDashboard.tsx         # Analytics + management
-│   │   ├── ClinicalReport.tsx         # AI report display
-│   │   ├── MonitoringView.tsx         # Real-time step tracking
-│   │   └── Report.tsx                 # PDF generation component
-│   ├── 📁 hooks/
-│   │   ├── useWifiSession.ts          # Session management hook
-│   │   └── useSupabaseRealtime.ts     # Live DB subscription
-│   ├── 📁 lib/
-│   │   └── supabaseClient.ts          # Supabase client config
-│   └── App.tsx                        # Root component + routing
-│
-├── 📁 supabase/
-│   └── 📁 migrations/                 # PostgreSQL schema migrations
-│
-├── 📁 public/                         # Static assets
-├── index.html
-├── package.json
-├── vite.config.ts
-├── tailwind.config.ts
-└── README.md
-```
-
----
-
-## 🛣️ Roadmap
-
-```
-✅ Phase 1 — Core System (COMPLETE)
-   ├─ ESP32-S3 firmware with all sensors
-   ├─ AI Heart model (AURANet) — AUC 0.9578
-   ├─ AI Lung model (LungNet) — ICBHI 70.47%
-   ├─ React web app with patient/doctor/admin views
-   ├─ Supabase cloud backend
-   ├─ Doctor video consultation + digital prescription
-   └─ Clinical PDF auto-generation
-
-✅ Phase 2 — Reliability (COMPLETE)
-   ├─ Artifact detection + retry prompting
-   ├─ HC12 RF offline fail-safe mechanism
-   ├─ SMS + call alerts on HIGH risk (online)
-   └─ Admin analytics dashboard
-
-🔄 Phase 3 — Scale (IN PROGRESS)
-   ├─ React Native mobile app
-   ├─ Hindi + Marathi multilingual UI
-   ├─ 3D printed wearable enclosure
-   └─ Bluetooth mode (fully offline, no WiFi required)
-
-📋 Phase 4 — Clinical Validation (PLANNED)
-   ├─ IRB ethics board approval
-   ├─ Clinical trial with PHC / rural hospital partners
-   ├─ CDSCO regulatory compliance (India medical device)
-   └─ Research paper publication
-```
-
----
-
-## 📈 Achievements
-
 <div align="center">
-
-| Achievement | Value |
-|-------------|-------|
-| 🫀 Heart AI (AURANet) — Best AUC | **0.9578** |
-| 🫁 Lung AI (LungNet) — ICBHI Score | **70.47%** |
-| 📊 Lung AI — Best Multiclass AUC | **0.8495** |
-| 🔬 Training datasets used | **4** (PhysioNet 2016, CirCor 2022, ICBHI 2017, SPRSound 2022) |
-| 🧪 Total monitoring sessions | **92+** real sessions |
-| 👤 Total registered users | **14+** |
-| ⚡ End-to-end AI inference time | **< 30 seconds** |
-| 📡 Offline RF range (HC12) | **~1 km** |
-| 📄 Clinical PDFs auto-generated | Per session |
-| 💊 Doctor prescriptions issued | Digital signed PDF |
-| 🌐 Live deployment | **live-vitals-web.lovable.app** |
-| 🏥 Target impact | Rural Primary Health Centres across India |
-
+  <img src="images/img_39.jpg" alt="HC12 Offline Architecture" width="80%" style="border-radius: 12px; margin: 20px 0;"/>
+  <p><em>HC12 RF Offline Fail-Safe System — ESP32 transmitter → 433MHz → Receiver station (PC/RPi/ESP32)</em></p>
 </div>
 
----
-
-## 📬 Contact
-
 <div align="center">
-
-**For questions, collaboration, research partnerships, clinical pilots, or demo requests:**
-
-<br/>
-
-<a href="mailto:manishdhatrak1121@gmail.com">
-  <img src="https://img.shields.io/badge/Email-manishdhatrak1121%40gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white"/>
-</a>
-
-<br/><br/>
-
-<a href="https://github.com/cosmomanish007-pixel/live-vitals-web">
-  <img src="https://img.shields.io/badge/GitHub-cosmomanish007--pixel-181717?style=for-the-badge&logo=github&logoColor=white"/>
-</a>
-
-<br/><br/>
-
-<a href="https://live-vitals-web.lovable.app">
-  <img src="https://img.shields.io/badge/Live%20Demo-live--vitals--web.lovable.app-00d4ff?style=for-the-badge"/>
-</a>
-
-<br/><br/>
-
----
-
-*Built with ❤️ for rural India — making world-class AI diagnostics accessible to every village.*
-
-</div>
-
----
-
-<div align="center">
-
-<!-- Footer Wave -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:00ff88,50:00d4ff,100:0d1117&height=120&section=footer&animation=fadeIn" width="100%"/>
-
-**AURA-STETH AI** — *Auscultation + Unified Remote Analytics*
-
-`ESP32-S3` • `React` • `Supabase` • `HuggingFace Spaces` • `PyTorch` • `ResNet50` • `EfficientNet-B0` • `HC12 RF`
-
-*© 2026 AURA-STETH AI Project — MIT License*
-
-</div>
+  <img src="images/img_32.jpg" alt="HC12 RF Module Close-up" width="35%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/img_45.jpg" alt="OLED Offline Mode" width="35%" style="margin: 8px; border-radius: 8px;"/>
+  <p><em
