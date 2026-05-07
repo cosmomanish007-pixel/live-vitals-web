@@ -159,10 +159,8 @@
 <br/>
 
 <div align="center">
-  <img src="images/img_24.jpg" alt="Final Hardware Model — Front View" width="30%" style="margin: 10px; border-radius: 12px;"/>
-  <img src="images/img_25.jpg" alt="Final Hardware Model — Side View with OLED" width="30%" style="margin: 10px; border-radius: 12px;"/>
-  <img src="images/img_26.jpg" alt="Hardware Internals" width="30%" style="margin: 10px; border-radius: 12px;"/>
-  <p><em>⚙️ Custom ESP32-S3 stethoscope — front view | side with OLED display | internal hardware</em></p>
+  <img src="images/img_24.jpeg" alt="Final Hardware Model — Front View" width="30%" style="margin: 10px; border-radius: 12px;"/>
+<p><em>⚙️ FINAL PROTOTYPE OF AI-ENHANCED STETHOSCOPE</em></p>
 </div>
 
 <br/>
