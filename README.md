@@ -415,9 +415,9 @@
 
 <div align="center">
   <img src="images/log.png" alt="Doctor Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/dd.png" alt="Doctor Dashboard Active Consultations" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/cons.png" alt="Live Video Consultation" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/prec.png" alt="Prescription Sucess" width="30%" style="margin: 8px; border-radius: 8px;"/>  
+  <img src="images/dd.png" alt="Doctor Dashboard Active Consultations" width="65%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/cons.jpeg" alt="Live Video Consultation" width="50%" style="margin: 8px; border-radius: 8px;"/>
+  <img src="images/prec.jpeg" alt="Prescription Sucess" width="30%" style="margin: 8px; border-radius: 8px;"/>  
   <p><em>🔐 Doctor Sign In → 📋 Active Consultations (risk badges) → 📹 Live Video Call Interface → ✅ Prescription Completion </em></p>
 </div>
 
@@ -426,17 +426,11 @@
   <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
 </div>
 
-### 💊 Prescription Writing & PDF Generation
+### 💊 Vital Report & Prescription PDF Generation
 
 <div align="center">
-  <img src="images/img_18.jpg" alt="Doctor Prescription Modal" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <img src="images/img_19.jpg" alt="Digital Prescription PDF" width="45%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>📝 Prescription modal (chief complaints, diagnosis, medicines) → 📄 Auto-generated signed PDF</em></p>
-</div>
-
-<div align="center">
-  <img src="images/img_42.jpg" alt="Doctor on Video Call" width="60%" style="border-radius: 12px; margin: 15px 0;"/>
-  <p><em>👨‍⚕️ Real-world usage — doctor reviewing AI clinical report during live video consultation</em></p>
+  <img src="images/pdf.png" alt="PDF" width="45%" style="margin: 8px; border-radius: 8px;"/>
+   <p><em> Vital PDF Card → 📄 Auto-generated signed Doctor Prescription PDF</em></p>
 </div>
 
 <div align="center">
