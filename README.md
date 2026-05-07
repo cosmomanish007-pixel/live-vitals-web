@@ -124,10 +124,8 @@
 | ⏱️ **Fatal Delays** | **Silent Progression:** Murmurs and crackles go unheard until they become terminal. |
 
 <br />
----
 
-### 💡 Why this matters now?
-We aren't just building a tool; we are building **time**. By automating the "ears" of the doctor, we can bridge the 100km gap between a symptom and a diagnosis.
+---
 
 <div align="center">
   <img src="https://capsule-render.vercel.app/render?type=soft&color=auto&height=100&section=footer&text=Turning%20Data%20Into%20Diagnosis&fontSize=25" />
