@@ -350,7 +350,7 @@
   <img src="images/wel.png" alt="Welcome" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/log.png" alt="Patient Login" width="30%" style="margin: 8px; border-radius: 8px;"/>
   <img src="images/reg.png" alt="Registration Screen" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em> 🔐 Patient Sign In → 📝 New User Registration</em></p>
+  <p><em> 🔐 Splash Screen 🔐 Patient Sign In → 📝 New User Registration</em></p>
 </div>
 
 ### 2️⃣ Patient Dashboard & Session Initiation
