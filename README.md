@@ -48,30 +48,15 @@
 
 </div>
 
-
-## 📂 Where to Add Your Images in This README
-
-| README Section | Image(s) to Insert |
-|----------------|-------------------|
-| **Hero Banner** | `img_1.jpg` (Product Hero Shot) |
-| **Problem Statement** | `img_40.jpg`, `img_41.jpg` (Rural usage context) |
-| **What is AURA-STETH AI?** | `img_24.jpg`, `img_25.jpg`, `img_26.jpg` (Hardware model) |
-| **System Architecture** | `img_36.jpg` (Architecture diagram) |
-| **Hardware Components** | `img_27.jpg` to `img_35.jpg` (Component close-ups + schematic) |
-| **AI Models & Metrics** | `img_49.jpg`, `img_50.jpg` (Model performance charts) |
-| **Database Schema** | _(Code block only — no image needed)_ |
-| **Feature Showcase — Patient Flow** | `img_5.jpg` to `img_15.jpg` (Splash → Report) |
-| **Feature Showcase — Doctor Dashboard** | `img_16.jpg` to `img_19.jpg` (Doctor UI + Prescription) |
-| **Feature Showcase — Admin Dashboard** | `img_20.jpg` to `img_23.jpg` (Admin panels) |
-| **Offline Fail-Safe (HC12)** | `img_39.jpg`, `img_32.jpg`, `img_45.jpg` (HC12 system) |
-| **Data Flow Diagrams** | `img_37.jpg`, `img_38.jpg` (DFD / Pipeline diagrams) |
-| **Getting Started** | _(Code blocks only)_ |
-| **Repository Structure** | _(Code block only)_ |
-| **Roadmap** | _(No images needed)_ |
-| **Achievements** | `img_48.jpg` (Team/Demo photo) |
-| **Contact** | _(Badges only)_ |
+<!-- Project Poster -->
+<div align="center">
+  <img src="images/FINAL_POSTER.png" alt="AURA-STETH AI — Full System Poster" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
+  <br/>
+  <sub><i>AURA-STETH AI — Complete System Overview</i></sub>
+</div>
 
 ---
+
 
 ## 📋 Table of Contents
 
