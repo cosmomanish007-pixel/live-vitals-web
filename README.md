@@ -159,7 +159,7 @@
 <br/>
 
 <div align="center">
-  <img src="images/img_24.jpeg" alt="Final Hardware Model — Front View" width="30%" style="margin: 10px; border-radius: 12px;"/>
+  <img src="images/img.jpeg" alt="Final Hardware Model — Front View" width="30%" style="margin: 10px; border-radius: 12px;"/>
 <p><em>⚙️ FINAL PROTOTYPE OF AI-ENHANCED STETHOSCOPE</em></p>
 </div>
 
