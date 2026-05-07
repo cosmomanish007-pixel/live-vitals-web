@@ -48,6 +48,14 @@
 
 </div>
 
+<!-- Project Poster -->
+<div align="center">
+  <img src="images/FINAL_POSTER.png" alt="AURA-STETH AI — Full System Poster" width="100%" style="max-width:1100px; border-radius:16px; box-shadow: 0 8px 32px rgba(0,212,255,0.15);"/>
+  <br/>
+  <sub><i>AURA-STETH AI — Complete System Overview</i></sub>
+</div>
+
+---
 
 
 ## 📋 Table of Contents
@@ -111,8 +119,10 @@
 ```
 
 <div align="center">
-  <img src="images/img_24.jpeg" alt="Final Hardware Model" width="50%" style="margin: 10px; border-radius: 12px;"/>
-   <p><em>Custom ESP32-S3 stethoscope — front, side with OLED display, and internal hardware</em></p>
+  <img src="images/img_24.jpg" alt="Final Hardware Model — Front View" width="30%" style="margin: 10px; border-radius: 12px;"/>
+  <img src="images/img_25.jpg" alt="Final Hardware Model — Side View with OLED" width="30%" style="margin: 10px; border-radius: 12px;"/>
+  <img src="images/img_26.jpg" alt="Hardware Internals" width="30%" style="margin: 10px; border-radius: 12px;"/>
+  <p><em>Custom ESP32-S3 stethoscope — front, side with OLED display, and internal hardware</em></p>
 </div>
 
 ### ✨ Feature Matrix
@@ -137,10 +147,10 @@
 
 ---
 
-## 🏗️ AI Audio Pipeline Architecture
+## 🏗️ System Architecture
 
 <div align="center">
-  <img src="images/img_37.png" alt="System Architecture Diagram" width="95%" style="border-radius: 12px; margin: 20px 0;"/>
+  <img src="images/img_36.jpg" alt="System Architecture Diagram" width="95%" style="border-radius: 12px; margin: 20px 0;"/>
   <p><em>Complete AURA-STETH AI System Architecture — Hardware Layer → Cloud Layer → AI Backend</em></p>
 </div>
 
