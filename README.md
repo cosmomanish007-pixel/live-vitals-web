@@ -137,10 +137,10 @@
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ AI Audio Pipeline Architecture
 
 <div align="center">
-  <img src="images/img_36.jpg" alt="System Architecture Diagram" width="95%" style="border-radius: 12px; margin: 20px 0;"/>
+  <img src="images/img_36.png" alt="System Architecture Diagram" width="95%" style="border-radius: 12px; margin: 20px 0;"/>
   <p><em>Complete AURA-STETH AI System Architecture — Hardware Layer → Cloud Layer → AI Backend</em></p>
 </div>
 
