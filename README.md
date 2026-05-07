@@ -385,8 +385,13 @@
 ### 4️⃣ Clinical Report — AI Results
 
 <div align="center">
-    <img src="images/at.png" alt="Clinical Report — Artifact" width="30%" style="margin: 8px; border-radius: 8px;"/>
-  <p><em>🟢 Normal Result &nbsp;|&nbsp; 🔴 Abnormal Alert &nbsp;|&nbsp; ⚠️ Artifact Warning</em></p>
+  <img src="images/at.png" alt="Clinical Report — Artifact" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>🟢 Normal Result &nbsp;|&nbsp; ⚠️ Artifact Warning  &nbsp;|&nbsp; 🔴 Abnormal Alert</em></p>
+</div>
+
+<div align="center">
+  <img src="images/li.png" alt="AI ANALYSIS" style="margin: 8px; border-radius: 8px;"/>
+  <p><em>🟢 AI ANALYSIS 🔴</em></p>
 </div>
 
 **📋 Each Clinical Report Includes:**
